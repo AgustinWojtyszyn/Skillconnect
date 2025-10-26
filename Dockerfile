@@ -1,45 +1,82 @@
-# Build stage for frontend
-FROM node:20-alpine as frontend-build
-WORKDIR /frontend
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend/ .
-RUN npm run build
+# ============================
+# Frontend Build Stage
+# ============================
+FROM node:20-alpine AS frontend-builder
 
-# Final stage
+# Establecer directorio de trabajo para frontend
+WORKDIR /frontend
+
+# Primero copiar solo package files para aprovechar el caché de capas
+COPY frontend/package*.json ./
+
+# Instalar dependencias con manejo de errores
+RUN npm install --legacy-peer-deps || exit 1
+
+# Copiar el resto de archivos frontend
+COPY frontend/ .
+
+# Construir la aplicación
+RUN npm run build || exit 1
+
+# ============================
+# Backend and Final Stage
+# ============================
 FROM python:3.11-slim
 
-# Establecer variables de entorno
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-ENV PORT 8080
+# Evitar que Python escriba archivos .pyc
+ENV PYTHONDONTWRITEBYTECODE=1
+# Asegurar que la salida de Python se envíe directamente a la terminal
+ENV PYTHONUNBUFFERED=1
+# Puerto requerido por Back4App
+ENV PORT=8080
+# Modo producción para React
+ENV NODE_ENV=production
 
-# Instalar nginx
-RUN apt-get update && apt-get install -y \
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     gcc \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Configurar nginx
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Crear usuario no root para seguridad
+RUN useradd -m appuser
 
-# Configurar el backend
+# Configurar directorios
 WORKDIR /app
+RUN chown -R appuser:appuser /app
+
+# Copiar y configurar nginx
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+RUN rm /etc/nginx/sites-enabled/default || true
+
+# Instalar dependencias de Python
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copiar archivos del backend
+# Copiar archivos backend
 COPY backend/ .
 
-# Copiar los archivos compilados del frontend
-COPY --from=frontend-build /frontend/dist /usr/share/nginx/html
+# Copiar frontend compilado desde la etapa anterior
+COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
+RUN chown -R appuser:appuser /usr/share/nginx/html
+
+# Crear directorios necesarios con permisos correctos
+RUN mkdir -p /app/static /app/media \
+    && chown -R appuser:appuser /app/static /app/media
 
 # Script de inicio
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Puerto para Back4App
+# Cambiar al usuario no root
+USER appuser
+
+# Verificar la configuración de nginx
+RUN nginx -t || exit 1
+
+# Puerto requerido por Back4App
 EXPOSE 8080
 
-# Comando de inicio
+# Comando de inicio con manejo de errores
 CMD ["/start.sh"]
