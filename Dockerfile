@@ -6,14 +6,15 @@ FROM node:20-alpine AS frontend-builder
 # Establecer directorio de trabajo para frontend
 WORKDIR /frontend
 
-# Primero copiar solo package files para aprovechar el caché de capas
-COPY frontend/package*.json ./
+# Primero copiar todo el contenido del proyecto
+COPY . /app/
+
+# Moverse al directorio frontend y copiar los archivos necesarios
+WORKDIR /app/frontend
 
 # Instalar dependencias con manejo de errores
-RUN npm install --legacy-peer-deps || exit 1
-
-# Copiar el resto de archivos frontend
-COPY frontend/ .
+RUN ls -la && \
+    npm install --legacy-peer-deps || exit 1
 
 # Construir la aplicación
 RUN npm run build || exit 1
@@ -47,18 +48,18 @@ WORKDIR /app
 RUN chown -R appuser:appuser /app
 
 # Copiar y configurar nginx
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY /app/frontend/nginx.conf /etc/nginx/conf.d/default.conf
 RUN rm /etc/nginx/sites-enabled/default || true
 
 # Instalar dependencias de Python
-COPY backend/requirements.txt .
+COPY /app/backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar archivos backend
-COPY backend/ .
+COPY /app/backend/ .
 
 # Copiar frontend compilado desde la etapa anterior
-COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
+COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
 RUN chown -R appuser:appuser /usr/share/nginx/html
 
 # Crear directorios necesarios con permisos correctos
