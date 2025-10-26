@@ -15,8 +15,16 @@ FROM nginxinc/nginx-unprivileged:alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 USER root
+# Setup nginx temp directories
+RUN mkdir -p /tmp/nginx/client_body \
+    && mkdir -p /tmp/nginx/proxy \
+    && mkdir -p /tmp/nginx/fastcgi \
+    && mkdir -p /tmp/nginx/uwsgi \
+    && mkdir -p /tmp/nginx/scgi \
+    && chmod 777 /tmp/nginx
+
 # Create nginx config
-RUN printf 'worker_processes auto;\nevents {\n    worker_connections 1024;\n}\nhttp {\n    include /etc/nginx/mime.types;\n    default_type application/octet-stream;\n    sendfile on;\n    keepalive_timeout 65;\n    server {\n        listen 8080;\n        root /usr/share/nginx/html;\n        location / {\n            try_files $uri $uri/ /index.html;\n        }\n        location /api/ {\n            proxy_pass http://127.0.0.1:8000;\n            proxy_set_header Host $host;\n            proxy_set_header X-Real-IP $remote_addr;\n            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n            proxy_set_header X-Forwarded-Proto $scheme;\n        }\n    }\n}' > /etc/nginx/nginx.conf
+RUN printf 'pid /tmp/nginx.pid;\nworker_processes auto;\nevents {\n    worker_connections 1024;\n}\nhttp {\n    client_body_temp_path /tmp/nginx/client_body;\n    proxy_temp_path /tmp/nginx/proxy;\n    fastcgi_temp_path /tmp/nginx/fastcgi;\n    uwsgi_temp_path /tmp/nginx/uwsgi;\n    scgi_temp_path /tmp/nginx/scgi;\n    include /etc/nginx/mime.types;\n    default_type application/octet-stream;\n    sendfile on;\n    keepalive_timeout 65;\n    server {\n        listen 8080;\n        root /usr/share/nginx/html;\n        location / {\n            try_files $uri $uri/ /index.html;\n        }\n        location /api/ {\n            proxy_pass http://127.0.0.1:8000;\n            proxy_set_header Host $host;\n            proxy_set_header X-Real-IP $remote_addr;\n            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n            proxy_set_header X-Forwarded-Proto $scheme;\n        }\n    }\n}' > /etc/nginx/nginx.conf
 
 RUN chown -R nginx:nginx /usr/share/nginx/html
 
