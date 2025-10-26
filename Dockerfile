@@ -3,18 +3,21 @@
 # ============================
 FROM node:20-alpine AS frontend-builder
 
-# Establecer directorio de trabajo para frontend
-WORKDIR /frontend
+WORKDIR /app
 
-# Primero copiar todo el contenido del proyecto
-COPY . /app/
+# Mostrar el contenido actual para debugging
+RUN pwd && ls -la
 
-# Moverse al directorio frontend y copiar los archivos necesarios
-WORKDIR /app/frontend
+# Copiar archivos del frontend
+COPY frontend/package*.json ./
+COPY frontend/tsconfig*.json ./
+COPY frontend/vite.config.ts ./
+COPY frontend/index.html ./
+COPY frontend/src ./src
+COPY frontend/public ./public || true
 
-# Instalar dependencias con manejo de errores
-RUN ls -la && \
-    npm install --legacy-peer-deps || exit 1
+# Instalar dependencias
+RUN npm install || exit 1
 
 # Construir la aplicación
 RUN npm run build || exit 1
@@ -48,18 +51,18 @@ WORKDIR /app
 RUN chown -R appuser:appuser /app
 
 # Copiar y configurar nginx
-COPY /app/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 RUN rm /etc/nginx/sites-enabled/default || true
 
 # Instalar dependencias de Python
-COPY /app/backend/requirements.txt .
+COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar archivos backend
-COPY /app/backend/ .
+COPY backend/ .
 
 # Copiar frontend compilado desde la etapa anterior
-COPY --from=frontend-builder /app/frontend/dist /usr/share/nginx/html
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 RUN chown -R appuser:appuser /usr/share/nginx/html
 
 # Crear directorios necesarios con permisos correctos
