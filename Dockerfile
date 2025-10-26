@@ -39,54 +39,13 @@ ENV PORT=8080
 # Modo producción para React
 ENV NODE_ENV=production
 
-# Instalar dependencias del sistema y configurar nginx
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
     gcc \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean \
-    && rm -rf /var/log/nginx \
-    && mkdir -p /tmp/nginx/logs \
-    && chmod -R 777 /tmp/nginx \
-    && ln -sf /tmp/nginx/logs /var/log/nginx \
-    && chown -R www-data:www-data /tmp/nginx
+    && apt-get clean
 
-# Configurar nginx sin manejo de archivos temporales
-RUN echo 'daemon off;\n\
-pid /tmp/nginx.pid;\n\
-worker_processes auto;\n\
-events {\n\
-    worker_connections 1024;\n\
-}\n\
-http {\n\
-    include /etc/nginx/mime.types;\n\
-    default_type application/octet-stream;\n\
-    sendfile on;\n\
-    keepalive_timeout 65;\n\
-    access_log /dev/stdout;\n\
-    error_log /dev/stderr;\n\
-    server {\n\
-        listen 8080;\n\
-        server_name localhost;\n\
-        root /usr/share/nginx/html;\n\
-        index index.html;\n\
-        location / {\n\
-            try_files $uri $uri/ /index.html;\n\
-        }\n\
-        location /api/ {\n\
-            proxy_pass http://127.0.0.1:8000;\n\
-            proxy_set_header Host $host;\n\
-            proxy_set_header X-Real-IP $remote_addr;\n\
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
-            proxy_set_header X-Forwarded-Proto $scheme;\n\
-        }\n\
-        location /static/ {\n\
-            expires 1y;\n\
-            add_header Cache-Control "public, no-transform";\n\
-        }\n\
-    }\n\
-}' > /etc/nginx/nginx.conf \
-&& rm -f /etc/nginx/conf.d/default.conf
+
 
 # Crear usuario no root para seguridad
 RUN useradd -m appuser
