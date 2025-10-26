@@ -39,12 +39,54 @@ ENV PORT=8080
 # Modo producción para React
 ENV NODE_ENV=production
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema y crear estructura de directorios
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     gcc \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
+    && apt-get clean \
+    && mkdir -p /tmp/nginx/{client-body,proxy,fastcgi,uwsgi,scgi,logs} \
+    && chown -R www-data:www-data /tmp/nginx \
+    && chmod 755 /tmp/nginx
+
+# Configurar nginx con rutas temporales en /tmp
+RUN echo 'pid /tmp/nginx.pid;\n\
+worker_processes auto;\n\
+events {\n\
+    worker_connections 1024;\n\
+}\n\
+http {\n\
+    client_body_temp_path /tmp/nginx/client-body;\n\
+    proxy_temp_path /tmp/nginx/proxy;\n\
+    fastcgi_temp_path /tmp/nginx/fastcgi;\n\
+    uwsgi_temp_path /tmp/nginx/uwsgi;\n\
+    scgi_temp_path /tmp/nginx/scgi;\n\
+    include /etc/nginx/mime.types;\n\
+    default_type application/octet-stream;\n\
+    sendfile on;\n\
+    access_log /dev/stdout;\n\
+    error_log /dev/stderr;\n\
+    server {\n\
+        listen 8080;\n\
+        server_name localhost;\n\
+        root /usr/share/nginx/html;\n\
+        index index.html;\n\
+        location / {\n\
+            try_files $uri $uri/ /index.html;\n\
+        }\n\
+        location /api/ {\n\
+            proxy_pass http://127.0.0.1:8000;\n\
+            proxy_set_header Host $host;\n\
+            proxy_set_header X-Real-IP $remote_addr;\n\
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
+            proxy_set_header X-Forwarded-Proto $scheme;\n\
+        }\n\
+        location /static/ {\n\
+            expires 1y;\n\
+            add_header Cache-Control "public, no-transform";\n\
+        }\n\
+    }\n\
+}' > /etc/nginx/nginx.conf
 
 # Crear usuario no root para seguridad
 RUN useradd -m appuser
@@ -52,32 +94,6 @@ RUN useradd -m appuser
 # Configurar directorios
 WORKDIR /app
 RUN chown -R appuser:appuser /app
-
-# Configurar nginx
-RUN echo 'server {\n\
-    listen 8080;\n\
-    server_name localhost;\n\
-    root /usr/share/nginx/html;\n\
-    index index.html;\n\
-\n\
-    location / {\n\
-        try_files $uri $uri/ /index.html;\n\
-    }\n\
-\n\
-    location /api/ {\n\
-        proxy_pass http://127.0.0.1:8000;\n\
-        proxy_set_header Host $host;\n\
-        proxy_set_header X-Real-IP $remote_addr;\n\
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n\
-        proxy_set_header X-Forwarded-Proto $scheme;\n\
-    }\n\
-\n\
-    location /static/ {\n\
-        expires 1y;\n\
-        add_header Cache-Control "public, no-transform";\n\
-    }\n\
-}' > /etc/nginx/conf.d/default.conf
-RUN rm /etc/nginx/sites-enabled/default || true
 
 # Instalar dependencias de Python
 COPY backend/requirements.txt .
