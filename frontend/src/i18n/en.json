@@ -1,0 +1,35 @@
+{
+  "translation": {
+    "nav": {
+      "home": "Home",
+      "skills": "Skills",
+      "chat": "Chat",
+      "profile": "Profile",
+      "login": "Login",
+      "register": "Register",
+      "logout": "Logout"
+    },
+    "home": {
+      "title": "Welcome to SkillConnect",
+      "subtitle": "Connect with people based on skills and interests",
+      "features": {
+        "title": "Features",
+        "skill_sharing": "Share your skills",
+        "skill_discovery": "Discover new skills",
+        "chat": "Real-time chat",
+        "profile": "Professional profile"
+      },
+      "cta": {
+        "start": "Get Started",
+        "learn_more": "Learn More"
+      }
+    },
+    "auth": {
+      "email": "Email",
+      "password": "Password",
+      "login": "Login",
+      "register": "Register",
+      "forgot_password": "Forgot password?"
+    }
+  }
+}

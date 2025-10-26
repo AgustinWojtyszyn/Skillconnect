@@ -1,0 +1,35 @@
+{
+  "translation": {
+    "nav": {
+      "home": "Inicio",
+      "skills": "Habilidades",
+      "chat": "Chat",
+      "profile": "Perfil",
+      "login": "Iniciar Sesión",
+      "register": "Registrarse",
+      "logout": "Cerrar Sesión"
+    },
+    "home": {
+      "title": "Bienvenido a SkillConnect",
+      "subtitle": "Conéctate con personas según sus habilidades e intereses",
+      "features": {
+        "title": "Características",
+        "skill_sharing": "Comparte tus habilidades",
+        "skill_discovery": "Descubre nuevas habilidades",
+        "chat": "Chat en tiempo real",
+        "profile": "Perfil profesional"
+      },
+      "cta": {
+        "start": "Comenzar",
+        "learn_more": "Saber más"
+      }
+    },
+    "auth": {
+      "email": "Correo electrónico",
+      "password": "Contraseña",
+      "login": "Iniciar Sesión",
+      "register": "Registrarse",
+      "forgot_password": "¿Olvidaste tu contraseña?"
+    }
+  }
+}
