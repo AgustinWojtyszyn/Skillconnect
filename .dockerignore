@@ -1,0 +1,28 @@
+# Frontend
+frontend/node_modules
+frontend/.git
+frontend/.gitignore
+frontend/dist
+frontend/coverage
+frontend/.env
+
+# Backend
+backend/__pycache__
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.Python
+backend/env
+backend/venv
+backend/.env
+backend/db.sqlite3
+backend/.git
+backend/.gitignore
+backend/static
+backend/media
+
+# General
+.git
+.gitignore
+README.md
+*.md
