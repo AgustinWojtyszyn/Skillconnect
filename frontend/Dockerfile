@@ -9,33 +9,18 @@ COPY . ./
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
-
-# Create temp directories in a location with write permissions
-RUN mkdir -p /tmp/nginx/client-body && \
-    mkdir -p /tmp/nginx/proxy && \
-    mkdir -p /tmp/nginx/fastcgi && \
-    mkdir -p /tmp/nginx/uwsgi && \
-    mkdir -p /tmp/nginx/scgi
+FROM nginxinc/nginx-unprivileged:alpine
 
 # Copy build files and config
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Create custom nginx.conf with temp paths configuration
-RUN echo 'pid /tmp/nginx.pid; \n\
-events { \n\
-    worker_connections 1024; \n\
-} \n\
-http { \n\
-    client_body_temp_path /tmp/nginx/client-body; \n\
-    proxy_temp_path /tmp/nginx/proxy; \n\
-    fastcgi_temp_path /tmp/nginx/fastcgi; \n\
-    uwsgi_temp_path /tmp/nginx/uwsgi; \n\
-    scgi_temp_path /tmp/nginx/scgi; \n\
-    include /etc/nginx/conf.d/*.conf; \n\
-}' > /etc/nginx/nginx.conf
+# Set proper permissions for nginx user
+USER root
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /etc/nginx/conf.d
+USER nginx
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]
