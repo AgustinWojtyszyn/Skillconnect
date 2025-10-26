@@ -6,7 +6,8 @@ handle_error() {
     exit 1
 }
 
-# Iniciar nginx en segundo plano
+# Asegurar permisos de nginx en tiempo de ejecución
+mkdir -p /tmp/nginx && chmod 777 /tmp/nginx
 nginx || handle_error "Failed to start nginx"
 
 echo "Nginx started successfully"

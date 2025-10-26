@@ -39,31 +39,30 @@ ENV PORT=8080
 # Modo producción para React
 ENV NODE_ENV=production
 
-# Instalar dependencias del sistema y crear estructura de directorios
+# Instalar dependencias del sistema y configurar nginx
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     gcc \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
-    && mkdir -p /tmp/nginx/{client-body,proxy,fastcgi,uwsgi,scgi,logs} \
-    && chown -R www-data:www-data /tmp/nginx \
-    && chmod 755 /tmp/nginx
+    && rm -rf /var/log/nginx \
+    && mkdir -p /tmp/nginx/logs \
+    && chmod -R 777 /tmp/nginx \
+    && ln -sf /tmp/nginx/logs /var/log/nginx \
+    && chown -R www-data:www-data /tmp/nginx
 
-# Configurar nginx con rutas temporales en /tmp
-RUN echo 'pid /tmp/nginx.pid;\n\
+# Configurar nginx sin manejo de archivos temporales
+RUN echo 'daemon off;\n\
+pid /tmp/nginx.pid;\n\
 worker_processes auto;\n\
 events {\n\
     worker_connections 1024;\n\
 }\n\
 http {\n\
-    client_body_temp_path /tmp/nginx/client-body;\n\
-    proxy_temp_path /tmp/nginx/proxy;\n\
-    fastcgi_temp_path /tmp/nginx/fastcgi;\n\
-    uwsgi_temp_path /tmp/nginx/uwsgi;\n\
-    scgi_temp_path /tmp/nginx/scgi;\n\
     include /etc/nginx/mime.types;\n\
     default_type application/octet-stream;\n\
     sendfile on;\n\
+    keepalive_timeout 65;\n\
     access_log /dev/stdout;\n\
     error_log /dev/stderr;\n\
     server {\n\
@@ -86,7 +85,8 @@ http {\n\
             add_header Cache-Control "public, no-transform";\n\
         }\n\
     }\n\
-}' > /etc/nginx/nginx.conf
+}' > /etc/nginx/nginx.conf \
+&& rm -f /etc/nginx/conf.d/default.conf
 
 # Crear usuario no root para seguridad
 RUN useradd -m appuser
