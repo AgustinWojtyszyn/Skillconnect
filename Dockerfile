@@ -1,7 +1,10 @@
 # ============================
 # Frontend Build Stage
 # ============================
-FROM node:20-alpine AS frontend-builder
+FROM node:20-alpine3.19 AS frontend-builder
+
+# Actualizar paquetes de la imagen base para corregir vulnerabilidades
+RUN apk update && apk upgrade --no-cache
 
 WORKDIR /app
 
@@ -14,7 +17,7 @@ COPY frontend/tsconfig*.json ./
 COPY frontend/vite.config.ts ./
 COPY frontend/index.html ./
 COPY frontend/src ./src
-COPY frontend/public ./public || true
+COPY frontend/public/ ./public/
 
 # Instalar dependencias
 RUN npm install || exit 1
