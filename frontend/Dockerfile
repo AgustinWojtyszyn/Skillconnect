@@ -1,35 +1,48 @@
-# Frontend Dockerfile
-FROM node:20.11.1-slim as build
+# ============================
+# Frontend Build Stage
+# ============================
+FROM node:22-alpine3.20 AS frontend-builder
+
+# Actualizar paquetes y evitar caché
+RUN apk update && apk upgrade --no-cache
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 
-COPY . ./
+# Copiar solo los archivos necesarios para instalar dependencias
+COPY frontend/package*.json ./
+COPY frontend/tsconfig*.json ./
+COPY frontend/vite.config.ts ./
+
+# Instalar dependencias
+RUN npm ci --only=production
+
+# Copiar el resto del frontend
+COPY frontend/ .
+
+# Construir la aplicación
 RUN npm run build
 
-# Production stage
-FROM nginxinc/nginx-unprivileged:alpine
+# ============================
+# Serve Stage (Nginx)
+# ============================
+FROM nginx:alpine
 
-# Copy build files
-COPY --from=build /app/dist /usr/share/nginx/html
+# Crear usuario no root para seguridad
+RUN adduser -D -H -u 1001 -s /sbin/nologin webuser
 
-USER root
-# Setup nginx temp directories
-RUN mkdir -p /tmp/nginx/client_body \
-    && mkdir -p /tmp/nginx/proxy \
-    && mkdir -p /tmp/nginx/fastcgi \
-    && mkdir -p /tmp/nginx/uwsgi \
-    && mkdir -p /tmp/nginx/scgi \
-    && chmod 777 /tmp/nginx
+# Crear directorio y copiar archivos estáticos
+RUN mkdir -p /app/www
+COPY --from=frontend-builder /app/dist /app/www
 
-# Create nginx config
-RUN printf 'pid /tmp/nginx.pid;\nworker_processes auto;\nevents {\n    worker_connections 1024;\n}\nhttp {\n    client_body_temp_path /tmp/nginx/client_body;\n    proxy_temp_path /tmp/nginx/proxy;\n    fastcgi_temp_path /tmp/nginx/fastcgi;\n    uwsgi_temp_path /tmp/nginx/uwsgi;\n    scgi_temp_path /tmp/nginx/scgi;\n    include /etc/nginx/mime.types;\n    default_type application/octet-stream;\n    sendfile on;\n    keepalive_timeout 65;\n    server {\n        listen 8080;\n        root /usr/share/nginx/html;\n        location / {\n            try_files $uri $uri/ /index.html;\n        }\n        location /api/ {\n            proxy_pass http://127.0.0.1:8000;\n            proxy_set_header Host $host;\n            proxy_set_header X-Real-IP $remote_addr;\n            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n            proxy_set_header X-Forwarded-Proto $scheme;\n        }\n    }\n}' > /etc/nginx/nginx.conf
+# Copiar configuración de nginx
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN chown -R nginx:nginx /usr/share/nginx/html
+# Cambiar permisos y usuario
+RUN chown -R webuser:webuser /app/www
+USER webuser
 
-USER nginx
+# Exponer puerto
+EXPOSE 80
 
-EXPOSE 8080
-
+# Iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]

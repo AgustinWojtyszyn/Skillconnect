@@ -1,87 +1,50 @@
 # ============================
 # Frontend Build Stage
 # ============================
-FROM node:20-alpine3.19 AS frontend-builder
+FROM node:22-alpine3.20 AS frontend-builder
 
-# Actualizar paquetes de la imagen base para corregir vulnerabilidades
+# Actualizar paquetes y evitar caché
 RUN apk update && apk upgrade --no-cache
 
 WORKDIR /app
 
-# Mostrar el contenido actual para debugging
-RUN pwd && ls -la
-
-# Copiar archivos del frontend
+# Copiar solo los archivos necesarios para instalar dependencias
 COPY frontend/package*.json ./
 COPY frontend/tsconfig*.json ./
 COPY frontend/vite.config.ts ./
-COPY frontend/index.html ./
-COPY frontend/src ./src
-COPY frontend/public/ ./public/
 
 # Instalar dependencias
-RUN npm install || exit 1
+RUN npm ci --only=production
+
+# Copiar el resto del frontend
+COPY frontend/ .
 
 # Construir la aplicación
-RUN npm run build || exit 1
+RUN npm run build
 
 # ============================
-# Backend and Final Stage
+# Serve Stage (Nginx)
 # ============================
-FROM python:3.11-slim
-
-# Evitar que Python escriba archivos .pyc
-ENV PYTHONDONTWRITEBYTECODE=1
-# Asegurar que la salida de Python se envíe directamente a la terminal
-ENV PYTHONUNBUFFERED=1
-# Puerto requerido por Back4App
-ENV PORT=8080
-# Modo producción para React
-ENV NODE_ENV=production
-
-# Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
-
+FROM nginx:alpine
 
 # Crear usuario no root para seguridad
-RUN useradd -m appuser
+RUN adduser -D -H -u 1001 -s /sbin/nologin webuser
 
-# Configurar directorios
-WORKDIR /app
-RUN chown -R appuser:appuser /app
+# Crear directorio y copiar archivos estáticos
+RUN mkdir -p /app/www
+COPY --from=frontend-builder /app/dist /app/www
 
-# Instalar dependencias de Python
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copiar configuración de nginx
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copiar archivos backend
-COPY backend/ .
+# Cambiar permisos y usuario
+RUN chown -R webuser:webuser /app/www
+USER webuser
 
-# Copiar frontend compilado desde la etapa anterior
-COPY --from=frontend-builder /app/dist /usr/share/nginx/html
-RUN chown -R appuser:appuser /usr/share/nginx/html
+# Exponer puerto
+EXPOSE 80
 
-# Crear directorios necesarios con permisos correctos
-RUN mkdir -p /app/static /app/media \
-    && chown -R appuser:appuser /app/static /app/media
-
-# Script de inicio
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
-# Cambiar al usuario no root
-USER appuser
-
-# Comprobación de nginx durante la build puede fallar porque el backend no está en red aún.
-# Hacemos la prueba no-fatal para no romper la build en el paso de creación de la imagen.
-RUN nginx -t || true
-
-# Puerto requerido por Back4App
-EXPOSE 8080
-
-# Comando de inicio con manejo de errores
-CMD ["/start.sh"]
+# Iniciar nginx
+CMD ["nginx", "-g", "daemon off;"]
+# ============================
+# Backend Stage
