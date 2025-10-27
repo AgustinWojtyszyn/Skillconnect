@@ -1,10 +1,10 @@
 # ============================
 # Frontend Build Stage
 # ============================
-FROM node:22-alpine3.20 AS frontend-builder
+FROM node:22-slim AS frontend-builder
 
 # Actualizar paquetes y evitar caché
-RUN apk update && apk upgrade --no-cache
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
