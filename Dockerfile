@@ -27,19 +27,15 @@ RUN npm run build
 # ============================
 FROM nginx:alpine
 
-# Crear usuario no root para seguridad
-RUN adduser -D -H -u 1001 -s /sbin/nologin webuser
-
 # Crear directorio y copiar archivos estáticos
 RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
-# Copiar configuración de nginx
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+## Usar plantillas de nginx para resolver variables de entorno en runtime (Render)
+COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
 
-# Cambiar permisos y usuario
-RUN chown -R webuser:webuser /app/www
-USER webuser
+## Ejecutaremos como usuario root para permitir que el entrypoint de nginx
+## genere /etc/nginx/conf.d/default.conf desde la plantilla con envsubst.
 
 # Exponer puerto
 EXPOSE 80
