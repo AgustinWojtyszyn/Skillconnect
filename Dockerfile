@@ -13,8 +13,8 @@ COPY frontend/package*.json ./
 COPY frontend/tsconfig*.json ./
 COPY frontend/vite.config.ts ./
 
-# Instalar dependencias
-RUN npm ci --only=production
+# Instalar dependencias (incluye dev deps necesarias para el build)
+RUN npm install
 
 # Copiar el resto del frontend
 COPY frontend/ .
