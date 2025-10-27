@@ -34,8 +34,8 @@ RUN adduser -D -H -u 1001 -s /sbin/nologin webuser
 RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
-# Copiar configuración de nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copiar plantilla de configuración para envsubst en runtime
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Cambiar permisos y usuario
 RUN chown -R webuser:webuser /app/www
