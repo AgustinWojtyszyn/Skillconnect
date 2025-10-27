@@ -8,16 +8,16 @@ RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copiar solo los archivos necesarios para instalar dependencias
-COPY frontend/package*.json ./
-COPY frontend/tsconfig*.json ./
-COPY frontend/vite.config.ts ./
+# Copiar solo los archivos necesarios para instalar dependencias (rutas relativas al contexto actual)
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY vite.config.ts ./
 
 # Instalar dependencias
 RUN npm ci --only=production
 
 # Copiar el resto del frontend
-COPY frontend/ .
+COPY . ./
 
 # Construir la aplicación
 RUN npm run build
@@ -35,7 +35,7 @@ RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
 # Copiar configuración de nginx
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Cambiar permisos y usuario
 RUN chown -R webuser:webuser /app/www
