@@ -27,22 +27,17 @@ RUN npm run build
 # ============================
 FROM nginx:alpine
 
-# Crear usuario no root para seguridad
-RUN adduser -D -H -u 1001 -s /sbin/nologin webuser
-
 # Crear directorio y copiar archivos estáticos
 RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
-# Copiar plantilla de configuración para envsubst en runtime
+# Copiar plantilla de configuración y script de inicio
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-
-# Cambiar permisos y usuario
-RUN chown -R webuser:webuser /app/www
-USER webuser
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Exponer puerto
 EXPOSE 80
 
-# Iniciar nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Usar nuestro script personalizado
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -6,21 +6,17 @@ server {
 
     # SPA
     location / {
-        try_files $$uri $$uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
 
     # Backend API
-    # Define BACKEND_URL en Render, por ejemplo:
-    #   https://mi-backend.onrender.com  (público)
-    #   http://backend-service:8000      (red privada en misma región)
-    # Si no defines BACKEND_URL, usará http://localhost:8000 por defecto
     location /api/ {
         proxy_pass ${BACKEND_URL};
         proxy_http_version 1.1;
-        proxy_set_header Host $$host;
-        proxy_set_header X-Real-IP $$remote_addr;
-        proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $$scheme;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     location /static/ {
