@@ -34,8 +34,8 @@ COPY --from=frontend-builder /app/dist /app/www
 # Copiar configuración estática de nginx (sin variables)
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Exponer puerto
-EXPOSE 80
+# Exponer puerto 10000 (puerto que usa Render)
+EXPOSE 10000
 
 # Iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]
