@@ -77,7 +77,7 @@ export function Chat({ initialUserId, initialUsername }: ChatProps) {
 
     if (!error && data) {
       const conversationsWithUsers = await Promise.all(
-        data.map(async (conv) => {
+        data.map(async (conv: Conversation) => {
           const otherUserId = conv.user1_id === user!.id ? conv.user2_id : conv.user1_id;
           const { data: profile } = await supabase
             .from('profiles')
@@ -165,7 +165,7 @@ export function Chat({ initialUserId, initialUsername }: ChatProps) {
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        (payload) => {
+        (payload: { new: Message }) => {
           setMessages((current) => [...current, payload.new as Message]);
           if ((payload.new as Message).sender_id !== user!.id) {
             markMessagesAsRead(conversationId);
@@ -254,6 +254,7 @@ export function Chat({ initialUserId, initialUsername }: ChatProps) {
               <button
                 onClick={() => setSelectedConversation(null)}
                 className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition"
+                title="Go back"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
