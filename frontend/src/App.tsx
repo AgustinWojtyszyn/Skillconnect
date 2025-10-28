@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { I18nProvider } from './contexts/I18nContext';
 import { Login } from './components/auth/Login';
 import { Register } from './components/auth/Register';
 import { AuthGuard } from './components/auth/AuthGuard';
@@ -8,6 +9,7 @@ import { SkillsList } from './components/skills/SkillsList';
 import { Profile } from './components/profile/Profile';
 import { Chat } from './components/chat/Chat';
 import { LandingPage } from './components/landing/LandingPage';
+import { OnboardingTour } from './components/onboarding/OnboardingTour';
 
 function MainApp() {
   const { user } = useAuth();
@@ -16,6 +18,7 @@ function MainApp() {
   const [currentView, setCurrentView] = useState<'skills' | 'profile' | 'chat'>('skills');
   const [chatUserId, setChatUserId] = useState<string | undefined>();
   const [chatUsername, setChatUsername] = useState<string | undefined>();
+  const [showTour, setShowTour] = useState(false);
 
   const handleStartChat = (userId: string, username: string) => {
     setChatUserId(userId);
@@ -31,6 +34,14 @@ function MainApp() {
   const handleBackToLanding = () => {
     setShowLanding(true);
   };
+
+  // Mostrar tutorial al primer login
+  if (user && !showTour) {
+    const seen = localStorage.getItem(`skillconnect:tutorialSeen:${user.id}`);
+    if (seen !== 'true') {
+      setShowTour(true);
+    }
+  }
 
   // Si no hay usuario y está en landing, mostrar landing
   if (!user && showLanding) {
@@ -50,7 +61,11 @@ function MainApp() {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-gray-50">
-        <Header currentView={currentView} onViewChange={setCurrentView} />
+        <Header
+          currentView={currentView}
+          onViewChange={setCurrentView}
+          onShowTutorial={() => setShowTour(true)}
+        />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {currentView === 'skills' && <SkillsList onStartChat={handleStartChat} />}
           {currentView === 'profile' && <Profile />}
@@ -58,6 +73,13 @@ function MainApp() {
             <Chat initialUserId={chatUserId} initialUsername={chatUsername} />
           )}
         </main>
+        <OnboardingTour
+          open={showTour}
+          onClose={() => {
+            setShowTour(false);
+            if (user) localStorage.setItem(`skillconnect:tutorialSeen:${user.id}`, 'true');
+          }}
+        />
       </div>
     </AuthGuard>
   );
@@ -96,9 +118,11 @@ function App() {
   }
 
   return (
-    <AuthProvider>
-      <MainApp />
-    </AuthProvider>
+    <I18nProvider>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
+    </I18nProvider>
   );
 }
 

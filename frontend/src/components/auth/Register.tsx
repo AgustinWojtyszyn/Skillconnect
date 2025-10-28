@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useI18n } from '../../contexts/I18nContext';
 import { UserPlus, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 
 interface RegisterProps {
@@ -14,6 +15,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
+  const { t } = useI18n();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,10 +57,10 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
           </div>
           
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
-            Únete a SkillConnect
+            {t('auth.register.title')}
           </h2>
           <p className="text-center text-gray-600 mb-8">
-            Crea tu cuenta y comienza a conectar
+            {t('landing.cta.subtitle')}
           </p>
 
           {error && (
@@ -71,7 +73,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-semibold text-gray-700 mb-2">
-                Nombre de usuario
+                {t('auth.username')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -91,7 +93,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
 
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Correo electrónico
+                {t('auth.email')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -104,14 +106,14 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="tu@email.com"
+                  placeholder={t('auth.email.placeholder')}
                 />
               </div>
             </div>
 
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Contraseña
+                {t('auth.password')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -138,22 +140,22 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Creando cuenta...
+                  {t('auth.loading')}
                 </span>
               ) : (
-                'Crear Cuenta Gratis'
+                t('auth.register.submit')
               )}
             </button>
           </form>
 
           <div className="mt-8 text-center">
             <p className="text-gray-600">
-              ¿Ya tienes cuenta?{' '}
+              {t('auth.haveAccount')} {' '}
               <button
                 onClick={onToggleView}
                 className="text-green-600 font-bold hover:text-emerald-600 transition-colors"
               >
-                Inicia sesión
+                {t('auth.signIn')}
               </button>
             </p>
           </div>

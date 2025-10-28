@@ -1,13 +1,16 @@
 import { useAuth } from '../../contexts/AuthContext';
-import { LogOut, User, MessageCircle, Home } from 'lucide-react';
+import { useI18n } from '../../contexts/I18nContext';
+import { LogOut, User, MessageCircle, Home, BookOpen, Languages } from 'lucide-react';
 
 interface HeaderProps {
   currentView: 'skills' | 'profile' | 'chat';
   onViewChange: (view: 'skills' | 'profile' | 'chat') => void;
+  onShowTutorial?: () => void;
 }
 
-export function Header({ currentView, onViewChange }: HeaderProps) {
+export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProps) {
   const { signOut, user } = useAuth();
+  const { t, lang, toggleLang } = useI18n();
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -15,7 +18,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              SkillConnect
+              {t('app.name')}
             </h1>
             <nav className="hidden md:flex gap-2">
               <button
@@ -27,7 +30,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
                 }`}
               >
                 <Home className="w-4 h-4" />
-                Skills
+                {t('nav.skills')}
               </button>
               <button
                 onClick={() => onViewChange('profile')}
@@ -38,7 +41,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
                 }`}
               >
                 <User className="w-4 h-4" />
-                Profile
+                {t('nav.profile')}
               </button>
               <button
                 onClick={() => onViewChange('chat')}
@@ -49,18 +52,36 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
                 }`}
               >
                 <MessageCircle className="w-4 h-4" />
-                Messages
+                {t('nav.messages')}
               </button>
+              {onShowTutorial && (
+                <button
+                  onClick={onShowTutorial}
+                  className="px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 text-gray-600 hover:bg-gray-100"
+                >
+                  <BookOpen className="w-4 h-4" />
+                  {t('nav.tutorial')}
+                </button>
+              )}
             </nav>
           </div>
-
-          <button
-            onClick={signOut}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="hidden sm:inline">Sign Out</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleLang}
+              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+              title={t('nav.language')}
+            >
+              <Languages className="w-4 h-4" />
+              <span className="uppercase text-xs font-semibold">{lang}</span>
+            </button>
+            <button
+              onClick={signOut}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('nav.signOut')}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -73,7 +94,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
             }`}
           >
             <Home className="w-5 h-5" />
-            <span className="text-xs">Skills</span>
+            <span className="text-xs">{t('nav.skills')}</span>
           </button>
           <button
             onClick={() => onViewChange('profile')}
@@ -82,7 +103,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
             }`}
           >
             <User className="w-5 h-5" />
-            <span className="text-xs">Profile</span>
+            <span className="text-xs">{t('nav.profile')}</span>
           </button>
           <button
             onClick={() => onViewChange('chat')}
@@ -91,7 +112,7 @@ export function Header({ currentView, onViewChange }: HeaderProps) {
             }`}
           >
             <MessageCircle className="w-5 h-5" />
-            <span className="text-xs">Messages</span>
+            <span className="text-xs">{t('nav.messages')}</span>
           </button>
         </nav>
       </div>
