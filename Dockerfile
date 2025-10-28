@@ -3,6 +3,12 @@
 # ============================
 FROM node:22-slim AS frontend-builder
 
+# Build-time envs for Vite (provided via Docker build args on Render)
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+
 # Actualizar paquetes y evitar caché
 RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
 
