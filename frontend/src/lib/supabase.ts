@@ -1,9 +1,28 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Leemos variables de entorno de Vite (se reemplazan en build). Pueden no estar definidas.
+const supabaseUrl: string | undefined = (import.meta as any).env?.VITE_SUPABASE_URL as
+  | string
+  | undefined;
+const supabaseAnonKey: string | undefined = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as
+  | string
+  | undefined;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Creamos el cliente solo si hay configuración válida para evitar errores en runtime.
+let client: ReturnType<typeof createClient> | undefined;
+if (supabaseUrl && supabaseAnonKey) {
+  client = createClient(supabaseUrl, supabaseAnonKey);
+} else {
+  // No romper la app en producción: evitamos crear el cliente y dejamos que la UI muestre un aviso.
+  // Nota: Exportamos un valor "any" para no romper imports tipados; no debe usarse si faltan envs.
+  console.warn(
+    '[SkillConnect] Variables de entorno de Supabase ausentes. Configure VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY.'
+  );
+}
+
+// Export por compatibilidad con el resto del código. Cuando no hay envs, será undefined.
+// Los componentes deben evitar usarlo si la configuración es inválida.
+export const supabase: any = client as any;
 
 export interface Database {
   public: {

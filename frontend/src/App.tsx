@@ -46,6 +46,37 @@ function MainApp() {
 }
 
 function App() {
+  // Si faltan variables de entorno para Supabase, mostramos una pantalla de configuración en lugar de romper.
+  const hasSupabaseEnv = Boolean(
+    (import.meta as any).env?.VITE_SUPABASE_URL && (import.meta as any).env?.VITE_SUPABASE_ANON_KEY
+  );
+
+  if (!hasSupabaseEnv) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
+        <div className="max-w-xl w-full bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+          <h1 className="text-2xl font-bold text-gray-900">Configuración requerida</h1>
+          <p className="text-gray-700">
+            Faltan variables de entorno para conectarse a Supabase. Define las siguientes variables en tu
+            servicio de Render y vuelve a desplegar:
+          </p>
+          <ul className="list-disc list-inside text-gray-800">
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">VITE_SUPABASE_URL</code>
+            </li>
+            <li>
+              <code className="bg-gray-100 px-2 py-1 rounded">VITE_SUPABASE_ANON_KEY</code>
+            </li>
+          </ul>
+          <p className="text-sm text-gray-500">
+            Consejo: En servicios Docker de Render, las variables de entorno están disponibles durante el build, por lo que
+            Vite las inyectará en el bundle. Luego, redepliega para aplicar los cambios.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AuthProvider>
       <MainApp />
