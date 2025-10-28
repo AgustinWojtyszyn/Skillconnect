@@ -36,22 +36,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, username: string) => {
+    // Guardamos el username en los metadatos del usuario para que el trigger en BD cree el perfil
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: { username },
+      },
     });
 
-    if (!error && data.user) {
-      const { error: profileError } = await supabase
+    // Si la instancia requiere confirmación de email, no habrá session todavía.
+    // En ese caso, el insert de perfil lo hace el trigger en la base de datos.
+    // Si hay sesión, actualizamos el perfil con el username por si el trigger usó uno por defecto.
+    if (!error && data.user && data.session) {
+      await supabase
         .from('profiles')
-        .insert({
-          id: data.user.id,
-          username,
-        });
-
-      if (profileError) {
-        return { error: profileError as unknown as AuthError };
-      }
+        .update({ username })
+        .eq('id', data.user.id);
     }
 
     return { error };
