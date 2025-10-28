@@ -13,6 +13,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const { t } = useI18n();
@@ -20,6 +21,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     if (password.length < 6) {
@@ -28,12 +30,23 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
       return;
     }
 
-    const { error } = await signUp(email, password, username);
-
-    if (error) {
-      setError(error.message);
+    try {
+      const { error } = await signUp(email, password, username);
+      if (error) {
+        setError(error.message);
+      } else {
+        // Éxito: si la confirmación de email está habilitada, no habrá sesión inmediata
+        setSuccess(
+          '¡Cuenta creada! Revisa tu correo para confirmar tu email y poder iniciar sesión.'
+        );
+      }
+    } catch (e: any) {
+      // Si falla la llamada (por ejemplo, cliente no configurado), evitamos dejar el loading infinito
+      const msg = e?.message || 'Ocurrió un error inesperado creando tu cuenta';
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -69,6 +82,11 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
               <p className="text-sm">{error}</p>
             </div>
           )}
+          {success && (
+            <div className="bg-green-50 border-l-4 border-green-500 text-green-700 px-4 py-3 rounded-lg mb-6">
+              <p className="font-semibold">{success}</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -87,6 +105,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
                   required
                   className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   placeholder="juanperez"
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -107,6 +126,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
                   required
                   className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   placeholder={t('auth.email.placeholder')}
+                  disabled={loading}
                 />
               </div>
             </div>
@@ -127,6 +147,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
                   required
                   className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
                   placeholder="••••••••"
+                  disabled={loading}
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500">Mínimo 6 caracteres</p>
