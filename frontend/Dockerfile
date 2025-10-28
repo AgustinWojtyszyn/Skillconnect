@@ -9,8 +9,7 @@ ARG VITE_SUPABASE_ANON_KEY
 ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
 ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
 
-# Actualizar paquetes y evitar caché
-RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+# Evitamos apt-get upgrade para acelerar builds; la imagen oficial ya viene lista
 
 WORKDIR /app
 
@@ -19,8 +18,8 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 COPY vite.config.ts ./
 
-# Instalar dependencias (incluye dev deps necesarias para el build)
-RUN npm install
+# Instalar dependencias de forma reproducible y rápida
+RUN npm ci --no-audit --no-fund
 
 # Copiar el resto del frontend
 COPY . ./
