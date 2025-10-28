@@ -31,6 +31,9 @@ FROM nginx:alpine
 RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
+# Verificar que los archivos se copiaron (debug)
+RUN ls -la /app/www && ls -la /app/www/assets || true
+
 # Copiar configuración estática de nginx (sin variables)
 COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
