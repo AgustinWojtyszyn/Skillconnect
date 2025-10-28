@@ -7,10 +7,12 @@ import { Header } from './components/layout/Header';
 import { SkillsList } from './components/skills/SkillsList';
 import { Profile } from './components/profile/Profile';
 import { Chat } from './components/chat/Chat';
+import { LandingPage } from './components/landing/LandingPage';
 
 function MainApp() {
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
   const [currentView, setCurrentView] = useState<'skills' | 'profile' | 'chat'>('skills');
   const [chatUserId, setChatUserId] = useState<string | undefined>();
   const [chatUsername, setChatUsername] = useState<string | undefined>();
@@ -21,14 +23,30 @@ function MainApp() {
     setCurrentView('chat');
   };
 
+  const handleGetStarted = () => {
+    setShowLanding(false);
+    setShowLogin(false); // Mostrar registro por defecto
+  };
+
+  const handleBackToLanding = () => {
+    setShowLanding(true);
+  };
+
+  // Si no hay usuario y está en landing, mostrar landing
+  if (!user && showLanding) {
+    return <LandingPage onGetStarted={handleGetStarted} />;
+  }
+
+  // Si no hay usuario, mostrar login o registro
   if (!user) {
     return showLogin ? (
-      <Login onToggleView={() => setShowLogin(false)} />
+      <Login onToggleView={() => setShowLogin(false)} onBack={handleBackToLanding} />
     ) : (
-      <Register onToggleView={() => setShowLogin(true)} />
+      <Register onToggleView={() => setShowLogin(true)} onBack={handleBackToLanding} />
     );
   }
 
+  // Usuario autenticado, mostrar dashboard
   return (
     <AuthGuard>
       <div className="min-h-screen bg-gray-50">
