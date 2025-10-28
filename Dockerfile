@@ -31,11 +31,8 @@ FROM nginx:alpine
 RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
-## Usar plantillas de nginx para resolver variables de entorno en runtime (Render)
-COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
-
-## Ejecutaremos como usuario root para permitir que el entrypoint de nginx
-## genere /etc/nginx/conf.d/default.conf desde la plantilla con envsubst.
+# Copiar configuración estática de nginx (sin variables)
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exponer puerto
 EXPOSE 80
