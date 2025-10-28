@@ -196,6 +196,8 @@ export function Profile() {
                 value={profileForm.full_name}
                 onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter your full name"
+                title="Full Name"
               />
             </div>
             <div>
@@ -205,6 +207,8 @@ export function Profile() {
                 onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                title="Bio"
+                placeholder="Enter your bio"
               />
             </div>
             <div>
@@ -214,6 +218,8 @@ export function Profile() {
                 value={profileForm.location}
                 onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                title="Location"
+                placeholder="Enter your location"
               />
             </div>
             <button
@@ -255,15 +261,19 @@ export function Profile() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
                 <input
-                  type="text"
-                  value={skillForm.title}
-                  onChange={(e) => setSkillForm({ ...skillForm, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                />
+                    type="text"
+                    value={skillForm.title}
+                    onChange={(e) => setSkillForm({ ...skillForm, title: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    title="Skill Title"
+                    placeholder="Enter skill title"
+                  />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label htmlFor="skill-category-select" className="block text-sm font-medium text-gray-700 mb-2">Category</label>
                 <select
+                  id="skill-category-select"
                   value={skillForm.category}
                   onChange={(e) => setSkillForm({ ...skillForm, category: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -283,12 +293,16 @@ export function Profile() {
                 onChange={(e) => setSkillForm({ ...skillForm, description: e.target.value })}
                 rows={3}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                title="Skill Description"
+                placeholder="Enter skill description"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                <label htmlFor="skill-level-select" className="sr-only">Skill Level</label>
                 <select
+                  id="skill-level-select"
                   value={skillForm.level}
                   onChange={(e) => setSkillForm({ ...skillForm, level: e.target.value as any })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -300,7 +314,9 @@ export function Profile() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <label htmlFor="skill-type-select" className="block text-sm font-medium text-gray-700 mb-2">Type</label>
                 <select
+                  id="skill-type-select"
                   value={skillForm.is_offering ? 'offering' : 'seeking'}
                   onChange={(e) => setSkillForm({ ...skillForm, is_offering: e.target.value === 'offering' })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
@@ -353,12 +369,14 @@ export function Profile() {
                   <button
                     onClick={() => startEditSkill(skill)}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                    title="Edit Skill"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => deleteSkill(skill.id)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                    title="Delete Skill"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
