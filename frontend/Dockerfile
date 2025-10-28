@@ -31,13 +31,13 @@ FROM nginx:alpine
 RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
-# Copiar plantilla de configuración y script de inicio
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+# Copiar plantilla y script de inicio
+COPY nginx.conf.template /tmp/nginx.conf.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
 
 # Exponer puerto
 EXPOSE 80
 
-# Usar nuestro script personalizado
-ENTRYPOINT ["/docker-entrypoint.sh"]
+# Usar nuestro script personalizado (sin /docker-entrypoint.d/)
+CMD ["/docker-entrypoint.sh"]
