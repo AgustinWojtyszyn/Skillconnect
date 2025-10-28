@@ -27,20 +27,15 @@ RUN npm run build
 # ============================
 FROM nginx:alpine
 
-# Eliminar el directorio de templates para evitar el procesamiento automático
-RUN rm -rf /etc/nginx/templates
-
 # Crear directorio y copiar archivos estáticos
 RUN mkdir -p /app/www
 COPY --from=frontend-builder /app/dist /app/www
 
-# Copiar plantilla y script de inicio
-COPY nginx.conf.template /tmp/nginx.conf.template
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+# Copiar configuración estática de nginx (sin variables)
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exponer puerto
 EXPOSE 80
 
-# Usar nuestro script personalizado
-CMD ["/docker-entrypoint.sh"]
+# Usar el CMD por defecto de nginx (nginx -g 'daemon off;')
+CMD ["nginx", "-g", "daemon off;"]
