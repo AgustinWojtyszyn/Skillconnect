@@ -54,7 +54,7 @@ export function Profile() {
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
 
   // Pre-cargar imagen remota hasta que esté disponible (por propagación del CDN)
-  const ensureRemoteReady = async (url: string, maxAttempts = 6, delayMs = 400) => {
+  const ensureRemoteReady = async (url: string, maxAttempts = 10, delayMs = 500) => {
     for (let i = 0; i < maxAttempts; i++) {
       const testUrl = `${url}${url.includes('?') ? '&' : '?'}cb=${Date.now()}`;
       const ok = await new Promise<boolean>((resolve) => {
@@ -332,6 +332,8 @@ export function Profile() {
                     console.log('Banner uploaded successfully!');
                     setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
                     setImgVersion((v) => v + 1);
+                    // Releer del servidor para confirmar persistencia
+                    await fetchProfile();
                     // Esperar a que la imagen remota esté lista antes de ocultar la preview
                     const ready = await ensureRemoteReady(publicUrl);
                     if (ready) {
@@ -459,6 +461,7 @@ export function Profile() {
                         console.log('Avatar uploaded successfully!');
                         setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
                         setImgVersion((v) => v + 1);
+                        await fetchProfile();
                         const ready = await ensureRemoteReady(publicUrl);
                         if (ready) {
                           URL.revokeObjectURL(localUrl);
