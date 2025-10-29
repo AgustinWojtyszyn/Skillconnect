@@ -52,6 +52,8 @@ export function Profile() {
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
+  const [pendingAvatarRemoteUrl, setPendingAvatarRemoteUrl] = useState<string | null>(null);
+  const [pendingBannerRemoteUrl, setPendingBannerRemoteUrl] = useState<string | null>(null);
 
   // Pre-cargar imagen remota hasta que esté disponible (por propagación del CDN)
   const ensureRemoteReady = async (url: string, maxAttempts = 10, delayMs = 500) => {
@@ -68,6 +70,34 @@ export function Profile() {
     }
     return false;
   };
+
+  // Polling periódicamente si hay URLs remotas pendientes mientras hay preview
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      if (previewAvatarUrl && pendingAvatarRemoteUrl) {
+        const ok = await ensureRemoteReady(pendingAvatarRemoteUrl);
+        if (!cancelled && ok) {
+          setPreviewAvatarUrl(null);
+          setImgVersion((v) => v + 1);
+        }
+      }
+      if (previewBannerUrl && pendingBannerRemoteUrl) {
+        const ok = await ensureRemoteReady(pendingBannerRemoteUrl);
+        if (!cancelled && ok) {
+          setPreviewBannerUrl(null);
+          setImgVersion((v) => v + 1);
+        }
+      }
+    };
+    // Lanzar primer chequeo y luego cada 2s si sigue pendiente
+    tick();
+    const id = setInterval(tick, 2000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [previewAvatarUrl, previewBannerUrl, pendingAvatarRemoteUrl, pendingBannerRemoteUrl]);
 
   const [profileForm, setProfileForm] = useState({
     full_name: '',
@@ -128,6 +158,13 @@ export function Profile() {
 
     if (!error && data) {
       setProfile(data);
+      // Si las URLs guardadas coinciden con las pendientes, limpiar pendientes
+      if (pendingAvatarRemoteUrl && data.avatar_url === pendingAvatarRemoteUrl) {
+        setPendingAvatarRemoteUrl(null);
+      }
+      if (pendingBannerRemoteUrl && data.banner_url === pendingBannerRemoteUrl) {
+        setPendingBannerRemoteUrl(null);
+      }
       setProfileForm({
         full_name: data.full_name || '',
         bio: data.bio || '',
@@ -150,14 +187,27 @@ export function Profile() {
   };
 
   const updateProfile = async () => {
+    // Primero, actualizar campos de texto
     const { error } = await supabase
       .from('profiles')
       .update(profileForm)
       .eq('id', user!.id);
 
     if (!error) {
+      // Luego, asegurar que URLs pendientes queden persistidas
+      try {
+        if (pendingAvatarRemoteUrl && profile?.avatar_url !== pendingAvatarRemoteUrl) {
+          await supabase.from('profiles').update({ avatar_url: pendingAvatarRemoteUrl }).eq('id', user!.id);
+        }
+        if (pendingBannerRemoteUrl && profile?.banner_url !== pendingBannerRemoteUrl) {
+          await supabase.from('profiles').update({ banner_url: pendingBannerRemoteUrl }).eq('id', user!.id);
+        }
+      } catch {}
+
       setProfile({ ...profile!, ...profileForm });
       setEditingProfile(false);
+      // Releer perfil final
+      await fetchProfile();
     }
   };
 
@@ -289,7 +339,7 @@ export function Profile() {
                   setUploadingBanner(true);
                   try {
                     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-                    const path = `${user.id}/banner.${ext}`;
+                    const path = `${user.id}/banner-${Date.now()}.${ext}`;
                     console.log('Upload path:', path);
                     
                     const storage = supabase.storage.from('avatars');
@@ -331,6 +381,7 @@ export function Profile() {
                     
                     console.log('Banner uploaded successfully!');
                     setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
+                    setPendingBannerRemoteUrl(publicUrl);
                     setImgVersion((v) => v + 1);
                     // Releer del servidor para confirmar persistencia
                     await fetchProfile();
@@ -418,7 +469,7 @@ export function Profile() {
                       setUploadingAvatar(true);
                       try {
                         const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-                        const path = `${user.id}/avatar.${ext}`;
+                        const path = `${user.id}/avatar-${Date.now()}.${ext}`;
                         console.log('Upload path:', path);
                         
                         const storage = supabase.storage.from('avatars');
@@ -460,6 +511,7 @@ export function Profile() {
                         
                         console.log('Avatar uploaded successfully!');
                         setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
+                        setPendingAvatarRemoteUrl(publicUrl);
                         setImgVersion((v) => v + 1);
                         await fetchProfile();
                         const ready = await ensureRemoteReady(publicUrl);
