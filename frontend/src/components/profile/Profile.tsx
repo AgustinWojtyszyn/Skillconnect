@@ -97,11 +97,15 @@ export function Profile() {
   }, [profile?.username, user]);
 
   const fetchProfile = async () => {
+    console.log('🔍 Fetching profile for user:', user!.id);
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, username, full_name, bio, location, avatar_url, banner_url')
       .eq('id', user!.id)
       .maybeSingle();
+
+    console.log('📋 Profile data:', data);
+    console.log('❌ Profile error:', error);
 
     if (!error && data) {
       setProfile(data);
@@ -270,7 +274,8 @@ export function Profile() {
                     }
                     
                     const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-                    const publicUrl = data?.publicUrl;
+                    // Agregar timestamp para evitar cache del navegador
+                    const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
                     console.log('Public URL:', publicUrl);
                     
                     if (!publicUrl) throw new Error('No public URL');
@@ -368,7 +373,8 @@ export function Profile() {
                         }
                         
                         const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-                        const publicUrl = data?.publicUrl;
+                        // Agregar timestamp para evitar cache del navegador
+                        const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
                         console.log('Public URL:', publicUrl);
                         
                         if (!publicUrl) throw new Error('No public URL');

@@ -11,7 +11,6 @@ import { Chat } from './components/chat/Chat';
 import { LandingPage } from './components/landing/LandingPage';
 import { OnboardingTour } from './components/onboarding/OnboardingTour';
 import { DashboardHome } from './components/home/DashboardHome';
-import { StorageDebugPanel } from './components/debug/StorageDebugPanel';
 
 function MainApp() {
   const { user } = useAuth();
@@ -96,8 +95,6 @@ function MainApp() {
             if (user) localStorage.setItem(`skillconnect:tutorialSeen:${user.id}`, 'true');
           }}
         />
-        {/* Panel de debug temporal - REMOVER EN PRODUCCIÓN */}
-        <StorageDebugPanel />
       </div>
     </AuthGuard>
   );
