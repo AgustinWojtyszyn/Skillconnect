@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { User, MapPin, Edit2, Plus, Trash2, Save, X } from 'lucide-react';
+import { useI18n } from '../../contexts/I18nContext';
+import { User, MapPin, Edit2, Plus, Trash2, Save, X, Camera } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -20,10 +21,20 @@ interface Skill {
   is_offering: boolean;
 }
 
-const categories = ['Programming', 'Design', 'Marketing', 'Writing', 'Business', 'Music', 'Languages', 'Other'];
+const CATEGORY_KEYS = [
+  'programming',
+  'design',
+  'marketing',
+  'writing',
+  'business',
+  'music',
+  'languages',
+  'other',
+];
 
 export function Profile() {
   const { user } = useAuth();
+  const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,10 +51,29 @@ export function Profile() {
   const [skillForm, setSkillForm] = useState({
     title: '',
     description: '',
-    category: 'Programming',
+    category: 'programming',
     level: 'intermediate' as 'beginner' | 'intermediate' | 'expert',
     is_offering: true,
   });
+
+  // Generar iniciales y color para avatar
+  const avatarData = useMemo(() => {
+    const name = profile?.full_name || profile?.username || 'U';
+    const parts = name.trim().split(' ');
+    const initials =
+      parts.length > 1 ? `${parts[0][0]}${parts[1][0]}`.toUpperCase() : name.substring(0, 2).toUpperCase();
+    const colors = [
+      'from-blue-500 to-indigo-600',
+      'from-purple-500 to-pink-600',
+      'from-green-500 to-emerald-600',
+      'from-orange-500 to-red-600',
+      'from-cyan-500 to-blue-600',
+      'from-pink-500 to-rose-600',
+    ];
+    const hash = (profile?.username || '').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const color = colors[hash % colors.length];
+    return { initials, color };
+  }, [profile]);
 
   useEffect(() => {
     if (user) {
@@ -135,7 +165,7 @@ export function Profile() {
     setSkillForm({
       title: '',
       description: '',
-      category: 'Programming',
+      category: 'programming',
       level: 'intermediate',
       is_offering: true,
     });
@@ -165,215 +195,265 @@ export function Profile() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-        <div className="flex flex-col sm:flex-row items-start justify-between mb-4 md:mb-6 gap-4">
-          <div className="flex items-center gap-3 md:gap-4">
-            <div className="bg-blue-600 p-3 md:p-4 rounded-full flex-shrink-0">
-              <User className="w-6 h-6 md:w-8 md:h-8 text-white" />
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 truncate">
-                {profile?.full_name || profile?.username}
-              </h2>
-              <p className="text-sm md:text-base text-gray-500 truncate">@{profile?.username}</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setEditingProfile(!editingProfile)}
-            className="px-3 md:px-4 py-2 text-sm md:text-base text-blue-600 hover:bg-blue-50 rounded-lg transition flex items-center gap-2 whitespace-nowrap"
-          >
-            {editingProfile ? <X className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
-            {editingProfile ? 'Cancel' : 'Edit Profile'}
-          </button>
+      {/* Banner y Avatar Profesional */}
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+        {/* Banner con gradiente */}
+        <div className="h-32 sm:h-40 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative">
+          {editingProfile && (
+            <button
+              className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 text-white rounded-lg backdrop-blur-sm transition"
+              title={t('profile.editProfile')}
+            >
+              <Camera className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
-        {editingProfile ? (
-          <div className="space-y-3 md:space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-              <input
-                type="text"
-                value={profileForm.full_name}
-                onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
-                className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your full name"
-                title="Full Name"
-              />
+        {/* Contenido del perfil */}
+        <div className="px-4 sm:px-6 pb-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12 sm:-mt-16">
+            {/* Avatar con iniciales coloreadas */}
+            <div className="relative">
+              <div
+                className={`w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl bg-gradient-to-br ${avatarData.color} flex items-center justify-center text-white font-bold text-2xl sm:text-4xl`}
+              >
+                {avatarData.initials}
+              </div>
+              {editingProfile && (
+                <button
+                  className="absolute bottom-0 right-0 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition"
+                  title={t('profile.editProfile')}
+                >
+                  <Camera className="w-4 h-4" />
+                </button>
+              )}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
-              <textarea
-                value={profileForm.bio}
-                onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
-                rows={3}
-                className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                title="Bio"
-                placeholder="Enter your bio"
-              />
+
+            {/* Info básica */}
+            <div className="flex-1 min-w-0 w-full sm:ml-4 mt-2 sm:mt-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+                    {profile?.full_name || profile?.username}
+                  </h2>
+                  <p className="text-sm sm:text-base text-gray-500 truncate">@{profile?.username}</p>
+                </div>
+                <button
+                  onClick={() => setEditingProfile(!editingProfile)}
+                  className="px-4 py-2 text-sm sm:text-base rounded-xl font-semibold transition flex items-center gap-2 whitespace-nowrap border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                  {editingProfile ? (
+                    <>
+                      <X className="w-4 h-4" /> {t('profile.cancel')}
+                    </>
+                  ) : (
+                    <>
+                      <Edit2 className="w-4 h-4" /> {t('profile.editProfile')}
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-              <input
-                type="text"
-                value={profileForm.location}
-                onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
-                className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                title="Location"
-                placeholder="Enter your location"
-              />
-            </div>
-            <button
-              onClick={updateProfile}
-              className="w-full sm:w-auto px-4 md:px-6 py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
-            >
-              <Save className="w-4 h-4" />
-              Save Changes
-            </button>
           </div>
-        ) : (
-          <div className="space-y-2 md:space-y-3">
-            {profile?.bio && <p className="text-sm md:text-base text-gray-700">{profile.bio}</p>}
-            {profile?.location && (
-              <div className="flex items-center gap-2 text-sm md:text-base text-gray-600">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">{profile.location}</span>
+
+          {/* Formulario/vista */}
+          <div className="mt-6">
+            {editingProfile ? (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t('profile.fullName')}
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.full_name}
+                    onChange={(e) => setProfileForm({ ...profileForm, full_name: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    placeholder={t('profile.fullName.placeholder')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">{t('profile.bio')}</label>
+                  <textarea
+                    value={profileForm.bio}
+                    onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                    placeholder={t('profile.bio.placeholder')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    {t('profile.location')}
+                  </label>
+                  <input
+                    type="text"
+                    value={profileForm.location}
+                    onChange={(e) => setProfileForm({ ...profileForm, location: e.target.value })}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    placeholder={t('profile.location.placeholder')}
+                  />
+                </div>
+                <button
+                  onClick={updateProfile}
+                  className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition flex items-center justify-center gap-2 font-semibold"
+                >
+                  <Save className="w-4 h-4" />
+                  {t('profile.saveChanges')}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {profile?.bio && <p className="text-gray-700 leading-relaxed">{profile.bio}</p>}
+                {profile?.location && (
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span>{profile.location}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>
-        )}
+        </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+      {/* Skills Section - Reemplazar completamente la sección antigua */}
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-3">
-          <h3 className="text-lg md:text-xl font-bold text-gray-900">My Skills</h3>
+          <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            {t('profile.mySkills')}
+          </h3>
           <button
             onClick={() => setShowSkillForm(!showSkillForm)}
-            className="w-full sm:w-auto px-3 md:px-4 py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition flex items-center justify-center gap-2 font-semibold"
           >
             <Plus className="w-4 h-4" />
-            Add Skill
+            {t('profile.addSkill')}
           </button>
         </div>
 
         {showSkillForm && (
-          <div className="mb-4 md:mb-6 p-3 md:p-4 bg-gray-50 rounded-lg space-y-3 md:space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+          <div className="mb-6 p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border-2 border-blue-100 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">{t('profile.skill.title')}</label>
                 <input
-                    type="text"
-                    value={skillForm.title}
-                    onChange={(e) => setSkillForm({ ...skillForm, title: e.target.value })}
-                    className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                    title="Skill Title"
-                    placeholder="Enter skill title"
-                  />
+                  type="text"
+                  value={skillForm.title}
+                  onChange={(e) => setSkillForm({ ...skillForm, title: e.target.value })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  placeholder={t('profile.skill.title.placeholder')}
+                />
               </div>
               <div>
-                <label htmlFor="skill-category-select" className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                <label htmlFor="skill-category-select" className="block text-sm font-semibold text-gray-700 mb-2">{t('profile.skill.category')}</label>
                 <select
                   id="skill-category-select"
                   value={skillForm.category}
                   onChange={(e) => setSkillForm({ ...skillForm, category: e.target.value })}
-                  className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
-                  {categories.map((cat) => (
+                  {CATEGORY_KEYS.map((cat) => (
                     <option key={cat} value={cat}>
-                      {cat}
+                      {t(`profile.category.${cat}`)}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('profile.skill.description')}</label>
               <textarea
                 value={skillForm.description}
                 onChange={(e) => setSkillForm({ ...skillForm, description: e.target.value })}
                 rows={3}
-                className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                title="Skill Description"
-                placeholder="Enter skill description"
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                placeholder={t('profile.skill.description.placeholder')}
               />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="skill-level-select" className="block text-sm font-medium text-gray-700 mb-2">Level</label>
+                <label htmlFor="skill-level-select" className="block text-sm font-semibold text-gray-700 mb-2">{t('profile.skill.level')}</label>
                 <select
                   id="skill-level-select"
                   value={skillForm.level}
                   onChange={(e) => setSkillForm({ ...skillForm, level: e.target.value as any })}
-                  className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="expert">Expert</option>
+                  <option value="beginner">{t('profile.level.beginner')}</option>
+                  <option value="intermediate">{t('profile.level.intermediate')}</option>
+                  <option value="expert">{t('profile.level.expert')}</option>
                 </select>
               </div>
               <div>
-                <label htmlFor="skill-type-select" className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <label htmlFor="skill-type-select" className="block text-sm font-semibold text-gray-700 mb-2">{t('profile.skill.type')}</label>
                 <select
                   id="skill-type-select"
                   value={skillForm.is_offering ? 'offering' : 'seeking'}
                   onChange={(e) => setSkillForm({ ...skillForm, is_offering: e.target.value === 'offering' })}
-                  className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 >
-                  <option value="offering">Offering</option>
-                  <option value="seeking">Seeking</option>
+                  <option value="offering">{t('profile.skill.offering')}</option>
+                  <option value="seeking">{t('profile.skill.seeking')}</option>
                 </select>
               </div>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={saveSkill}
-                className="w-full sm:w-auto px-4 md:px-6 py-2 bg-blue-600 text-white text-sm md:text-base rounded-lg hover:bg-blue-700 transition"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition font-semibold"
               >
-                {editingSkill ? 'Update' : 'Add'} Skill
+                {editingSkill ? t('profile.skill.update') : t('profile.skill.add')}
               </button>
               <button
                 onClick={resetSkillForm}
-                className="w-full sm:w-auto px-4 md:px-6 py-2 bg-gray-200 text-gray-700 text-sm md:text-base rounded-lg hover:bg-gray-300 transition"
+                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 transition font-semibold"
               >
-                Cancel
+                {t('profile.cancel')}
               </button>
             </div>
           </div>
         )}
 
-        <div className="space-y-3 md:space-y-4">
+        <div className="space-y-4">
           {skills.map((skill) => (
-            <div key={skill.id} className="border border-gray-200 rounded-lg p-3 md:p-4 hover:shadow-md transition">
+            <div
+              key={skill.id}
+              className="border-2 border-gray-100 rounded-xl p-4 hover:border-blue-200 hover:shadow-md transition"
+            >
               <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                 <div className="flex-1 min-w-0 w-full">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <h4 className="text-base md:text-lg font-semibold text-gray-900">{skill.title}</h4>
+                    <h4 className="text-lg font-bold text-gray-900">{skill.title}</h4>
                     <span
-                      className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-semibold flex-shrink-0 ${
-                        skill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
+                      className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ${
+                        skill.is_offering
+                          ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                          : 'bg-gradient-to-r from-orange-500 to-red-500 text-white'
                       }`}
                     >
-                      {skill.is_offering ? 'Offering' : 'Seeking'}
+                      {skill.is_offering ? t('profile.skill.offering') : t('profile.skill.seeking')}
                     </span>
                   </div>
-                  <p className="text-sm md:text-base text-gray-600 mb-2">{skill.description}</p>
-                  <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-gray-500">
-                    <span>{skill.category}</span>
+                  <p className="text-gray-600 mb-2">{skill.description}</p>
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+                    <span className="font-medium">{t(`profile.category.${skill.category}`)}</span>
                     <span className="text-gray-300">•</span>
-                    <span className="capitalize">{skill.level}</span>
+                    <span>{t(`profile.level.${skill.level}`)}</span>
                   </div>
                 </div>
                 <div className="flex gap-2 flex-shrink-0">
                   <button
                     onClick={() => startEditSkill(skill)}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                    title="Edit Skill"
+                    title={t('profile.editProfile')}
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => deleteSkill(skill.id)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
-                    title="Delete Skill"
+                    title={t('profile.cancel')}
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -382,7 +462,7 @@ export function Profile() {
             </div>
           ))}
           {skills.length === 0 && (
-            <p className="text-center text-sm md:text-base text-gray-500 py-6 md:py-8">No skills added yet. Add your first skill!</p>
+            <p className="text-center text-gray-500 py-8">{t('profile.noSkills')}</p>
           )}
         </div>
       </div>
