@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { UserPlus, UserMinus, Search, Users } from 'lucide-react';
+import { UserPlus, UserMinus, Search, Users, MessageCircle } from 'lucide-react';
 
 interface User {
   id: string;
@@ -36,6 +36,7 @@ export function PeoplePage() {
   const [filter, setFilter] = useState<'all' | 'following'>('all');
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [suggested, setSuggested] = useState<SuggestedUser[]>([]);
+  const [activeTab, setActiveTab] = useState<'people' | 'requests'>('people');
 
   useEffect(() => {
     if (user) {
@@ -318,6 +319,10 @@ export function PeoplePage() {
     );
   }
 
+  // Separate incoming and outgoing requests
+  const incomingRequests = friendRequests.filter(r => r.recipient_id === user!.id && r.status === 'pending');
+  const outgoingRequests = friendRequests.filter(r => r.sender_id === user!.id && r.status === 'pending');
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
@@ -325,179 +330,297 @@ export function PeoplePage() {
         <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           {t('people.title')}
         </h2>
-        
-        <div className="flex flex-col md:flex-row gap-3">
-          {/* Buscador */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder={t('people.search.placeholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={onKeyDownSearch}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={triggerSearch}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
-          >
-            <Search className="w-4 h-4" />
-            {t('people.search.button')}
-          </button>
 
-          {/* Filtro */}
-          <label htmlFor="people-filter" className="sr-only">
-            {t('people.filter.label')}
-          </label>
-          <select
-            id="people-filter"
-            aria-label={t('people.filter.label')}
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as 'all' | 'following')}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        {/* Tabs */}
+        <div className="flex gap-4 mb-4">
+          <button
+            onClick={() => setActiveTab('people')}
+            className={`px-4 py-2 rounded-lg font-medium transition ${
+              activeTab === 'people'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
           >
-            <option value="all">{t('people.filter.all')}</option>
-            <option value="following">{t('people.filter.following')}</option>
-          </select>
+            {t('people.title')}
+          </button>
+          <button
+            onClick={() => setActiveTab('requests')}
+            className={`px-4 py-2 rounded-lg font-medium transition relative ${
+              activeTab === 'requests'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            {t('people.requests.tab')}
+            {(incomingRequests.length > 0 || outgoingRequests.length > 0) && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {incomingRequests.length + outgoingRequests.length}
+              </span>
+            )}
+          </button>
         </div>
+
+        {activeTab === 'people' && (
+          <div className="flex flex-col md:flex-row gap-3">
+            {/* Buscador */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder={t('people.search.placeholder')}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={onKeyDownSearch}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={triggerSearch}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+            >
+              <Search className="w-4 h-4" />
+              {t('people.search.button')}
+            </button>
+
+            {/* Filtro */}
+            <label htmlFor="people-filter" className="sr-only">
+              {t('people.filter.label')}
+            </label>
+            <select
+              id="people-filter"
+              aria-label={t('people.filter.label')}
+              value={filter}
+              onChange={(e) => setFilter(e.target.value as 'all' | 'following')}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">{t('people.filter.all')}</option>
+              <option value="following">{t('people.filter.following')}</option>
+            </select>
+          </div>
+        )}
       </div>
 
-      {/* Lista de usuarios */}
-      {/* Sugerencias de usuarios recientes */}
-      {suggested.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
-          <h3 className="text-lg font-bold mb-4">{t('people.suggest.title')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {suggested.map((person) => (
-              <div key={`sugg-${person.id}`} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition">
-                <div className="flex items-start gap-3 mb-3">
-                  {person.avatar_url ? (
-                    <img src={person.avatar_url} alt={person.username} className="w-12 h-12 rounded-full object-cover" />
-                  ) : (
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                      {person.username?.charAt(0).toUpperCase() || 'U'}
+      {activeTab === 'people' && (
+        <>
+          {/* Lista de usuarios */}
+          {/* Sugerencias de usuarios recientes */}
+          {suggested.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+              <h3 className="text-lg font-bold mb-4">{t('people.suggest.title')}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {suggested.map((person) => (
+                  <div key={`sugg-${person.id}`} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition">
+                    <div className="flex items-start gap-3 mb-3">
+                      {person.avatar_url ? (
+                        <img src={person.avatar_url} alt={person.username} className="w-12 h-12 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                          {person.username?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="font-semibold truncate">{person.full_name || person.username}</div>
+                        <div className="text-xs text-gray-500 truncate">@{person.username}</div>
+                      </div>
                     </div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="font-semibold truncate">{person.full_name || person.username}</div>
-                    <div className="text-xs text-gray-500 truncate">@{person.username}</div>
+                    {person.skillBlurb && (
+                      <div className="text-sm text-gray-700 mb-2">{person.skillBlurb}</div>
+                    )}
+                    {person.bio && (
+                      <div className="text-sm text-gray-600 line-clamp-2 mb-3">{person.bio}</div>
+                    )}
+                    <button
+                      onClick={() => sendFriendRequest(person.id)}
+                      className="w-full py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                    >
+                      {t('people.requests.addFriend')}
+                    </button>
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredUsers.map((person) => (
+              <div
+                key={person.id}
+                className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden"
+              >
+                <div className="p-6">
+                  {/* Avatar */}
+                  <div className="flex items-start gap-4 mb-4">
+                    {person.avatar_url ? (
+                      <img
+                        src={person.avatar_url}
+                        alt={person.username}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
+                        {person.username?.charAt(0).toUpperCase() || 'U'}
+                      </div>
+                    )}
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-lg truncate">
+                        {person.full_name || person.username}
+                      </h3>
+                      <p className="text-sm text-gray-500 truncate">@{person.username}</p>
+                    </div>
+                  </div>
+
+                  {/* Bio */}
+                  {person.bio && (
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">{person.bio}</p>
+                  )}
+
+                  {/* Acciones de amistad */}
+                  {(() => {
+                    const outgoing = friendRequests.find((r) => r.sender_id === user!.id && r.recipient_id === person.id && r.status === 'pending');
+                    const incoming = friendRequests.find((r) => r.sender_id === person.id && r.recipient_id === user!.id && r.status === 'pending');
+                    const accepted = friendRequests.find((r) =>
+                      (r.sender_id === user!.id && r.recipient_id === person.id && r.status === 'accepted') ||
+                      (r.sender_id === person.id && r.recipient_id === user!.id && r.status === 'accepted')
+                    );
+
+                    if (accepted) {
+                      return (
+                        <div className="flex items-center gap-2">
+                          <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                            {t('people.requests.friends')}
+                          </span>
+                          <button className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200">
+                            {t('people.requests.viewProfile')}
+                          </button>
+                        </div>
+                      );
+                    }
+                    if (incoming) {
+                      return (
+                        <div className="flex gap-2">
+                          <button onClick={() => acceptFriendRequest(incoming)} className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                            {t('people.requests.accept')}
+                          </button>
+                          <button onClick={() => rejectFriendRequest(incoming)} className="flex-1 py-2 px-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 text-sm">
+                            {t('people.requests.reject')}
+                          </button>
+                        </div>
+                      );
+                    }
+                    if (outgoing) {
+                      return (
+                        <div className="w-full py-2 px-3 rounded-lg bg-yellow-50 text-yellow-800 text-center text-sm font-medium">
+                          {t('people.requests.sent')}
+                        </div>
+                      );
+                    }
+                    return (
+                      <button
+                        onClick={() => sendFriendRequest(person.id)}
+                        className="w-full py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
+                      >
+                        <UserPlus className="w-4 h-4" />
+                        {t('people.requests.addFriend')}
+                      </button>
+                    );
+                  })()}
                 </div>
-                {person.skillBlurb && (
-                  <div className="text-sm text-gray-700 mb-2">{person.skillBlurb}</div>
-                )}
-                {person.bio && (
-                  <div className="text-sm text-gray-600 line-clamp-2 mb-3">{person.bio}</div>
-                )}
-                <button
-                  onClick={() => sendFriendRequest(person.id)}
-                  className="w-full py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                >
-                  {t('people.requests.addFriend')}
-                </button>
               </div>
             ))}
           </div>
-        </div>
+
+          {/* Sin resultados */}
+          {filteredUsers.length === 0 && (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">{t('people.noResults')}</p>
+            </div>
+          )}
+        </>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredUsers.map((person) => (
-          <div
-            key={person.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden"
-          >
-            <div className="p-6">
-              {/* Avatar */}
-              <div className="flex items-start gap-4 mb-4">
-                {person.avatar_url ? (
-                  <img
-                    src={person.avatar_url}
-                    alt={person.username}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl">
-                    {person.username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                )}
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-lg truncate">
-                    {person.full_name || person.username}
-                  </h3>
-                  <p className="text-sm text-gray-500 truncate">@{person.username}</p>
-                </div>
+      {activeTab === 'requests' && (
+        <div className="space-y-6">
+          {/* Incoming Requests */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+            <h3 className="text-lg font-bold mb-4">{t('people.requests.incoming')}</h3>
+            {incomingRequests.length === 0 ? (
+              <p className="text-gray-600">{t('people.requests.noIncoming')}</p>
+            ) : (
+              <div className="space-y-4">
+                {incomingRequests.map((req) => {
+                  const sender = users.find(u => u.id === req.sender_id);
+                  return (
+                    <div key={req.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {sender?.avatar_url ? (
+                          <img src={sender.avatar_url} alt={sender.username} className="w-10 h-10 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                            {sender?.username?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-semibold">{sender?.full_name || sender?.username}</div>
+                          <div className="text-sm text-gray-500">@{sender?.username}</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => acceptFriendRequest(req)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                        >
+                          {t('people.requests.accept')}
+                        </button>
+                        <button
+                          onClick={() => rejectFriendRequest(req)}
+                          className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 text-sm"
+                        >
+                          {t('people.requests.reject')}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-
-              {/* Bio */}
-              {person.bio && (
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{person.bio}</p>
-              )}
-
-              {/* Acciones de amistad */}
-              {(() => {
-                const outgoing = friendRequests.find((r) => r.sender_id === user!.id && r.recipient_id === person.id && r.status === 'pending');
-                const incoming = friendRequests.find((r) => r.sender_id === person.id && r.recipient_id === user!.id && r.status === 'pending');
-                const accepted = friendRequests.find((r) =>
-                  (r.sender_id === user!.id && r.recipient_id === person.id && r.status === 'accepted') ||
-                  (r.sender_id === person.id && r.recipient_id === user!.id && r.status === 'accepted')
-                );
-
-                if (accepted) {
-                  return (
-                    <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
-                        {t('people.requests.friends')}
-                      </span>
-                      <button className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        {t('people.requests.viewProfile')}
-                      </button>
-                    </div>
-                  );
-                }
-                if (incoming) {
-                  return (
-                    <div className="flex gap-2">
-                      <button onClick={() => acceptFriendRequest(incoming)} className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                        {t('people.requests.accept')}
-                      </button>
-                      <button onClick={() => rejectFriendRequest(incoming)} className="flex-1 py-2 px-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 text-sm">
-                        {t('people.requests.reject')}
-                      </button>
-                    </div>
-                  );
-                }
-                if (outgoing) {
-                  return (
-                    <div className="w-full py-2 px-3 rounded-lg bg-yellow-50 text-yellow-800 text-center text-sm font-medium">
-                      {t('people.requests.sent')}
-                    </div>
-                  );
-                }
-                return (
-                  <button
-                    onClick={() => sendFriendRequest(person.id)}
-                    className="w-full py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    {t('people.requests.addFriend')}
-                  </button>
-                );
-              })()}
-            </div>
+            )}
           </div>
-        ))}
-      </div>
 
-      {/* Sin resultados */}
-      {filteredUsers.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-600">{t('people.noResults')}</p>
+          {/* Outgoing Requests */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+            <h3 className="text-lg font-bold mb-4">{t('people.requests.outgoing')}</h3>
+            {outgoingRequests.length === 0 ? (
+              <p className="text-gray-600">{t('people.requests.noOutgoing')}</p>
+            ) : (
+              <div className="space-y-4">
+                {outgoingRequests.map((req) => {
+                  const recipient = users.find(u => u.id === req.recipient_id);
+                  return (
+                    <div key={req.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {recipient?.avatar_url ? (
+                          <img src={recipient.avatar_url} alt={recipient.username} className="w-10 h-10 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                            {recipient?.username?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-semibold">{recipient?.full_name || recipient?.username}</div>
+                          <div className="text-sm text-gray-500">@{recipient?.username}</div>
+                        </div>
+                      </div>
+                      <div className="px-3 py-1 rounded-lg bg-yellow-50 text-yellow-800 text-sm font-medium">
+                        {t('people.requests.sent')}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

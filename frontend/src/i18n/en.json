@@ -24,6 +24,38 @@
         "learn_more": "Learn More"
       }
     },
+    "people": {
+      "title": "People",
+      "search": {
+        "placeholder": "Search people...",
+        "button": "Search"
+      },
+      "filter": {
+        "label": "Filter people",
+        "all": "All",
+        "following": "Following"
+      },
+      "suggest": {
+        "title": "Suggestions",
+        "offering": "Offers",
+        "seeking": "Seeks"
+      },
+      "requests": {
+        "addFriend": "Add friend",
+        "friends": "Friends",
+        "viewProfile": "View profile",
+        "accept": "Accept",
+        "reject": "Reject",
+        "sent": "Sent",
+        "tab": "Requests",
+        "incoming": "Incoming",
+        "outgoing": "Outgoing",
+        "noIncoming": "No pending requests",
+        "noOutgoing": "No sent requests",
+        "sendMessage": "Send message"
+      },
+      "noResults": "No results found"
+    },
     "auth": {
       "email": "Email",
       "password": "Password",

@@ -24,6 +24,38 @@
         "learn_more": "Saber más"
       }
     },
+    "people": {
+      "title": "Personas",
+      "search": {
+        "placeholder": "Buscar personas...",
+        "button": "Buscar"
+      },
+      "filter": {
+        "label": "Filtrar personas",
+        "all": "Todas",
+        "following": "Siguiendo"
+      },
+      "suggest": {
+        "title": "Sugerencias",
+        "offering": "Ofrece",
+        "seeking": "Busca"
+      },
+      "requests": {
+        "addFriend": "Agregar amigo",
+        "friends": "Amigos",
+        "viewProfile": "Ver perfil",
+        "accept": "Aceptar",
+        "reject": "Rechazar",
+        "sent": "Enviada",
+        "tab": "Solicitudes",
+        "incoming": "Recibidas",
+        "outgoing": "Enviadas",
+        "noIncoming": "No tienes solicitudes pendientes",
+        "noOutgoing": "No has enviado solicitudes",
+        "sendMessage": "Enviar mensaje"
+      },
+      "noResults": "No se encontraron resultados"
+    },
     "auth": {
       "email": "Correo electrónico",
       "password": "Contraseña",
