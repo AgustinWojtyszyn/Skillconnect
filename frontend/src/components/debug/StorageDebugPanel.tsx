@@ -18,9 +18,16 @@ export function StorageDebugPanel() {
       const { data: buckets, error } = await supabase.storage.listBuckets();
       
       if (error) {
+        // Si es un error de RLS, significa que probablemente el bucket existe
+        // pero no tenemos permisos para listarlo o acceder a él
+        const isRLSError = error.message.includes('row-level security') || 
+                           error.message.includes('RLS') ||
+                           error.message.includes('policy');
+        
         setBucketStatus({ 
-          exists: false, 
+          exists: isRLSError ? 'unknown' : false, 
           error: error.message,
+          isRLSError,
           buckets: [] 
         });
         return;
@@ -32,12 +39,14 @@ export function StorageDebugPanel() {
         exists: !!avatarsBucket,
         isPublic: avatarsBucket?.public || false,
         allBuckets: buckets?.map((b: any) => b.name) || [],
-        bucket: avatarsBucket
+        bucket: avatarsBucket,
+        isRLSError: false
       });
     } catch (err: any) {
       setBucketStatus({ 
         exists: false, 
         error: err.message,
+        isRLSError: false,
         buckets: [] 
       });
     }
@@ -219,18 +228,102 @@ export function StorageDebugPanel() {
           </div>
         )}
 
-        {/* Instrucciones */}
-        {!bucketStatus?.exists && (
+        {/* Instrucciones para error RLS */}
+        {bucketStatus?.isRLSError && (
           <div className="bg-red-50 border-l-4 border-red-500 p-3 text-xs space-y-2">
-            <p className="font-bold text-red-900">❌ Bucket no existe - Crear manualmente:</p>
-            <ol className="list-decimal list-inside space-y-1 text-red-800">
+            <p className="font-bold text-red-900">🔒 Error de Políticas RLS</p>
+            <p className="text-red-800">El bucket "avatars" existe, pero faltan las políticas de seguridad.</p>
+            
+            <p className="font-semibold text-red-900 mt-3">Ejecuta este SQL en Supabase Dashboard:</p>
+            <pre className="bg-red-900 text-red-100 p-2 rounded text-[10px] overflow-x-auto mt-1">
+{`-- 1. Lectura pública de avatars
+CREATE POLICY "Public Access"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'avatars');
+
+-- 2. Subida autenticada (solo propios archivos)
+CREATE POLICY "Authenticated Upload"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- 3. Actualización autenticada (solo propios)
+CREATE POLICY "Authenticated Update"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+)
+WITH CHECK (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);`}
+            </pre>
+            
+            <button
+              onClick={() => {
+                const sql = `-- 1. Lectura pública de avatars
+CREATE POLICY "Public Access"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'avatars');
+
+-- 2. Subida autenticada (solo propios archivos)
+CREATE POLICY "Authenticated Upload"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- 3. Actualización autenticada (solo propios)
+CREATE POLICY "Authenticated Update"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+)
+WITH CHECK (
+  bucket_id = 'avatars' 
+  AND (storage.foldername(name))[1] = auth.uid()::text
+);`;
+                navigator.clipboard.writeText(sql);
+                setTestResult('✅ SQL copiado al portapapeles');
+              }}
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs"
+            >
+              📋 Copiar SQL
+            </button>
+            
+            <ol className="list-decimal list-inside space-y-1 text-red-800 mt-3">
+              <li>Copia el SQL con el botón de arriba</li>
+              <li>Ve a <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Supabase Dashboard</a></li>
+              <li>Navega a <strong>SQL Editor</strong></li>
+              <li>Pega el SQL y haz clic en <strong>"Run"</strong></li>
+              <li>Vuelve aquí y haz clic en <strong>"Probar Subida"</strong></li>
+            </ol>
+          </div>
+        )}
+        
+        {/* Instrucciones bucket no existe */}
+        {!bucketStatus?.exists && !bucketStatus?.isRLSError && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 text-xs space-y-2">
+            <p className="font-bold text-yellow-900">❌ Bucket no existe - Crear manualmente:</p>
+            <ol className="list-decimal list-inside space-y-1 text-yellow-800">
               <li>Ve a <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="underline">Supabase Dashboard</a></li>
               <li>Storage → New bucket</li>
-              <li>Nombre: <code className="bg-red-200 px-1">avatars</code></li>
+              <li>Nombre: <code className="bg-yellow-200 px-1">avatars</code></li>
               <li>Marca: <strong>Public bucket ✓</strong></li>
               <li>Create bucket</li>
             </ol>
-            <p className="text-red-700 font-semibold mt-2">Luego haz clic en "Recargar"</p>
+            <p className="text-yellow-700 font-semibold mt-2">Luego haz clic en "Recargar"</p>
           </div>
         )}
         
