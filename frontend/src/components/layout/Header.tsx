@@ -1,10 +1,10 @@
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { LogOut, User, MessageCircle, Home, BookOpen, Languages, Layers } from 'lucide-react';
+import { LogOut, User, MessageCircle, Home, BookOpen, Languages, Layers, Users, Briefcase } from 'lucide-react';
 
 interface HeaderProps {
-  currentView: 'home' | 'skills' | 'profile' | 'chat';
-  onViewChange: (view: 'home' | 'skills' | 'profile' | 'chat') => void;
+  currentView: 'home' | 'skills' | 'profile' | 'chat' | 'people';
+  onViewChange: (view: 'home' | 'skills' | 'profile' | 'chat' | 'people') => void;
   onShowTutorial?: () => void;
 }
 
@@ -42,6 +42,17 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
               >
                 <Layers className="w-4 h-4" />
                 {t('nav.skills')}
+              </button>
+              <button
+                onClick={() => onViewChange('people')}
+                className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
+                  currentView === 'people'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                {t('nav.people')}
               </button>
               <button
                 onClick={() => onViewChange('profile')}
@@ -97,43 +108,54 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
       </div>
 
       <div className="md:hidden border-t border-gray-200">
-        <nav className="flex justify-around">
-          <button
-            onClick={() => onViewChange('home')}
-            className={`flex-1 py-3 flex flex-col items-center gap-1 ${
-              currentView === 'home' ? 'text-blue-700' : 'text-gray-600'
-            }`}
-          >
-            <Home className="w-5 h-5" />
-            <span className="text-xs">{t('nav.home')}</span>
-          </button>
-          <button
-            onClick={() => onViewChange('skills')}
-            className={`flex-1 py-3 flex flex-col items-center gap-1 ${
-              currentView === 'skills' ? 'text-blue-700' : 'text-gray-600'
-            }`}
-          >
-            <Layers className="w-5 h-5" />
-            <span className="text-xs">{t('nav.skills')}</span>
-          </button>
-          <button
-            onClick={() => onViewChange('profile')}
-            className={`flex-1 py-3 flex flex-col items-center gap-1 ${
-              currentView === 'profile' ? 'text-blue-700' : 'text-gray-600'
-            }`}
-          >
-            <User className="w-5 h-5" />
-            <span className="text-xs">{t('nav.profile')}</span>
-          </button>
-          <button
-            onClick={() => onViewChange('chat')}
-            className={`flex-1 py-3 flex flex-col items-center gap-1 ${
-              currentView === 'chat' ? 'text-blue-700' : 'text-gray-600'
-            }`}
-          >
-            <MessageCircle className="w-5 h-5" />
-            <span className="text-xs">{t('nav.messages')}</span>
-          </button>
+                <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 md:hidden z-50">
+          <div className="flex justify-around items-center h-16">
+            <button
+              onClick={() => onViewChange('home')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentView === 'home' ? 'text-blue-600' : 'text-gray-600'
+              }`}
+            >
+              <Home className="w-6 h-6" />
+              <span className="text-xs mt-1">{t('nav.home')}</span>
+            </button>
+            <button
+              onClick={() => onViewChange('skills')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentView === 'skills' ? 'text-blue-600' : 'text-gray-600'
+              }`}
+            >
+              <Briefcase className="w-6 h-6" />
+              <span className="text-xs mt-1">{t('nav.skills')}</span>
+            </button>
+            <button
+              onClick={() => onViewChange('people')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentView === 'people' ? 'text-blue-600' : 'text-gray-600'
+              }`}
+            >
+              <Users className="w-6 h-6" />
+              <span className="text-xs mt-1">{t('nav.people')}</span>
+            </button>
+            <button
+              onClick={() => onViewChange('profile')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentView === 'profile' ? 'text-blue-600' : 'text-gray-600'
+              }`}
+            >
+              <User className="w-6 h-6" />
+              <span className="text-xs mt-1">{t('nav.profile')}</span>
+            </button>
+            <button
+              onClick={() => onViewChange('chat')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentView === 'chat' ? 'text-blue-600' : 'text-gray-600'
+              }`}
+            >
+              <MessageCircle className="w-6 h-6" />
+              <span className="text-xs mt-1">{t('nav.messages')}</span>
+            </button>
+          </div>
         </nav>
       </div>
     </header>

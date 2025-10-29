@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Search, Filter, User, TrendingUp, MapPin } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useI18n } from '../../contexts/I18nContext';
 
 interface Skill {
   id: string;
@@ -11,6 +12,7 @@ interface Skill {
   category: string;
   level: 'beginner' | 'intermediate' | 'expert';
   is_offering: boolean;
+  visibility: 'public' | 'friends';
   created_at: string;
   profiles: {
     username: string;
@@ -30,8 +32,9 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [filterType, setFilterType] = useState<'all' | 'offering' | 'seeking'>('all');
   const { user } = useAuth();
+  const { t } = useI18n();
 
-  const categories = ['Programming', 'Design', 'Marketing', 'Writing', 'Business', 'Music', 'Languages', 'Other'];
+  const categories = ['programming', 'design', 'marketing', 'writing', 'business', 'music', 'languages', 'other'];
 
   useEffect(() => {
     fetchSkills();
@@ -39,7 +42,9 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
 
   const fetchSkills = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Obtener skills y friendships
+    const { data: skillsData, error: skillsError } = await supabase
       .from('skills')
       .select(`
         *,
@@ -51,9 +56,36 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
       `)
       .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      setSkills(data as Skill[]);
+    if (skillsError || !skillsData) {
+      setLoading(false);
+      return;
     }
+
+    // Obtener lista de usuarios que sigo
+    const { data: friendshipsData } = await supabase
+      .from('friendships')
+      .select('following_id')
+      .eq('follower_id', user?.id);
+
+    const followingIds = new Set(friendshipsData?.map((f: { following_id: string }) => f.following_id) || []);
+
+    // Filtrar skills según visibilidad
+    const visibleSkills = skillsData.filter((skill: Skill) => {
+      // Siempre mostrar mis propias skills
+      if (skill.user_id === user?.id) return true;
+      
+      // Si es pública, mostrar a todos
+      if (skill.visibility === 'public') return true;
+      
+      // Si es 'friends', mostrar solo si sigo al usuario
+      if (skill.visibility === 'friends') {
+        return followingIds.has(skill.user_id);
+      }
+      
+      return false;
+    });
+
+    setSkills(visibleSkills as Skill[]);
     setLoading(false);
   };
 
@@ -99,7 +131,7 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
             <input
               type="text"
-              placeholder="Search skills..."
+              placeholder={t('skills.search.placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-9 md:pl-10 pr-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -108,36 +140,36 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
 
           <div className="flex flex-col sm:flex-row gap-2">
             <label htmlFor="category-select" className="sr-only">
-              Category
+              {t('skills.filterCategory')}
             </label>
             <select
               id="category-select"
-              aria-label="Category"
+              aria-label={t('skills.filterCategory')}
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="flex-1 sm:flex-none px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Categories</option>
+              <option value="all">{t('skills.filter.allCategories')}</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat}
+                  {t(`profile.category.${cat}`)}
                 </option>
               ))}
             </select>
 
             <label htmlFor="type-select" className="sr-only">
-              Type
+              {t('skills.filterType')}
             </label>
             <select
               id="type-select"
-              aria-label="Type"
+              aria-label={t('skills.filterType')}
               value={filterType}
               onChange={(e) => setFilterType(e.target.value as 'all' | 'offering' | 'seeking')}
               className="flex-1 sm:flex-none px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Types</option>
-              <option value="offering">Offering</option>
-              <option value="seeking">Seeking</option>
+              <option value="all">{t('skills.filter.allTypes')}</option>
+              <option value="offering">{t('skills.offering')}</option>
+              <option value="seeking">{t('skills.seeking')}</option>
             </select>
           </div>
         </div>
@@ -154,14 +186,14 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
               <div className="flex items-start justify-between mb-3 gap-2">
                 <div className="min-w-0 flex-1">
                   <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 truncate">{skill.title}</h3>
-                  <span className="text-xs md:text-sm text-gray-500">{skill.category}</span>
+                  <span className="text-xs md:text-sm text-gray-500">{t(`profile.category.${skill.category}`)}</span>
                 </div>
                 <span
                   className={`px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-semibold flex-shrink-0 ${
                     skill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
                   }`}
                 >
-                  {skill.is_offering ? 'Offering' : 'Seeking'}
+                  {skill.is_offering ? t('profile.skill.offering') : t('profile.skill.seeking')}
                 </span>
               </div>
 
@@ -169,7 +201,7 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
 
               <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-medium ${getLevelColor(skill.level)}`}>
-                  {skill.level}
+                  {t(`profile.level.${skill.level}`)}
                 </span>
               </div>
 
@@ -185,7 +217,7 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
                     onClick={() => onStartChat(skill.user_id, skill.profiles.username)}
                     className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white text-xs md:text-sm font-medium rounded-lg hover:bg-blue-700 transition flex-shrink-0"
                   >
-                    Chat
+                    {t('skills.chat')}
                   </button>
                 )}
               </div>
@@ -197,7 +229,7 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
       {filteredSkills.length === 0 && (
         <div className="text-center py-8 md:py-12">
           <Filter className="w-10 h-10 md:w-12 md:h-12 text-gray-400 mx-auto mb-3 md:mb-4" />
-          <p className="text-sm md:text-base text-gray-600">No skills found matching your filters.</p>
+          <p className="text-sm md:text-base text-gray-600">{t('skills.noResults')}</p>
         </div>
       )}
     </div>

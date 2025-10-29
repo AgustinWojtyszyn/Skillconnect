@@ -22,6 +22,7 @@ interface Skill {
   category: string;
   level: 'beginner' | 'intermediate' | 'expert';
   is_offering: boolean;
+  visibility: 'public' | 'friends';
 }
 
 const CATEGORY_KEYS = [
@@ -111,6 +112,7 @@ export function Profile() {
     category: 'programming',
     level: 'intermediate' as 'beginner' | 'intermediate' | 'expert',
     is_offering: true,
+    visibility: 'public' as 'public' | 'friends',
   });
 
   // Generar iniciales y color para avatar
@@ -255,6 +257,7 @@ export function Profile() {
       category: 'programming',
       level: 'intermediate',
       is_offering: true,
+      visibility: 'public',
     });
     setEditingSkill(null);
     setShowSkillForm(false);
@@ -267,6 +270,7 @@ export function Profile() {
       category: skill.category,
       level: skill.level,
       is_offering: skill.is_offering,
+      visibility: skill.visibility || 'public',
     });
     setEditingSkill(skill);
     setShowSkillForm(true);
@@ -705,6 +709,18 @@ export function Profile() {
                 >
                   <option value="offering">{t('profile.skill.offering')}</option>
                   <option value="seeking">{t('profile.skill.seeking')}</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="skill-visibility-select" className="block text-sm font-semibold text-gray-700 mb-2">{t('skills.visibility')}</label>
+                <select
+                  id="skill-visibility-select"
+                  value={skillForm.visibility}
+                  onChange={(e) => setSkillForm({ ...skillForm, visibility: e.target.value as 'public' | 'friends' })}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                >
+                  <option value="public">{t('skills.visibility.public')}</option>
+                  <option value="friends">{t('skills.visibility.friends')}</option>
                 </select>
               </div>
             </div>

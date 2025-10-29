@@ -11,12 +11,13 @@ import { Chat } from './components/chat/Chat';
 import { LandingPage } from './components/landing/LandingPage';
 import { OnboardingTour } from './components/onboarding/OnboardingTour';
 import { DashboardHome } from './components/home/DashboardHome';
+import { PeoplePage } from './components/people/PeoplePage';
 
 function MainApp() {
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
-  const [currentView, setCurrentView] = useState<'home' | 'skills' | 'profile' | 'chat'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'skills' | 'profile' | 'chat' | 'people'>('home');
   const [chatUserId, setChatUserId] = useState<string | undefined>();
   const [chatUsername, setChatUsername] = useState<string | undefined>();
   const [showTour, setShowTour] = useState(false);
@@ -84,6 +85,7 @@ function MainApp() {
           )}
           {currentView === 'skills' && <SkillsList onStartChat={handleStartChat} />}
           {currentView === 'profile' && <Profile />}
+          {currentView === 'people' && <PeoplePage />}
           {currentView === 'chat' && (
             <Chat initialUserId={chatUserId} />
           )}

@@ -88,6 +88,25 @@ const translations: Record<Lang, Record<string, string>> = {
     'skills.seeking': 'Buscan',
     'skills.noResults': 'No se encontraron habilidades con esos filtros',
     'skills.startChat': 'Iniciar chat',
+    'skills.search.placeholder': 'Buscar habilidades...',
+    'skills.filter.allCategories': 'Todas las categorías',
+    'skills.filter.allTypes': 'Todos los tipos',
+    'skills.chat': 'Chat',
+    'skills.visibility': 'Visibilidad',
+    'skills.visibility.public': 'Público',
+    'skills.visibility.friends': 'Solo amigos',
+
+    // People
+    'people.title': 'Personas',
+    'people.search.placeholder': 'Buscar personas...',
+    'people.filter.all': 'Todos',
+    'people.filter.following': 'Siguiendo',
+    'people.follow': 'Seguir',
+    'people.unfollow': 'Siguiendo',
+    'people.noResults': 'No se encontraron personas',
+    
+    // Nav
+    'nav.people': 'Personas',
 
     // Chat
     'chat.title': 'Mensajes',
@@ -239,6 +258,25 @@ const translations: Record<Lang, Record<string, string>> = {
     'skills.seeking': 'Seeking',
     'skills.noResults': 'No skills found with those filters',
     'skills.startChat': 'Start chat',
+    'skills.search.placeholder': 'Search skills...',
+    'skills.filter.allCategories': 'All Categories',
+    'skills.filter.allTypes': 'All Types',
+    'skills.chat': 'Chat',
+    'skills.visibility': 'Visibility',
+    'skills.visibility.public': 'Public',
+    'skills.visibility.friends': 'Friends only',
+
+    // People
+    'people.title': 'People',
+    'people.search.placeholder': 'Search people...',
+    'people.filter.all': 'All',
+    'people.filter.following': 'Following',
+    'people.follow': 'Follow',
+    'people.unfollow': 'Following',
+    'people.noResults': 'No people found',
+    
+    // Nav
+    'nav.people': 'People',
 
     // Chat
     'chat.title': 'Messages',
