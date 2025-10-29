@@ -85,7 +85,7 @@ function MainApp() {
           {currentView === 'skills' && <SkillsList onStartChat={handleStartChat} />}
           {currentView === 'profile' && <Profile />}
           {currentView === 'chat' && (
-            <Chat initialUserId={chatUserId} initialUsername={chatUsername} />
+            <Chat initialUserId={chatUserId} />
           )}
         </main>
         <OnboardingTour

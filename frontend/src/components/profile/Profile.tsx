@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { User, MapPin, Edit2, Plus, Trash2, Save, X, Camera } from 'lucide-react';
+import { MapPin, Edit2, Plus, Trash2, Save, X, Camera } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -10,6 +10,8 @@ interface Profile {
   full_name: string | null;
   bio: string | null;
   location: string | null;
+  avatar_url?: string | null;
+  banner_url?: string | null;
 }
 
 interface Skill {
@@ -41,6 +43,11 @@ export function Profile() {
   const [editingProfile, setEditingProfile] = useState(false);
   const [showSkillForm, setShowSkillForm] = useState(false);
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const bannerInputRef = useRef<HTMLInputElement | null>(null);
 
   const [profileForm, setProfileForm] = useState({
     full_name: '',
@@ -81,6 +88,12 @@ export function Profile() {
       fetchSkills();
     }
   }, [user]);
+
+  const displayUsername = useMemo(() => {
+    const metaUser = (user?.user_metadata?.username as string) || '';
+    const emailUser = user?.email ? user.email.split('@')[0] : '';
+    return profile?.username || metaUser || emailUser || '';
+  }, [profile?.username, user]);
 
   const fetchProfile = async () => {
     const { data, error } = await supabase
@@ -197,15 +210,63 @@ export function Profile() {
     <div className="space-y-4 md:space-y-6">
       {/* Banner y Avatar Profesional */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-        {/* Banner con gradiente */}
-        <div className="h-32 sm:h-40 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative">
+        {/* Banner con gradiente y botón para cambiar */}
+        <div className="h-32 sm:h-40 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative group">
+          {profile?.banner_url && (
+            <img
+              src={profile.banner_url}
+              alt="Banner"
+              className="w-full h-full object-cover"
+            />
+          )}
           {editingProfile && (
-            <button
-              className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 text-white rounded-lg backdrop-blur-sm transition"
-              title={t('profile.editProfile')}
-            >
-              <Camera className="w-4 h-4" />
-            </button>
+            <>
+              <button
+                onClick={() => bannerInputRef.current?.click()}
+                disabled={uploadingBanner}
+                className="absolute top-4 right-4 p-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg shadow-lg transition opacity-0 group-hover:opacity-100"
+                title={t('profile.changeBanner') || 'Cambiar banner'}
+              >
+                <Camera className="w-5 h-5" />
+              </button>
+              <input
+                ref={bannerInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                title={t('profile.changeBanner') || 'Cambiar banner'}
+                aria-label={t('profile.changeBanner') || 'Cambiar banner'}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file || !user) return;
+                  setUploadError(null);
+                  setUploadingBanner(true);
+                  try {
+                    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+                    const path = `${user.id}/banner.${ext}`;
+                    const { error: upErr } = await supabase.storage
+                      .from('avatars')
+                      .upload(path, file, { upsert: true, cacheControl: '3600' });
+                    if (upErr) throw upErr;
+                    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+                    const publicUrl = data?.publicUrl;
+                    if (!publicUrl) throw new Error('No public URL');
+                    const { error: updErr } = await supabase
+                      .from('profiles')
+                      .update({ banner_url: publicUrl })
+                      .eq('id', user.id);
+                    if (updErr) throw updErr;
+                    setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
+                  } catch (err: any) {
+                    console.error('Banner upload failed:', err?.message || err);
+                    setUploadError(t('profile.uploadError') || 'No se pudo subir la imagen. Inténtalo más tarde.');
+                  } finally {
+                    setUploadingBanner(false);
+                    if (bannerInputRef.current) bannerInputRef.current.value = '';
+                  }
+                }}
+              />
+            </>
           )}
         </div>
 
@@ -214,18 +275,67 @@ export function Profile() {
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12 sm:-mt-16">
             {/* Avatar con iniciales coloreadas */}
             <div className="relative">
-              <div
-                className={`w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl bg-gradient-to-br ${avatarData.color} flex items-center justify-center text-white font-bold text-2xl sm:text-4xl`}
-              >
-                {avatarData.initials}
-              </div>
-              {editingProfile && (
-                <button
-                  className="absolute bottom-0 right-0 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition"
-                  title={t('profile.editProfile')}
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt="Avatar"
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl object-cover"
+                />
+              ) : (
+                <div
+                  className={`w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl bg-gradient-to-br ${avatarData.color} flex items-center justify-center text-white font-bold text-2xl sm:text-4xl`}
                 >
-                  <Camera className="w-4 h-4" />
-                </button>
+                  {avatarData.initials}
+                </div>
+              )}
+              {editingProfile && (
+                <>
+                  <button
+                    onClick={() => avatarInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                    className="absolute bottom-0 right-0 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition"
+                    title={t('profile.changeAvatar') || 'Cambiar avatar'}
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                  <input
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    title={t('profile.changeAvatar') || 'Cambiar avatar'}
+                    aria-label={t('profile.changeAvatar') || 'Cambiar avatar'}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file || !user) return;
+                      setUploadError(null);
+                      setUploadingAvatar(true);
+                      try {
+                        const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+                        const path = `${user.id}/avatar.${ext}`;
+                        const { error: upErr } = await supabase.storage
+                          .from('avatars')
+                          .upload(path, file, { upsert: true, cacheControl: '3600' });
+                        if (upErr) throw upErr;
+                        const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+                        const publicUrl = data?.publicUrl;
+                        if (!publicUrl) throw new Error('No public URL');
+                        const { error: updErr } = await supabase
+                          .from('profiles')
+                          .update({ avatar_url: publicUrl })
+                          .eq('id', user.id);
+                        if (updErr) throw updErr;
+                        setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
+                      } catch (err: any) {
+                        console.error('Avatar upload failed:', err?.message || err);
+                        setUploadError(t('profile.uploadError') || 'No se pudo subir tu avatar. Inténtalo más tarde.');
+                      } finally {
+                        setUploadingAvatar(false);
+                        if (avatarInputRef.current) avatarInputRef.current.value = '';
+                      }
+                    }}
+                  />
+                </>
               )}
             </div>
 
@@ -234,9 +344,9 @@ export function Profile() {
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="min-w-0">
                   <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
-                    {profile?.full_name || profile?.username}
+                    {profile?.full_name || displayUsername}
                   </h2>
-                  <p className="text-sm sm:text-base text-gray-500 truncate">@{profile?.username}</p>
+                  <p className="text-sm sm:text-base text-gray-500 truncate">@{displayUsername}</p>
                 </div>
                 <button
                   onClick={() => setEditingProfile(!editingProfile)}
@@ -316,6 +426,11 @@ export function Profile() {
           </div>
         </div>
       </div>
+      {uploadError && (
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg">
+          <p className="text-sm">{uploadError}</p>
+        </div>
+      )}
 
       {/* Skills Section - Reemplazar completamente la sección antigua */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
