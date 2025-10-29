@@ -10,12 +10,13 @@ import { Profile } from './components/profile/Profile';
 import { Chat } from './components/chat/Chat';
 import { LandingPage } from './components/landing/LandingPage';
 import { OnboardingTour } from './components/onboarding/OnboardingTour';
+import { DashboardHome } from './components/home/DashboardHome';
 
 function MainApp() {
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
-  const [currentView, setCurrentView] = useState<'skills' | 'profile' | 'chat'>('skills');
+  const [currentView, setCurrentView] = useState<'home' | 'skills' | 'profile' | 'chat'>('home');
   const [chatUserId, setChatUserId] = useState<string | undefined>();
   const [chatUsername, setChatUsername] = useState<string | undefined>();
   const [showTour, setShowTour] = useState(false);
@@ -60,13 +61,20 @@ function MainApp() {
   // Usuario autenticado, mostrar dashboard
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Header
           currentView={currentView}
           onViewChange={setCurrentView}
           onShowTutorial={() => setShowTour(true)}
         />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {currentView === 'home' && (
+            <DashboardHome
+              onGoTo={(v) => {
+                setCurrentView(v);
+              }}
+            />
+          )}
           {currentView === 'skills' && <SkillsList onStartChat={handleStartChat} />}
           {currentView === 'profile' && <Profile />}
           {currentView === 'chat' && (

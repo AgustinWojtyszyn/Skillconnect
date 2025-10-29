@@ -1,10 +1,10 @@
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { LogOut, User, MessageCircle, Home, BookOpen, Languages } from 'lucide-react';
+import { LogOut, User, MessageCircle, Home, BookOpen, Languages, Layers } from 'lucide-react';
 
 interface HeaderProps {
-  currentView: 'skills' | 'profile' | 'chat';
-  onViewChange: (view: 'skills' | 'profile' | 'chat') => void;
+  currentView: 'home' | 'skills' | 'profile' | 'chat';
+  onViewChange: (view: 'home' | 'skills' | 'profile' | 'chat') => void;
   onShowTutorial?: () => void;
 }
 
@@ -22,6 +22,17 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
             </h1>
             <nav className="hidden md:flex gap-2">
               <button
+                onClick={() => onViewChange('home')}
+                className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
+                  currentView === 'home'
+                    ? 'bg-blue-100 text-blue-700'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+              >
+                <Home className="w-4 h-4" />
+                {t('nav.home')}
+              </button>
+              <button
                 onClick={() => onViewChange('skills')}
                 className={`px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 ${
                   currentView === 'skills'
@@ -29,7 +40,7 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
-                <Home className="w-4 h-4" />
+                <Layers className="w-4 h-4" />
                 {t('nav.skills')}
               </button>
               <button
@@ -88,12 +99,21 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
       <div className="md:hidden border-t border-gray-200">
         <nav className="flex justify-around">
           <button
+            onClick={() => onViewChange('home')}
+            className={`flex-1 py-3 flex flex-col items-center gap-1 ${
+              currentView === 'home' ? 'text-blue-700' : 'text-gray-600'
+            }`}
+          >
+            <Home className="w-5 h-5" />
+            <span className="text-xs">{t('nav.home')}</span>
+          </button>
+          <button
             onClick={() => onViewChange('skills')}
             className={`flex-1 py-3 flex flex-col items-center gap-1 ${
               currentView === 'skills' ? 'text-blue-700' : 'text-gray-600'
             }`}
           >
-            <Home className="w-5 h-5" />
+            <Layers className="w-5 h-5" />
             <span className="text-xs">{t('nav.skills')}</span>
           </button>
           <button
