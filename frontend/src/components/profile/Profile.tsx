@@ -53,6 +53,22 @@ export function Profile() {
   const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
 
+  // Pre-cargar imagen remota hasta que esté disponible (por propagación del CDN)
+  const ensureRemoteReady = async (url: string, maxAttempts = 6, delayMs = 400) => {
+    for (let i = 0; i < maxAttempts; i++) {
+      const testUrl = `${url}${url.includes('?') ? '&' : '?'}cb=${Date.now()}`;
+      const ok = await new Promise<boolean>((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = testUrl;
+      });
+      if (ok) return true;
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+    return false;
+  };
+
   const [profileForm, setProfileForm] = useState({
     full_name: '',
     bio: '',
@@ -314,10 +330,17 @@ export function Profile() {
                     }
                     
                     console.log('Banner uploaded successfully!');
-                      setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
+                    setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
+                    setImgVersion((v) => v + 1);
+                    // Esperar a que la imagen remota esté lista antes de ocultar la preview
+                    const ready = await ensureRemoteReady(publicUrl);
+                    if (ready) {
+                      URL.revokeObjectURL(localUrl);
+                      setPreviewBannerUrl(null);
+                    } else {
+                      // Forzar otro reintento de carga remota
                       setImgVersion((v) => v + 1);
-                    URL.revokeObjectURL(localUrl);
-                    setPreviewBannerUrl(null);
+                    }
                   } catch (err: any) {
                     console.error('Banner upload failed:', err?.message || err);
                     setUploadError(t('profile.uploadError') || 'No se pudo subir la imagen. Inténtalo más tarde.');
@@ -436,8 +459,13 @@ export function Profile() {
                         console.log('Avatar uploaded successfully!');
                         setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
                         setImgVersion((v) => v + 1);
-                        URL.revokeObjectURL(localUrl);
-                        setPreviewAvatarUrl(null);
+                        const ready = await ensureRemoteReady(publicUrl);
+                        if (ready) {
+                          URL.revokeObjectURL(localUrl);
+                          setPreviewAvatarUrl(null);
+                        } else {
+                          setImgVersion((v) => v + 1);
+                        }
                       } catch (err: any) {
                         console.error('Avatar upload failed:', err?.message || err);
                         setUploadError(t('profile.uploadError') || 'No se pudo subir tu avatar. Inténtalo más tarde.');
