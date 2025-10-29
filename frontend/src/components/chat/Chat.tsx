@@ -28,10 +28,9 @@ interface Message {
 
 interface ChatProps {
   initialUserId?: string;
-  initialUsername?: string;
 }
 
-export function Chat({ initialUserId, initialUsername }: ChatProps) {
+export function Chat({ initialUserId }: ChatProps) {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -47,10 +46,10 @@ export function Chat({ initialUserId, initialUsername }: ChatProps) {
   }, [user]);
 
   useEffect(() => {
-    if (initialUserId && initialUsername) {
-      findOrCreateConversation(initialUserId, initialUsername);
+    if (initialUserId) {
+      findOrCreateConversation(initialUserId);
     }
-  }, [initialUserId, initialUsername]);
+  }, [initialUserId]);
 
   useEffect(() => {
     if (selectedConversation) {
@@ -96,7 +95,7 @@ export function Chat({ initialUserId, initialUsername }: ChatProps) {
     setLoading(false);
   };
 
-  const findOrCreateConversation = async (otherUserId: string, otherUsername: string) => {
+  const findOrCreateConversation = async (otherUserId: string) => {
     const user1 = user!.id < otherUserId ? user!.id : otherUserId;
     const user2 = user!.id < otherUserId ? otherUserId : user!.id;
 
@@ -256,7 +255,8 @@ export function Chat({ initialUserId, initialUsername }: ChatProps) {
               <button
                 onClick={() => setSelectedConversation(null)}
                 className="md:hidden p-1.5 hover:bg-gray-100 rounded-lg transition flex-shrink-0"
-                title="Go back"
+                title="Go back to conversations"
+                aria-label="Go back to conversations"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
