@@ -19,22 +19,34 @@ export function PeoplePage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [appliedTerm, setAppliedTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'following'>('all');
 
   useEffect(() => {
     if (user) {
-      fetchUsers();
+      fetchUsers(appliedTerm);
     }
-  }, [user, filter]);
+  }, [user, filter, appliedTerm]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (q?: string) => {
     setLoading(true);
     try {
-      // Obtener lista de usuarios
-      const { data: profiles, error: profilesError } = await supabase
+      // Construir consulta base de perfiles (excluye al usuario actual)
+      let profilesQuery = supabase
         .from('profiles')
         .select('id, username, full_name, bio, avatar_url')
         .neq('id', user!.id);
+
+      // Búsqueda en servidor por username o full_name (ilike), ignorando '@' inicial
+      const raw = (q ?? '').trim();
+      const sanitized = raw.replace(/^@+/, '');
+      if (sanitized.length > 0) {
+        profilesQuery = profilesQuery.or(
+          `username.ilike.%${sanitized}%,full_name.ilike.%${sanitized}%`
+        );
+      }
+
+      const { data: profiles, error: profilesError } = await profilesQuery;
 
       if (profilesError) throw profilesError;
 
@@ -56,16 +68,27 @@ export function PeoplePage() {
       })) || [];
 
       // Filtrar según el filtro seleccionado
-      let filteredUsers = usersWithFollowing;
-      if (filter === 'following') {
-        filteredUsers = usersWithFollowing.filter((u: User) => u.is_following);
-      }
+      const filteredUsers =
+        filter === 'following'
+          ? usersWithFollowing.filter((u: User) => u.is_following)
+          : usersWithFollowing;
 
       setUsers(filteredUsers);
     } catch (err) {
       console.error('Error fetching users:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const triggerSearch = () => {
+    setAppliedTerm(searchTerm);
+  };
+
+  const onKeyDownSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      triggerSearch();
     }
   };
 
@@ -92,11 +115,8 @@ export function PeoplePage() {
     }
   };
 
-  const term = searchTerm.trim().toLowerCase();
-  const norm = (s?: string | null) => (s || '').toLowerCase();
-  const filteredUsers = users.filter((u) =>
-    norm(u.username).includes(term) || norm(u.full_name).includes(term)
-  );
+  // La lista ya viene filtrada por servidor y por el filtro "Siguiendo"
+  const filteredUsers = users;
 
   if (loading) {
     return (
@@ -123,9 +143,18 @@ export function PeoplePage() {
               placeholder={t('people.search.placeholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={onKeyDownSearch}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          <button
+            type="button"
+            onClick={triggerSearch}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+          >
+            <Search className="w-4 h-4" />
+            {t('people.search.button')}
+          </button>
 
           {/* Filtro */}
           <label htmlFor="people-filter" className="sr-only">
