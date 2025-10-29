@@ -7,6 +7,7 @@ export function StorageDebugPanel() {
   const [bucketStatus, setBucketStatus] = useState<any>(null);
   const [testResult, setTestResult] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [showPanel, setShowPanel] = useState(true);
 
   useEffect(() => {
     checkBucket();
@@ -132,12 +133,32 @@ export function StorageDebugPanel() {
   };
 
   if (!user) return null;
+  if (!showPanel) {
+    return (
+      <button
+        onClick={() => setShowPanel(true)}
+        className="fixed bottom-4 right-4 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 z-50"
+        title="Mostrar panel de debug"
+      >
+        🔧
+      </button>
+    );
+  }
 
   return (
-    <div className="fixed bottom-4 right-4 max-w-md bg-white rounded-xl shadow-2xl border-2 border-blue-600 p-4 z-50">
-      <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-        🔧 Debug Storage
-      </h3>
+    <div className="fixed bottom-4 right-4 max-w-md bg-white rounded-xl shadow-2xl border-2 border-blue-600 p-4 z-50 max-h-[80vh] overflow-y-auto">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-bold text-lg flex items-center gap-2">
+          🔧 Debug Storage
+        </h3>
+        <button
+          onClick={() => setShowPanel(false)}
+          className="text-gray-400 hover:text-gray-600"
+          title="Cerrar"
+        >
+          ✕
+        </button>
+      </div>
       
       <div className="space-y-3 text-sm">
         {/* Status del bucket */}
@@ -199,17 +220,67 @@ export function StorageDebugPanel() {
         )}
 
         {/* Instrucciones */}
+        {!bucketStatus?.exists && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-3 text-xs space-y-2">
+            <p className="font-bold text-red-900">❌ Bucket no existe - Crear manualmente:</p>
+            <ol className="list-decimal list-inside space-y-1 text-red-800">
+              <li>Ve a <a href="https://app.supabase.com" target="_blank" rel="noopener noreferrer" className="underline">Supabase Dashboard</a></li>
+              <li>Storage → New bucket</li>
+              <li>Nombre: <code className="bg-red-200 px-1">avatars</code></li>
+              <li>Marca: <strong>Public bucket ✓</strong></li>
+              <li>Create bucket</li>
+            </ol>
+            <p className="text-red-700 font-semibold mt-2">Luego haz clic en "Recargar"</p>
+          </div>
+        )}
+        
         {bucketStatus?.exists && !bucketStatus?.isPublic && (
-          <div className="bg-orange-50 border-l-4 border-orange-400 p-2 text-xs">
-            <p className="font-semibold text-orange-800">⚠️ Bucket no público</p>
-            <p className="text-orange-700">Ve a Supabase Dashboard {'>'} Storage {'>'} avatars {'>'} Settings y activa "Public bucket"</p>
+          <div className="bg-orange-50 border-l-4 border-orange-400 p-3 text-xs space-y-2">
+            <p className="font-semibold text-orange-800">⚠️ Bucket no es público</p>
+            <ol className="list-decimal list-inside space-y-1 text-orange-700">
+              <li>Ve a Supabase Dashboard</li>
+              <li>Storage → avatars → Settings</li>
+              <li>Activa "Public bucket"</li>
+              <li>Haz clic en "Recargar"</li>
+            </ol>
           </div>
         )}
 
-        {bucketStatus?.exists && (
-          <div className="bg-blue-50 border-l-4 border-blue-400 p-2 text-xs">
-            <p className="font-semibold text-blue-800">ℹ️ Configura RLS</p>
-            <p className="text-blue-700">Ejecuta las políticas SQL del archivo SUPABASE_STORAGE_SETUP.md</p>
+        {bucketStatus?.exists && bucketStatus?.isPublic && (
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-3 text-xs space-y-2">
+            <p className="font-semibold text-blue-800">✅ Bucket OK - Configura políticas RLS:</p>
+            <p className="text-blue-700">Ve a Supabase Dashboard → SQL Editor y ejecuta:</p>
+            <pre className="bg-blue-900 text-blue-100 p-2 rounded text-[10px] overflow-x-auto mt-1">
+{`-- Lectura pública
+CREATE POLICY "Public Read" ON storage.objects
+FOR SELECT USING (bucket_id = 'avatars');
+
+-- Subida autenticada
+CREATE POLICY "Auth Upload" ON storage.objects
+FOR INSERT WITH CHECK (
+  bucket_id = 'avatars' AND
+  auth.role() = 'authenticated' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);
+
+-- Actualización propia
+CREATE POLICY "Auth Update" ON storage.objects
+FOR UPDATE USING (
+  bucket_id = 'avatars' AND
+  (storage.foldername(name))[1] = auth.uid()::text
+);`}
+            </pre>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(`CREATE POLICY "Public Read" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "Auth Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars' AND auth.role() = 'authenticated' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Auth Update" ON storage.objects FOR UPDATE USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);`);
+                setTestResult('📋 SQL copiado al portapapeles');
+              }}
+              className="mt-2 px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs"
+            >
+              📋 Copiar SQL
+            </button>
           </div>
         )}
       </div>
