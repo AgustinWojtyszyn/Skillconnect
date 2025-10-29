@@ -50,6 +50,8 @@ export function Profile() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
+  const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
+  const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
 
   const [profileForm, setProfileForm] = useState({
     full_name: '',
@@ -218,9 +220,11 @@ export function Profile() {
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
         {/* Banner con gradiente y botón para cambiar */}
         <div className="h-32 sm:h-40 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative group">
-          {profile?.banner_url && (
+          {(previewBannerUrl || profile?.banner_url) && (
               <img
-                src={`${profile.banner_url}${profile.banner_url.includes('?') ? '&' : '?'}v=${imgVersion}`}
+                src={
+                  previewBannerUrl || `${profile!.banner_url!}${profile!.banner_url!.includes('?') ? '&' : '?'}v=${imgVersion}`
+                }
                 alt="Banner"
                 className="w-full h-full object-cover"
                 onError={() => {
@@ -262,6 +266,9 @@ export function Profile() {
                     return;
                   }
                   console.log('Uploading banner:', file.name);
+                  // Vista previa inmediata
+                  const localUrl = URL.createObjectURL(file);
+                  setPreviewBannerUrl(localUrl);
                   setUploadError(null);
                   setUploadingBanner(true);
                   try {
@@ -269,13 +276,24 @@ export function Profile() {
                     const path = `${user.id}/banner.${ext}`;
                     console.log('Upload path:', path);
                     
-                    const { error: upErr } = await supabase.storage
-                      .from('avatars')
-                      .upload(path, file, { upsert: true, cacheControl: '3600' });
-                    
+                    const storage = supabase.storage.from('avatars');
+                    let { error: upErr } = await storage.upload(path, file, {
+                      upsert: true,
+                      cacheControl: '3600',
+                      contentType: file.type,
+                    });
                     if (upErr) {
-                      console.error('Upload error:', upErr);
-                      throw upErr;
+                      const msg = (upErr as any)?.message?.toLowerCase?.() || '';
+                      if (msg.includes('exists') || msg.includes('duplicate') || msg.includes('409')) {
+                        const { error: upd } = await storage.update(path, file, {
+                          cacheControl: '3600',
+                          contentType: file.type,
+                        });
+                        if (upd) throw upd;
+                      } else {
+                        console.error('Upload error:', upErr);
+                        throw upErr;
+                      }
                     }
                     
                     const { data } = supabase.storage.from('avatars').getPublicUrl(path);
@@ -298,6 +316,8 @@ export function Profile() {
                     console.log('Banner uploaded successfully!');
                       setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
                       setImgVersion((v) => v + 1);
+                    URL.revokeObjectURL(localUrl);
+                    setPreviewBannerUrl(null);
                   } catch (err: any) {
                     console.error('Banner upload failed:', err?.message || err);
                     setUploadError(t('profile.uploadError') || 'No se pudo subir la imagen. Inténtalo más tarde.');
@@ -316,9 +336,11 @@ export function Profile() {
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-12 sm:-mt-16">
             {/* Avatar con iniciales coloreadas */}
             <div className="relative">
-              {profile?.avatar_url ? (
+              {(previewAvatarUrl || profile?.avatar_url) ? (
                 <img
-                  src={`${profile.avatar_url}${profile.avatar_url.includes('?') ? '&' : '?'}v=${imgVersion}`}
+                  src={
+                    previewAvatarUrl || `${profile!.avatar_url!}${profile!.avatar_url!.includes('?') ? '&' : '?'}v=${imgVersion}`
+                  }
                   alt="Avatar"
                   className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl object-cover"
                   onError={() => {
@@ -365,6 +387,8 @@ export function Profile() {
                         return;
                       }
                       console.log('Uploading avatar:', file.name);
+                      const localUrl = URL.createObjectURL(file);
+                      setPreviewAvatarUrl(localUrl);
                       setUploadError(null);
                       setUploadingAvatar(true);
                       try {
@@ -372,13 +396,24 @@ export function Profile() {
                         const path = `${user.id}/avatar.${ext}`;
                         console.log('Upload path:', path);
                         
-                        const { error: upErr } = await supabase.storage
-                          .from('avatars')
-                          .upload(path, file, { upsert: true, cacheControl: '3600' });
-                        
+                        const storage = supabase.storage.from('avatars');
+                        let { error: upErr } = await storage.upload(path, file, {
+                          upsert: true,
+                          cacheControl: '3600',
+                          contentType: file.type,
+                        });
                         if (upErr) {
-                          console.error('Upload error:', upErr);
-                          throw upErr;
+                          const msg = (upErr as any)?.message?.toLowerCase?.() || '';
+                          if (msg.includes('exists') || msg.includes('duplicate') || msg.includes('409')) {
+                            const { error: upd } = await storage.update(path, file, {
+                              cacheControl: '3600',
+                              contentType: file.type,
+                            });
+                            if (upd) throw upd;
+                          } else {
+                            console.error('Upload error:', upErr);
+                            throw upErr;
+                          }
                         }
                         
                         const { data } = supabase.storage.from('avatars').getPublicUrl(path);
@@ -401,6 +436,8 @@ export function Profile() {
                         console.log('Avatar uploaded successfully!');
                         setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
                         setImgVersion((v) => v + 1);
+                        URL.revokeObjectURL(localUrl);
+                        setPreviewAvatarUrl(null);
                       } catch (err: any) {
                         console.error('Avatar upload failed:', err?.message || err);
                         setUploadError(t('profile.uploadError') || 'No se pudo subir tu avatar. Inténtalo más tarde.');
