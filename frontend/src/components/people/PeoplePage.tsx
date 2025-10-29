@@ -48,19 +48,29 @@ export function PeoplePage() {
 
       const { data: profiles, error: profilesError } = await profilesQuery;
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('❌ Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
 
-      // Obtener amistades del usuario actual
+      console.log('✅ Profiles found:', profiles?.length || 0, profiles);
+
+      // Intentar obtener amistades del usuario actual (puede fallar si la tabla no existe)
+      let followingIds = new Set<string>();
       const { data: friendships, error: friendshipsError } = await supabase
         .from('friendships')
         .select('following_id')
         .eq('follower_id', user!.id);
 
-      if (friendshipsError) throw friendshipsError;
-
-      const followingIds = new Set(
-        friendships?.map((f: { following_id: string }) => f.following_id) || []
-      );
+      if (friendshipsError) {
+        console.warn('⚠️ Friendships table not found or error:', friendshipsError.message);
+        console.log('ℹ️ Continuing without friendship data (all users will show as not following)');
+      } else {
+        followingIds = new Set(
+          friendships?.map((f: { following_id: string }) => f.following_id) || []
+        );
+        console.log('✅ Following IDs:', Array.from(followingIds));
+      }
 
       const usersWithFollowing = profiles?.map((p: User) => ({
         ...p,
@@ -73,9 +83,10 @@ export function PeoplePage() {
           ? usersWithFollowing.filter((u: User) => u.is_following)
           : usersWithFollowing;
 
+      console.log('✅ Filtered users to show:', filteredUsers.length);
       setUsers(filteredUsers);
     } catch (err) {
-      console.error('Error fetching users:', err);
+      console.error('❌ Fatal error in fetchUsers:', err);
     } finally {
       setLoading(false);
     }
