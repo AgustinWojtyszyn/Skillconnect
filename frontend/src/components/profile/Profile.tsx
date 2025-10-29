@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { MapPin, Edit2, Plus, Trash2, Save, X, Camera } from 'lucide-react';
+import '../../utils/checkStorage';
 
 interface Profile {
   id: string;
@@ -222,12 +223,20 @@ export function Profile() {
           {editingProfile && (
             <>
               <button
-                onClick={() => bannerInputRef.current?.click()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Banner button clicked');
+                  bannerInputRef.current?.click();
+                }}
                 disabled={uploadingBanner}
-                className="absolute top-4 right-4 p-2 bg-white/90 hover:bg-white text-gray-700 rounded-lg shadow-lg transition opacity-0 group-hover:opacity-100"
+                className="absolute top-4 right-4 p-3 bg-white hover:bg-gray-100 text-gray-700 rounded-xl shadow-lg transition-all hover:scale-105 z-10"
                 title={t('profile.changeBanner') || 'Cambiar banner'}
               >
-                <Camera className="w-5 h-5" />
+                {uploadingBanner ? (
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-700"></div>
+                ) : (
+                  <Camera className="w-5 h-5" />
+                )}
               </button>
               <input
                 ref={bannerInputRef}
@@ -237,25 +246,46 @@ export function Profile() {
                 title={t('profile.changeBanner') || 'Cambiar banner'}
                 aria-label={t('profile.changeBanner') || 'Cambiar banner'}
                 onChange={async (e) => {
+                  console.log('Banner input change triggered');
                   const file = e.target.files?.[0];
-                  if (!file || !user) return;
+                  if (!file || !user) {
+                    console.log('No file or user:', { file: !!file, user: !!user });
+                    return;
+                  }
+                  console.log('Uploading banner:', file.name);
                   setUploadError(null);
                   setUploadingBanner(true);
                   try {
                     const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
                     const path = `${user.id}/banner.${ext}`;
+                    console.log('Upload path:', path);
+                    
                     const { error: upErr } = await supabase.storage
                       .from('avatars')
                       .upload(path, file, { upsert: true, cacheControl: '3600' });
-                    if (upErr) throw upErr;
+                    
+                    if (upErr) {
+                      console.error('Upload error:', upErr);
+                      throw upErr;
+                    }
+                    
                     const { data } = supabase.storage.from('avatars').getPublicUrl(path);
                     const publicUrl = data?.publicUrl;
+                    console.log('Public URL:', publicUrl);
+                    
                     if (!publicUrl) throw new Error('No public URL');
+                    
                     const { error: updErr } = await supabase
                       .from('profiles')
                       .update({ banner_url: publicUrl })
                       .eq('id', user.id);
-                    if (updErr) throw updErr;
+                    
+                    if (updErr) {
+                      console.error('Profile update error:', updErr);
+                      throw updErr;
+                    }
+                    
+                    console.log('Banner uploaded successfully!');
                     setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
                   } catch (err: any) {
                     console.error('Banner upload failed:', err?.message || err);
@@ -291,12 +321,20 @@ export function Profile() {
               {editingProfile && (
                 <>
                   <button
-                    onClick={() => avatarInputRef.current?.click()}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      console.log('Avatar button clicked');
+                      avatarInputRef.current?.click();
+                    }}
                     disabled={uploadingAvatar}
-                    className="absolute bottom-0 right-0 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition"
+                    className="absolute bottom-0 right-0 p-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition disabled:opacity-50"
                     title={t('profile.changeAvatar') || 'Cambiar avatar'}
                   >
-                    <Camera className="w-4 h-4" />
+                    {uploadingAvatar ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <Camera className="w-4 h-4" />
+                    )}
                   </button>
                   <input
                     ref={avatarInputRef}
@@ -306,25 +344,46 @@ export function Profile() {
                     title={t('profile.changeAvatar') || 'Cambiar avatar'}
                     aria-label={t('profile.changeAvatar') || 'Cambiar avatar'}
                     onChange={async (e) => {
+                      console.log('Avatar input change triggered');
                       const file = e.target.files?.[0];
-                      if (!file || !user) return;
+                      if (!file || !user) {
+                        console.log('No file or user:', { file: !!file, user: !!user });
+                        return;
+                      }
+                      console.log('Uploading avatar:', file.name);
                       setUploadError(null);
                       setUploadingAvatar(true);
                       try {
                         const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
                         const path = `${user.id}/avatar.${ext}`;
+                        console.log('Upload path:', path);
+                        
                         const { error: upErr } = await supabase.storage
                           .from('avatars')
                           .upload(path, file, { upsert: true, cacheControl: '3600' });
-                        if (upErr) throw upErr;
+                        
+                        if (upErr) {
+                          console.error('Upload error:', upErr);
+                          throw upErr;
+                        }
+                        
                         const { data } = supabase.storage.from('avatars').getPublicUrl(path);
                         const publicUrl = data?.publicUrl;
+                        console.log('Public URL:', publicUrl);
+                        
                         if (!publicUrl) throw new Error('No public URL');
+                        
                         const { error: updErr } = await supabase
                           .from('profiles')
                           .update({ avatar_url: publicUrl })
                           .eq('id', user.id);
-                        if (updErr) throw updErr;
+                        
+                        if (updErr) {
+                          console.error('Profile update error:', updErr);
+                          throw updErr;
+                        }
+                        
+                        console.log('Avatar uploaded successfully!');
                         setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
                       } catch (err: any) {
                         console.error('Avatar upload failed:', err?.message || err);
