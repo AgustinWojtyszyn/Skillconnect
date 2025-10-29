@@ -10,7 +10,20 @@ interface User {
   full_name: string | null;
   bio: string | null;
   avatar_url: string | null;
+  email: string | null;
   is_following?: boolean;
+}
+
+interface FriendRequest {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+}
+
+interface SuggestedUser extends User {
+  skillBlurb?: string;
 }
 
 export function PeoplePage() {
@@ -21,6 +34,8 @@ export function PeoplePage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [appliedTerm, setAppliedTerm] = useState('');
   const [filter, setFilter] = useState<'all' | 'following'>('all');
+  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
+  const [suggested, setSuggested] = useState<SuggestedUser[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -28,54 +43,135 @@ export function PeoplePage() {
     }
   }, [user, filter, appliedTerm]);
 
+  // Búsqueda "normal": aplica automáticamente con leve debounce al tipear
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      // Evita consultas por 1 solo carácter para no ensuciar resultados
+      if (searchTerm.trim().length >= 2 || searchTerm.trim().length === 0) {
+        setAppliedTerm(searchTerm);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [searchTerm]);
+
   const fetchUsers = async (q?: string) => {
     setLoading(true);
     try {
-      // Construir consulta base de perfiles (excluye al usuario actual)
-      let profilesQuery = supabase
+      // 1) Descargar un lote de perfiles recientes (cliente hace el filtrado robusto)
+      const { data: allProfiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, username, full_name, bio, avatar_url')
-        .neq('id', user!.id);
-
-      // Búsqueda en servidor por username o full_name (ilike), ignorando '@' inicial
-      const raw = (q ?? '').trim();
-      const sanitized = raw.replace(/^@+/, '');
-      if (sanitized.length > 0) {
-        profilesQuery = profilesQuery.or(
-          `username.ilike.%${sanitized}%,full_name.ilike.%${sanitized}%`
-        );
-      }
-
-      const { data: profiles, error: profilesError } = await profilesQuery;
+        .select('id, username, full_name, bio, avatar_url, email, created_at')
+        .order('created_at', { ascending: false })
+        .limit(500);
 
       if (profilesError) {
         console.error('❌ Error fetching profiles:', profilesError);
         throw profilesError;
       }
 
-      console.log('✅ Profiles found:', profiles?.length || 0, profiles);
+      const profiles = (allProfiles || []) as User[];
+      console.log('✅ Profiles loaded (client-filterable):', profiles.length);
 
       // Intentar obtener amistades del usuario actual (puede fallar si la tabla no existe)
       let followingIds = new Set<string>();
-      const { data: friendships, error: friendshipsError } = await supabase
+      let friendships: any[] | null = null;
+      let friendshipsError: any = null;
+      // Intento 1: esquema (follower_id, following_id)
+      let frResp = await supabase
         .from('friendships')
         .select('following_id')
         .eq('follower_id', user!.id);
+      friendships = frResp.data as any[] | null;
+      friendshipsError = frResp.error;
+      // Intento 2: esquema alternativo (follower_id, followee_id)
+      if (friendshipsError || !friendships) {
+        const alt = await supabase
+          .from('friendships')
+          .select('followee_id')
+          .eq('follower_id', user!.id);
+        if (!alt.error && alt.data) {
+          friendships = alt.data as any[];
+          friendshipsError = null;
+          // Remapeamos a following_id para usar lógica única
+          friendships = friendships.map((f: any) => ({ following_id: f.followee_id }));
+        }
+      }
 
       if (friendshipsError) {
         console.warn('⚠️ Friendships table not found or error:', friendshipsError.message);
         console.log('ℹ️ Continuing without friendship data (all users will show as not following)');
       } else {
         followingIds = new Set(
-          friendships?.map((f: { following_id: string }) => f.following_id) || []
+          (friendships || []).map((f: { following_id: string }) => f.following_id)
         );
         console.log('✅ Following IDs:', Array.from(followingIds));
       }
 
-      const usersWithFollowing = profiles?.map((p: User) => ({
+      let usersWithFollowing = profiles.map((p: User) => ({
         ...p,
         is_following: followingIds.has(p.id)
       })) || [];
+
+      // 2) Filtrado en cliente (robusto: ignora @, tildes, mayúsculas; colapsa espacios)
+      const rawQuery1 = (q ?? '').trim();
+      const sanitizedQuery1 = rawQuery1.replace(/^@+/, '');
+      if (sanitizedQuery1.length > 0) {
+        const norm = (s: string) => s
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const needle = norm(sanitizedQuery1);
+        usersWithFollowing = usersWithFollowing.filter((p: any) =>
+          norm(p.username || '').includes(needle) || norm(p.full_name || '').includes(needle) || norm(p.email || '').includes(needle)
+        );
+        console.log('🔎 Client-side matches:', usersWithFollowing.length);
+      } else {
+        // Sin término de búsqueda: ocultar el propio usuario por defecto
+        usersWithFollowing = usersWithFollowing.filter((p: any) => p.id !== user!.id);
+      }
+
+      // Si hay término y coincide exactamente con mi usuario/nombre, permitimos que yo mismo aparezca
+      if (sanitizedQuery1.length > 0) {
+        const norm = (s: string) => s
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/\p{Diacritic}/gu, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        const needle = norm(sanitizedQuery1);
+        // Si el propio perfil no está en la lista, lo agregamos si coincide
+        const me = profiles.find((p) => p.id === user!.id);
+        if (me) {
+          const matchMe = norm(me.username || '').includes(needle) || norm(me.full_name || '').includes(needle) || norm(me.email || '').includes(needle);
+          if (matchMe && !usersWithFollowing.some((u: any) => u.id === me.id)) {
+            usersWithFollowing.unshift({ ...me, is_following: false });
+          }
+        }
+      }
+
+      // Cargar solicitudes de amistad (salientes y entrantes) con los usuarios listados
+  const ids = usersWithFollowing.map((u: User) => u.id);
+      let outgoing: FriendRequest[] = [];
+      let incoming: FriendRequest[] = [];
+      if (ids.length > 0) {
+        const { data: outData } = await supabase
+          .from('friend_requests')
+          .select('id, sender_id, recipient_id, status, created_at')
+          .in('recipient_id', ids)
+          .eq('sender_id', user!.id);
+        const { data: inData } = await supabase
+          .from('friend_requests')
+          .select('id, sender_id, recipient_id, status, created_at')
+          .in('sender_id', ids)
+          .eq('recipient_id', user!.id);
+        outgoing = (outData as FriendRequest[]) || [];
+        incoming = (inData as FriendRequest[]) || [];
+        setFriendRequests([...(outgoing || []), ...(incoming || [])]);
+      } else {
+        setFriendRequests([]);
+      }
 
       // Filtrar según el filtro seleccionado
       const filteredUsers =
@@ -85,6 +181,50 @@ export function PeoplePage() {
 
       console.log('✅ Filtered users to show:', filteredUsers.length);
       setUsers(filteredUsers);
+
+    // Sugerencias: si no hay término de búsqueda, mostrar usuarios recientes con un blurb de su skill más reciente
+  const rawQuery2 = (q ?? '').trim();
+    const sanitizedQuery2 = rawQuery2.replace(/^@+/, '');
+  if (sanitizedQuery2.length === 0) {
+        try {
+          const { data: recentProfiles } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, bio, avatar_url')
+            .neq('id', user!.id)
+            .order('created_at', { ascending: false })
+            .limit(12);
+
+          const rec = (recentProfiles as User[]) || [];
+          const recIds = rec.map((u) => u.id);
+          let skillBlurbMap = new Map<string, string>();
+          if (recIds.length > 0) {
+            const { data: skillsData } = await supabase
+              .from('skills')
+              .select('user_id, title, is_offering, created_at')
+              .in('user_id', recIds)
+              .order('created_at', { ascending: false });
+            const seen = new Set<string>();
+            (skillsData || []).forEach((s: any) => {
+              if (!seen.has(s.user_id)) {
+                seen.add(s.user_id);
+                const blurb = s.is_offering
+                  ? `${t('people.suggest.offering')}: ${s.title}`
+                  : `${t('people.suggest.seeking')}: ${s.title}`;
+                skillBlurbMap.set(s.user_id, blurb);
+              }
+            });
+          }
+          const suggestedUsers: SuggestedUser[] = rec.map((u) => ({
+            ...u,
+            skillBlurb: skillBlurbMap.get(u.id),
+          }));
+          setSuggested(suggestedUsers);
+        } catch (e) {
+          setSuggested([]);
+        }
+      } else {
+        setSuggested([]);
+      }
     } catch (err) {
       console.error('❌ Fatal error in fetchUsers:', err);
     } finally {
@@ -123,6 +263,47 @@ export function PeoplePage() {
       await fetchUsers();
     } catch (err) {
       console.error('Error toggling follow:', err);
+    }
+  };
+
+  // Friend request actions
+  const sendFriendRequest = async (targetId: string) => {
+    try {
+      await supabase.from('friend_requests').insert({ sender_id: user!.id, recipient_id: targetId, status: 'pending' });
+      await fetchUsers(appliedTerm);
+    } catch (e) {
+      console.error('Error sending friend request', e);
+    }
+  };
+
+  const acceptFriendRequest = async (req: FriendRequest) => {
+    try {
+      await supabase
+        .from('friend_requests')
+        .update({ status: 'accepted' })
+        .eq('id', req.id)
+        .eq('recipient_id', user!.id);
+
+      // Crear relaciones de seguimiento en ambos sentidos (idempotente, unique evita duplicados)
+      await supabase.from('friendships').insert({ follower_id: user!.id, following_id: req.sender_id });
+      await supabase.from('friendships').insert({ follower_id: req.sender_id, following_id: user!.id });
+
+      await fetchUsers(appliedTerm);
+    } catch (e) {
+      console.error('Error accepting friend request', e);
+    }
+  };
+
+  const rejectFriendRequest = async (req: FriendRequest) => {
+    try {
+      await supabase
+        .from('friend_requests')
+        .update({ status: 'rejected' })
+        .eq('id', req.id)
+        .eq('recipient_id', user!.id);
+      await fetchUsers(appliedTerm);
+    } catch (e) {
+      console.error('Error rejecting friend request', e);
     }
   };
 
@@ -185,6 +366,44 @@ export function PeoplePage() {
       </div>
 
       {/* Lista de usuarios */}
+      {/* Sugerencias de usuarios recientes */}
+      {suggested.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
+          <h3 className="text-lg font-bold mb-4">{t('people.suggest.title')}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {suggested.map((person) => (
+              <div key={`sugg-${person.id}`} className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-md transition">
+                <div className="flex items-start gap-3 mb-3">
+                  {person.avatar_url ? (
+                    <img src={person.avatar_url} alt={person.username} className="w-12 h-12 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {person.username?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="font-semibold truncate">{person.full_name || person.username}</div>
+                    <div className="text-xs text-gray-500 truncate">@{person.username}</div>
+                  </div>
+                </div>
+                {person.skillBlurb && (
+                  <div className="text-sm text-gray-700 mb-2">{person.skillBlurb}</div>
+                )}
+                {person.bio && (
+                  <div className="text-sm text-gray-600 line-clamp-2 mb-3">{person.bio}</div>
+                )}
+                <button
+                  onClick={() => sendFriendRequest(person.id)}
+                  className="w-full py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                  {t('people.requests.addFriend')}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredUsers.map((person) => (
           <div
@@ -219,27 +438,56 @@ export function PeoplePage() {
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{person.bio}</p>
               )}
 
-              {/* Botón seguir/siguiendo */}
-              <button
-                onClick={() => toggleFollow(person.id, person.is_following || false)}
-                className={`w-full py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2 ${
-                  person.is_following
-                    ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
-              >
-                {person.is_following ? (
-                  <>
-                    <UserMinus className="w-4 h-4" />
-                    {t('people.unfollow')}
-                  </>
-                ) : (
-                  <>
+              {/* Acciones de amistad */}
+              {(() => {
+                const outgoing = friendRequests.find((r) => r.sender_id === user!.id && r.recipient_id === person.id && r.status === 'pending');
+                const incoming = friendRequests.find((r) => r.sender_id === person.id && r.recipient_id === user!.id && r.status === 'pending');
+                const accepted = friendRequests.find((r) =>
+                  (r.sender_id === user!.id && r.recipient_id === person.id && r.status === 'accepted') ||
+                  (r.sender_id === person.id && r.recipient_id === user!.id && r.status === 'accepted')
+                );
+
+                if (accepted) {
+                  return (
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
+                        {t('people.requests.friends')}
+                      </span>
+                      <button className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        {t('people.requests.viewProfile')}
+                      </button>
+                    </div>
+                  );
+                }
+                if (incoming) {
+                  return (
+                    <div className="flex gap-2">
+                      <button onClick={() => acceptFriendRequest(incoming)} className="flex-1 py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                        {t('people.requests.accept')}
+                      </button>
+                      <button onClick={() => rejectFriendRequest(incoming)} className="flex-1 py-2 px-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 text-sm">
+                        {t('people.requests.reject')}
+                      </button>
+                    </div>
+                  );
+                }
+                if (outgoing) {
+                  return (
+                    <div className="w-full py-2 px-3 rounded-lg bg-yellow-50 text-yellow-800 text-center text-sm font-medium">
+                      {t('people.requests.sent')}
+                    </div>
+                  );
+                }
+                return (
+                  <button
+                    onClick={() => sendFriendRequest(person.id)}
+                    className="w-full py-2 px-4 rounded-lg font-medium transition flex items-center justify-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
+                  >
                     <UserPlus className="w-4 h-4" />
-                    {t('people.follow')}
-                  </>
-                )}
-              </button>
+                    {t('people.requests.addFriend')}
+                  </button>
+                );
+              })()}
             </div>
           </div>
         ))}

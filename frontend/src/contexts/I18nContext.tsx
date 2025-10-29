@@ -106,6 +106,15 @@ const translations: Record<Lang, Record<string, string>> = {
     'people.follow': 'Seguir',
     'people.unfollow': 'Siguiendo',
     'people.noResults': 'No se encontraron personas',
+  'people.requests.addFriend': 'Agregar amigo',
+  'people.requests.sent': 'Solicitud enviada',
+  'people.requests.accept': 'Aceptar',
+  'people.requests.reject': 'Rechazar',
+  'people.requests.friends': 'Amigos',
+  'people.requests.viewProfile': 'Ver perfil',
+  'people.suggest.title': 'Usuarios recientes',
+  'people.suggest.offering': 'Ofrece',
+  'people.suggest.seeking': 'Busca',
     
     // Nav
     'nav.people': 'Personas',
@@ -278,6 +287,15 @@ const translations: Record<Lang, Record<string, string>> = {
     'people.follow': 'Follow',
     'people.unfollow': 'Following',
     'people.noResults': 'No people found',
+  'people.requests.addFriend': 'Add friend',
+  'people.requests.sent': 'Request sent',
+  'people.requests.accept': 'Accept',
+  'people.requests.reject': 'Reject',
+  'people.requests.friends': 'Friends',
+  'people.requests.viewProfile': 'View profile',
+  'people.suggest.title': 'New users',
+  'people.suggest.offering': 'Offering',
+  'people.suggest.seeking': 'Seeking',
     
     // Nav
     'nav.people': 'People',
