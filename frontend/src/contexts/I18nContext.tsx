@@ -99,6 +99,7 @@ const translations: Record<Lang, Record<string, string>> = {
     // People
     'people.title': 'Personas',
     'people.search.placeholder': 'Buscar personas...',
+  'people.filter.label': 'Filtro',
     'people.filter.all': 'Todos',
     'people.filter.following': 'Siguiendo',
     'people.follow': 'Seguir',
@@ -269,6 +270,7 @@ const translations: Record<Lang, Record<string, string>> = {
     // People
     'people.title': 'People',
     'people.search.placeholder': 'Search people...',
+  'people.filter.label': 'Filter',
     'people.filter.all': 'All',
     'people.filter.following': 'Following',
     'people.follow': 'Follow',

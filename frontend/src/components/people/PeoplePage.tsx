@@ -92,9 +92,10 @@ export function PeoplePage() {
     }
   };
 
-  const filteredUsers = users.filter(u =>
-    u.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const term = searchTerm.trim().toLowerCase();
+  const norm = (s?: string | null) => (s || '').toLowerCase();
+  const filteredUsers = users.filter((u) =>
+    norm(u.username).includes(term) || norm(u.full_name).includes(term)
   );
 
   if (loading) {
