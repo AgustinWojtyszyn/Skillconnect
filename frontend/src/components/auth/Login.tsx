@@ -7,6 +7,7 @@ interface LoginProps {
   onBack?: () => void;
 }
 import { useI18n } from '../../contexts/I18nContext';
+import { friendlyAuthError } from '../../lib/authErrors';
 
 export function Login({ onToggleView, onBack }: LoginProps) {
   const [email, setEmail] = useState('');
@@ -21,12 +22,16 @@ export function Login({ onToggleView, onBack }: LoginProps) {
     setError('');
     setLoading(true);
 
-    const { error } = await signIn(email, password);
-
-    if (error) {
-      setError(error.message);
+    try {
+      const { error } = await signIn(email, password);
+      if (error) {
+        setError(friendlyAuthError(error, t));
+      }
+    } catch (e: any) {
+      setError(friendlyAuthError(e?.message || e, t));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -50,15 +55,13 @@ export function Login({ onToggleView, onBack }: LoginProps) {
           </div>
           
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-2">
-            Bienvenido de vuelta
-          </h2>
-          <p className="text-center text-gray-600 mb-8">
             {t('auth.login.title')}
-          </p>
+          </h2>
+          <p className="text-center text-gray-600 mb-8">&nbsp;</p>
 
           {error && (
             <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg mb-6">
-              <p className="font-semibold">Error</p>
+              <p className="font-semibold">{t('auth.login.title')}</p>
               <p className="text-sm">{error}</p>
             </div>
           )}

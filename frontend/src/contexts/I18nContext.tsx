@@ -62,6 +62,16 @@ const translations: Record<Lang, Record<string, string>> = {
     'auth.signIn': 'Inicia sesión',
     'auth.signUp': 'Regístrate',
 
+    // Auth - mensajes de error/éxito
+    'auth.errors.generic': 'Ocurrió un error. Intenta de nuevo más tarde.',
+    'auth.errors.invalid_credentials': 'Correo o contraseña incorrectos.',
+    'auth.errors.email_not_confirmed': 'Debes confirmar tu correo antes de iniciar sesión.',
+    'auth.errors.email_already_registered': 'Este correo ya está registrado. Intenta iniciar sesión o recuperar tu contraseña.',
+    'auth.errors.rate_limited': 'Demasiados intentos. Por seguridad, inténtalo más tarde.',
+    'auth.errors.network': 'No se pudo conectar. Verifica tu conexión a internet.',
+    'auth.errors.password_too_short': 'La contraseña debe tener al menos {min} caracteres.',
+    'auth.success.check_email_confirmation': '¡Cuenta creada! Revisa tu correo para confirmar tu email y poder iniciar sesión.',
+
     // Tutorial
     'tour.step1.title': 'Bienvenido/a a SkillConnect',
     'tour.step1.desc': 'Comparte y aprende habilidades con personas de todo el mundo.',
@@ -125,6 +135,16 @@ const translations: Record<Lang, Record<string, string>> = {
     'auth.needAccount': "Don't have an account yet?",
     'auth.signIn': 'Sign in',
     'auth.signUp': 'Sign up',
+
+    // Auth - error/success messages
+    'auth.errors.generic': 'Something went wrong. Please try again later.',
+    'auth.errors.invalid_credentials': 'Incorrect email or password.',
+    'auth.errors.email_not_confirmed': 'Please confirm your email before signing in.',
+    'auth.errors.email_already_registered': 'This email is already registered. Try signing in or resetting your password.',
+    'auth.errors.rate_limited': 'Too many attempts. For security, please try again later.',
+    'auth.errors.network': 'Could not connect. Check your internet connection.',
+    'auth.errors.password_too_short': 'Password must be at least {min} characters long.',
+    'auth.success.check_email_confirmation': 'Account created! Check your inbox to confirm your email before signing in.',
 
     // Tutorial
     'tour.step1.title': 'Welcome to SkillConnect',

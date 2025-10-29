@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { friendlyAuthError } from '../../lib/authErrors';
 import { UserPlus, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 
 interface RegisterProps {
@@ -25,7 +26,7 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
     setLoading(true);
 
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError(t('auth.errors.password_too_short', { min: 6 }));
       setLoading(false);
       return;
     }
@@ -33,17 +34,14 @@ export function Register({ onToggleView, onBack }: RegisterProps) {
     try {
       const { error } = await signUp(email, password, username);
       if (error) {
-        setError(error.message);
+        setError(friendlyAuthError(error, t));
       } else {
         // Éxito: si la confirmación de email está habilitada, no habrá sesión inmediata
-        setSuccess(
-          '¡Cuenta creada! Revisa tu correo para confirmar tu email y poder iniciar sesión.'
-        );
+        setSuccess(t('auth.success.check_email_confirmation'));
       }
     } catch (e: any) {
       // Si falla la llamada (por ejemplo, cliente no configurado), evitamos dejar el loading infinito
-      const msg = e?.message || 'Ocurrió un error inesperado creando tu cuenta';
-      setError(msg);
+      setError(friendlyAuthError(e?.message || e, t));
     } finally {
       setLoading(false);
     }
