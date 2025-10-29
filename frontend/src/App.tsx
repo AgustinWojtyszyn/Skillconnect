@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { I18nProvider } from './contexts/I18nContext';
 import { Login } from './components/auth/Login';
@@ -20,6 +20,13 @@ function MainApp() {
   const [chatUserId, setChatUserId] = useState<string | undefined>();
   const [chatUsername, setChatUsername] = useState<string | undefined>();
   const [showTour, setShowTour] = useState(false);
+  // Asegurar que tras un login siempre caemos en 'home'
+  useEffect(() => {
+    if (user) {
+      setCurrentView('home');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const handleStartChat = (userId: string, username: string) => {
     setChatUserId(userId);
