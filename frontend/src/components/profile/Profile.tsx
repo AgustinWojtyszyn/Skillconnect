@@ -39,6 +39,7 @@ export function Profile() {
   const { user } = useAuth();
   const { t } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [imgVersion, setImgVersion] = useState(0); // para forzar recarga de imágenes tras upload
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingProfile, setEditingProfile] = useState(false);
@@ -218,11 +219,15 @@ export function Profile() {
         {/* Banner con gradiente y botón para cambiar */}
         <div className="h-32 sm:h-40 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative group">
           {profile?.banner_url && (
-            <img
-              src={profile.banner_url}
-              alt="Banner"
-              className="w-full h-full object-cover"
-            />
+              <img
+                src={`${profile.banner_url}${profile.banner_url.includes('?') ? '&' : '?'}v=${imgVersion}`}
+                alt="Banner"
+                className="w-full h-full object-cover"
+                onError={() => {
+                  // Reintentar una vez tras pequeño delay por propagación CDN
+                  setTimeout(() => setImgVersion((v) => v + 1), 300);
+                }}
+              />
           )}
           {editingProfile && (
             <>
@@ -274,8 +279,8 @@ export function Profile() {
                     }
                     
                     const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-                    // Agregar timestamp para evitar cache del navegador
-                    const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
+                        // Usar URL base y manejar cache-busting en render con imgVersion
+                        const publicUrl = data?.publicUrl || null;
                     console.log('Public URL:', publicUrl);
                     
                     if (!publicUrl) throw new Error('No public URL');
@@ -291,7 +296,8 @@ export function Profile() {
                     }
                     
                     console.log('Banner uploaded successfully!');
-                    setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
+                      setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
+                      setImgVersion((v) => v + 1);
                   } catch (err: any) {
                     console.error('Banner upload failed:', err?.message || err);
                     setUploadError(t('profile.uploadError') || 'No se pudo subir la imagen. Inténtalo más tarde.');
@@ -312,9 +318,12 @@ export function Profile() {
             <div className="relative">
               {profile?.avatar_url ? (
                 <img
-                  src={profile.avatar_url}
+                  src={`${profile.avatar_url}${profile.avatar_url.includes('?') ? '&' : '?'}v=${imgVersion}`}
                   alt="Avatar"
                   className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl object-cover"
+                  onError={() => {
+                    setTimeout(() => setImgVersion((v) => v + 1), 300);
+                  }}
                 />
               ) : (
                 <div
@@ -373,8 +382,8 @@ export function Profile() {
                         }
                         
                         const { data } = supabase.storage.from('avatars').getPublicUrl(path);
-                        // Agregar timestamp para evitar cache del navegador
-                        const publicUrl = data?.publicUrl ? `${data.publicUrl}?t=${Date.now()}` : null;
+                        // Usar URL base y manejar cache-busting en render con imgVersion
+                        const publicUrl = data?.publicUrl || null;
                         console.log('Public URL:', publicUrl);
                         
                         if (!publicUrl) throw new Error('No public URL');
@@ -391,6 +400,7 @@ export function Profile() {
                         
                         console.log('Avatar uploaded successfully!');
                         setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
+                        setImgVersion((v) => v + 1);
                       } catch (err: any) {
                         console.error('Avatar upload failed:', err?.message || err);
                         setUploadError(t('profile.uploadError') || 'No se pudo subir tu avatar. Inténtalo más tarde.');
