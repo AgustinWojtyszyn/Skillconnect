@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { UserPlus, UserMinus, Search, Users, MessageCircle } from 'lucide-react';
+import { UserPlus, UserMinus, Search, Users, MessageCircle, Check, X } from 'lucide-react';
 
 interface User {
   id: string;
@@ -570,14 +570,16 @@ export function PeoplePage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => acceptFriendRequest(req)}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
                         >
+                          <Check className="w-4 h-4" />
                           {t('people.requests.accept')}
                         </button>
                         <button
                           onClick={() => rejectFriendRequest(req)}
-                          className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 text-sm"
+                          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium transition-colors"
                         >
+                          <X className="w-4 h-4" />
                           {t('people.requests.reject')}
                         </button>
                       </div>
