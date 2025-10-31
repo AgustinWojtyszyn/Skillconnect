@@ -153,20 +153,17 @@ export function PeoplePage() {
         }
       }
 
-      // Cargar solicitudes de amistad (salientes y entrantes) con los usuarios listados
-      const ids = usersWithFollowing.map((u: User) => u.id);
+      // Cargar TODAS las solicitudes del usuario (no dependientes del filtro de la lista)
       let outgoing: FriendRequest[] = [];
       let incoming: FriendRequest[] = [];
-      if (ids.length > 0) {
+      {
         const { data: outData } = await supabase
           .from('friend_requests')
           .select('id, sender_id, recipient_id, status, created_at')
-          .in('recipient_id', ids)
           .eq('sender_id', user!.id);
         const { data: inData } = await supabase
           .from('friend_requests')
           .select('id, sender_id, recipient_id, status, created_at')
-          .in('sender_id', ids)
           .eq('recipient_id', user!.id);
         outgoing = (outData as FriendRequest[]) || [];
         incoming = (inData as FriendRequest[]) || [];
@@ -190,9 +187,6 @@ export function PeoplePage() {
         } else {
           setRequestProfiles({});
         }
-      } else {
-        setFriendRequests([]);
-        setRequestProfiles({});
       }
 
       // Filtrar según el filtro seleccionado
