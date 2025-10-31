@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { MapPin, Edit2, Plus, Trash2, Save, X, Camera } from 'lucide-react';
+import { MapPin, Edit2, Plus, Trash2, Save, X, Camera, Check } from 'lucide-react';
 import '../../utils/checkStorage';
 
 interface Profile {
@@ -49,12 +49,15 @@ export function Profile() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const bannerInputRef = useRef<HTMLInputElement | null>(null);
   const [previewAvatarUrl, setPreviewAvatarUrl] = useState<string | null>(null);
   const [previewBannerUrl, setPreviewBannerUrl] = useState<string | null>(null);
   const [pendingAvatarRemoteUrl, setPendingAvatarRemoteUrl] = useState<string | null>(null);
   const [pendingBannerRemoteUrl, setPendingBannerRemoteUrl] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
 
   // Pre-cargar imagen remota hasta que esté disponible (por propagación del CDN)
   const ensureRemoteReady = async (url: string, maxAttempts = 10, delayMs = 500) => {
@@ -172,6 +175,7 @@ export function Profile() {
         bio: data.bio || '',
         location: data.location || '',
       });
+      setNameInput(data.full_name || '');
     }
     setLoading(false);
   };
@@ -210,6 +214,28 @@ export function Profile() {
       setEditingProfile(false);
       // Releer perfil final
       await fetchProfile();
+    }
+  };
+
+  const updateDisplayName = async () => {
+    const value = nameInput.trim();
+    if (value.length === 0) {
+      setNameError(t('profile.fullName.placeholder'));
+      return;
+    }
+    setNameError(null);
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ full_name: value })
+      .eq('id', user!.id)
+      .select('id, username, full_name, bio, location, avatar_url, banner_url')
+      .maybeSingle();
+    if (!error) {
+      setProfile((prev) => prev ? { ...prev, full_name: value } : prev);
+      setProfileForm((prev) => ({ ...prev, full_name: value }));
+      setEditingName(false);
+    } else {
+      setNameError(t('auth.errors.generic'));
     }
   };
 
@@ -542,10 +568,52 @@ export function Profile() {
             <div className="flex-1 min-w-0 w-full sm:ml-4 mt-2 sm:mt-0">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
-                    {profile?.full_name || displayUsername}
-                  </h2>
-                  <p className="text-sm sm:text-base text-gray-500 truncate">@{displayUsername}</p>
+                  {!editingName ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+                          {profile?.full_name || displayUsername}
+                        </h2>
+                        <button
+                          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-600"
+                          title={t('profile.editProfile')}
+                          onClick={() => {
+                            setNameInput(profileForm.full_name || '');
+                            setEditingName(true);
+                          }}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-sm sm:text-base text-gray-500 truncate">@{displayUsername}</p>
+                    </>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                      <input
+                        type="text"
+                        value={nameInput}
+                        onChange={(e) => setNameInput(e.target.value)}
+                        className="w-full sm:w-80 px-3 py-2 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder={t('profile.fullName.placeholder')}
+                        autoFocus
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={updateDisplayName}
+                          className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-1 text-sm"
+                        >
+                          <Check className="w-4 h-4" /> {t('profile.saveChanges')}
+                        </button>
+                        <button
+                          onClick={() => { setEditingName(false); setNameError(null); setNameInput(profileForm.full_name || ''); }}
+                          className="px-3 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 text-sm"
+                        >
+                          <X className="w-4 h-4 inline" /> {t('profile.cancel')}
+                        </button>
+                      </div>
+                      {nameError && <p className="text-sm text-red-600">{nameError}</p>}
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => setEditingProfile(!editingProfile)}
