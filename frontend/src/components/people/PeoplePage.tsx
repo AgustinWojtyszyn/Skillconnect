@@ -37,6 +37,7 @@ export function PeoplePage() {
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
   const [suggested, setSuggested] = useState<SuggestedUser[]>([]);
   const [activeTab, setActiveTab] = useState<'people' | 'requests'>('people');
+  const [requestProfiles, setRequestProfiles] = useState<Record<string, User>>({});
 
   useEffect(() => {
     if (user) {
@@ -153,7 +154,7 @@ export function PeoplePage() {
       }
 
       // Cargar solicitudes de amistad (salientes y entrantes) con los usuarios listados
-  const ids = usersWithFollowing.map((u: User) => u.id);
+      const ids = usersWithFollowing.map((u: User) => u.id);
       let outgoing: FriendRequest[] = [];
       let incoming: FriendRequest[] = [];
       if (ids.length > 0) {
@@ -170,8 +171,28 @@ export function PeoplePage() {
         outgoing = (outData as FriendRequest[]) || [];
         incoming = (inData as FriendRequest[]) || [];
         setFriendRequests([...(outgoing || []), ...(incoming || [])]);
+
+        // Asegurar perfiles completos para solicitudes (pueden no estar en "users")
+        const relatedIds = Array.from(
+          new Set([
+            ...outgoing.map((r) => r.recipient_id),
+            ...incoming.map((r) => r.sender_id),
+          ].filter((id) => id && id !== user!.id))
+        );
+        if (relatedIds.length > 0) {
+          const { data: reqProfiles } = await supabase
+            .from('profiles')
+            .select('id, username, full_name, bio, avatar_url, email')
+            .in('id', relatedIds);
+          const map: Record<string, User> = {};
+          (reqProfiles as User[] | null)?.forEach((p) => { map[p.id] = p; });
+          setRequestProfiles(map);
+        } else {
+          setRequestProfiles({});
+        }
       } else {
         setFriendRequests([]);
+        setRequestProfiles({});
       }
 
       // Filtrar según el filtro seleccionado
@@ -183,14 +204,14 @@ export function PeoplePage() {
       console.log('✅ Filtered users to show:', filteredUsers.length);
       setUsers(filteredUsers);
 
-    // Sugerencias: si no hay término de búsqueda, mostrar usuarios recientes con un blurb de su skill más reciente
-  const rawQuery2 = (q ?? '').trim();
-    const sanitizedQuery2 = rawQuery2.replace(/^@+/, '');
-  if (sanitizedQuery2.length === 0) {
+      // Sugerencias: si no hay término de búsqueda, mostrar usuarios recientes con un blurb de su skill más reciente
+      const rawQuery2 = (q ?? '').trim();
+      const sanitizedQuery2 = rawQuery2.replace(/^@+/, '');
+      if (sanitizedQuery2.length === 0) {
         try {
           const { data: recentProfiles } = await supabase
             .from('profiles')
-            .select('id, username, full_name, bio, avatar_url')
+            .select('id, username, full_name, bio, avatar_url, email')
             .neq('id', user!.id)
             .order('created_at', { ascending: false })
             .limit(12);
@@ -416,20 +437,17 @@ export function PeoplePage() {
                         <img src={person.avatar_url} alt={person.username} className="w-12 h-12 rounded-full object-cover" />
                       ) : (
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                          {person.username?.charAt(0).toUpperCase() || 'U'}
+                          {(person.email || person.username || 'U').charAt(0).toUpperCase()}
                         </div>
                       )}
                       <div className="min-w-0">
-                        <div className="font-semibold truncate">{person.full_name || person.username}</div>
-                        <div className="text-xs text-gray-500 truncate">@{person.username}</div>
+                        <div className="font-semibold truncate">{person.email || person.username}</div>
+                        {(person.full_name || person.username) && (
+                          <div className="text-xs text-gray-500 truncate italic">{person.full_name || person.username}</div>
+                        )}
                       </div>
                     </div>
-                    {person.skillBlurb && (
-                      <div className="text-sm text-gray-700 mb-2">{person.skillBlurb}</div>
-                    )}
-                    {person.bio && (
-                      <div className="text-sm text-gray-600 line-clamp-2 mb-3">{person.bio}</div>
-                    )}
+                    {/* En recientes solo mostramos email y un nombre elegante (secundario) */}
                     <button
                       onClick={() => sendFriendRequest(person.id)}
                       className="w-full py-2 px-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
@@ -464,10 +482,10 @@ export function PeoplePage() {
                     )}
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-lg truncate">
-                        {person.full_name || person.username}
-                      </h3>
-                      <p className="text-sm text-gray-500 truncate">@{person.username}</p>
+                      <h3 className="font-bold text-lg truncate">{person.email || person.username}</h3>
+                      {(person.full_name || person.username) && (
+                        <p className="text-sm text-gray-500 truncate italic">{person.full_name || person.username}</p>
+                      )}
                     </div>
                   </div>
 
@@ -551,7 +569,7 @@ export function PeoplePage() {
             ) : (
               <div className="space-y-4">
                 {incomingRequests.map((req) => {
-                  const sender = users.find(u => u.id === req.sender_id);
+                  const sender = requestProfiles[req.sender_id] || users.find(u => u.id === req.sender_id);
                   return (
                     <div key={req.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                       <div className="flex items-center gap-3">
@@ -559,12 +577,14 @@ export function PeoplePage() {
                           <img src={sender.avatar_url} alt={sender.username} className="w-10 h-10 rounded-full object-cover" />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                            {sender?.username?.charAt(0).toUpperCase() || 'U'}
+                            {(sender?.email || sender?.username || 'U').charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div>
-                          <div className="font-semibold">{sender?.full_name || sender?.username}</div>
-                          <div className="text-sm text-gray-500">@{sender?.username}</div>
+                          <div className="font-semibold">{sender?.email || sender?.username}</div>
+                          {(sender?.full_name || sender?.username) && (
+                            <div className="text-sm text-gray-500 italic">{sender?.full_name || sender?.username}</div>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -598,7 +618,7 @@ export function PeoplePage() {
             ) : (
               <div className="space-y-4">
                 {outgoingRequests.map((req) => {
-                  const recipient = users.find(u => u.id === req.recipient_id);
+                  const recipient = requestProfiles[req.recipient_id] || users.find(u => u.id === req.recipient_id);
                   return (
                     <div key={req.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
                       <div className="flex items-center gap-3">
@@ -606,12 +626,14 @@ export function PeoplePage() {
                           <img src={recipient.avatar_url} alt={recipient.username} className="w-10 h-10 rounded-full object-cover" />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                            {recipient?.username?.charAt(0).toUpperCase() || 'U'}
+                            {(recipient?.email || recipient?.username || 'U').charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div>
-                          <div className="font-semibold">{recipient?.full_name || recipient?.username}</div>
-                          <div className="text-sm text-gray-500">@{recipient?.username}</div>
+                          <div className="font-semibold">{recipient?.email || recipient?.username}</div>
+                          {(recipient?.full_name || recipient?.username) && (
+                            <div className="text-sm text-gray-500 italic">{recipient?.full_name || recipient?.username}</div>
+                          )}
                         </div>
                       </div>
                       <div className="px-3 py-1 rounded-lg bg-yellow-50 text-yellow-800 text-sm font-medium">
