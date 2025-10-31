@@ -7,6 +7,7 @@ interface Profile {
   id: string;
   username: string;
   full_name: string | null;
+  email: string | null;
 }
 
 interface Conversation {
@@ -80,7 +81,7 @@ export function Chat({ initialUserId }: ChatProps) {
           const otherUserId = conv.user1_id === user!.id ? conv.user2_id : conv.user1_id;
           const { data: profile } = await supabase
             .from('profiles')
-            .select('id, username, full_name')
+            .select('id, username, full_name, email')
             .eq('id', otherUserId)
             .single();
 
@@ -120,7 +121,7 @@ export function Chat({ initialUserId }: ChatProps) {
     if (existing) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('id, username, full_name')
+        .select('id, username, full_name, email')
         .eq('id', otherUserId)
         .single();
 
@@ -238,9 +239,13 @@ export function Chat({ initialUserId }: ChatProps) {
                 }`}
               >
                 <div className="font-semibold text-gray-900 text-sm md:text-base truncate">
-                  {conv.other_user.full_name || conv.other_user.username}
+                  {conv.other_user.email || conv.other_user.username}
                 </div>
-                <div className="text-xs md:text-sm text-gray-500 truncate">@{conv.other_user.username}</div>
+                {(conv.other_user.full_name || conv.other_user.username) && (
+                  <div className="text-xs md:text-sm text-gray-500 truncate italic">
+                    {conv.other_user.full_name || conv.other_user.username}
+                  </div>
+                )}
               </button>
             ))
           )}
@@ -262,9 +267,13 @@ export function Chat({ initialUserId }: ChatProps) {
               </button>
               <div className="min-w-0 flex-1">
                 <h4 className="font-semibold text-gray-900 text-sm md:text-base truncate">
-                  {selectedConversation.other_user.full_name || selectedConversation.other_user.username}
+                  {selectedConversation.other_user.email || selectedConversation.other_user.username}
                 </h4>
-                <p className="text-xs md:text-sm text-gray-500 truncate">@{selectedConversation.other_user.username}</p>
+                {(selectedConversation.other_user.full_name || selectedConversation.other_user.username) && (
+                  <p className="text-xs md:text-sm text-gray-500 truncate italic">
+                    {selectedConversation.other_user.full_name || selectedConversation.other_user.username}
+                  </p>
+                )}
               </div>
             </div>
 
