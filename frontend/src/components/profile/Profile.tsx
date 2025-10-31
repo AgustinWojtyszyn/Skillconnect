@@ -13,6 +13,7 @@ interface Profile {
   location: string | null;
   avatar_url?: string | null;
   banner_url?: string | null;
+  email?: string | null;
 }
 
 interface Skill {
@@ -149,12 +150,15 @@ export function Profile() {
     const emailUser = user?.email ? user.email.split('@')[0] : '';
     return profile?.username || metaUser || emailUser || '';
   }, [profile?.username, user]);
+  const displayEmail = useMemo(() => {
+    return profile?.email || user?.email || '';
+  }, [profile?.email, user?.email]);
 
   const fetchProfile = async () => {
     console.log('🔍 Fetching profile for user:', user!.id);
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, username, full_name, bio, location, avatar_url, banner_url')
+      .select('id, username, full_name, bio, location, avatar_url, banner_url, email')
       .eq('id', user!.id)
       .maybeSingle();
 
@@ -585,7 +589,7 @@ export function Profile() {
                           <Edit2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <p className="text-sm sm:text-base text-gray-500 truncate">@{displayUsername}</p>
+                      <p className="text-sm sm:text-base text-gray-500 truncate">{displayEmail || `@${displayUsername}`}</p>
                     </>
                   ) : (
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
