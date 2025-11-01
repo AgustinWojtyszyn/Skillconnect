@@ -12,7 +12,7 @@ import { LandingPage } from './components/landing/LandingPage';
 import { OnboardingTour } from './components/onboarding/OnboardingTour';
 import { DashboardHome } from './components/home/DashboardHome';
 import { PeoplePage } from './components/people/PeoplePage';
-import { UserProfile } from './components/people/UserProfile';
+import { UserProfile } from './components/people/UserProfile.tsx';
 
 function MainApp() {
   const { user } = useAuth();
