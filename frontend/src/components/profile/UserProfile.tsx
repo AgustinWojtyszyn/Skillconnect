@@ -116,42 +116,28 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Card de encabezado */}
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-        {/* Banner */}
-        <div className="relative">
-          <div className={`h-32 md:h-40 ${profile.banner_url ? '' : 'bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600'}`}>
-            {profile.banner_url && (
-              <img src={profile.banner_url} className="w-full h-full object-cover" alt="Banner" />
-            )}
-          </div>
-          <button
-            onClick={onBack}
-            className="absolute left-4 top-4 p-2 bg-white/80 hover:bg-white rounded-lg border shadow-sm"
-            title="Volver"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Header content */}
-        <div className="px-4 sm:px-6 pb-6">
-          <div className="-mt-12 md:-mt-16 flex items-end gap-4">
+      {/* Card de encabezado sin banner */}
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200">
+        <div className="px-4 sm:px-6 py-4 md:py-6">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="p-2 bg-white hover:bg-gray-100 rounded-lg border shadow-sm"
+              title="Volver"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-4 border-white shadow-xl object-cover" />
+              <img src={profile.avatar_url} alt="Avatar" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 object-cover" />
             ) : (
-              <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-4 border-white shadow-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl md:text-3xl">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl md:text-2xl">
                 {(profile.email || profile.username || 'U').charAt(0).toUpperCase()}
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 truncate">
-                {displayName}
-              </h2>
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 truncate">{displayName}</h2>
               {secondaryLine && (
-                <p className="text-sm md:text-base text-gray-500 truncate italic">
-                  {secondaryLine}
-                </p>
+                <p className="text-sm md:text-base text-gray-500 truncate italic">{secondaryLine}</p>
               )}
               {profile.location && (
                 <div className="flex items-center gap-2 text-gray-600 mt-1">
@@ -171,14 +157,10 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
             </div>
           </div>
 
-          {/* Bio */}
           {profile.bio && (
-            <p className="mt-4 text-gray-700 leading-relaxed">
-              {profile.bio}
-            </p>
+            <p className="mt-4 text-gray-700 leading-relaxed">{profile.bio}</p>
           )}
 
-          {/* Stats */}
           <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
               <Briefcase className="w-4 h-4 text-gray-500" />
