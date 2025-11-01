@@ -30,9 +30,15 @@ function MainApp() {
   }, [user?.id]);
 
   const handleStartChat = (userId: string, username: string) => {
-    setChatUserId(userId);
-    setChatUsername(username);
-    setCurrentView('chat');
+    // Limpiar el userId anterior para forzar re-render en Chat
+    setChatUserId(undefined);
+    setChatUsername(undefined);
+    // Usar setTimeout para asegurar que el efecto en Chat detecte el cambio
+    setTimeout(() => {
+      setChatUserId(userId);
+      setChatUsername(username);
+      setCurrentView('chat');
+    }, 0);
   };
 
   const handleGetStarted = () => {

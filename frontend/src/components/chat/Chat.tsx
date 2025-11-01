@@ -47,10 +47,10 @@ export function Chat({ initialUserId }: ChatProps) {
   }, [user]);
 
   useEffect(() => {
-    if (initialUserId) {
+    if (initialUserId && user) {
       findOrCreateConversation(initialUserId);
     }
-  }, [initialUserId]);
+  }, [initialUserId, user]);
 
   useEffect(() => {
     if (selectedConversation) {
