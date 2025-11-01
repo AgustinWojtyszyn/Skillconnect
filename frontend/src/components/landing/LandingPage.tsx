@@ -27,13 +27,25 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
           </div>
           <div className="text-center space-y-8">
-            {/* Logo integrado sin borde visible */}
-            <div className="mb-8 flex justify-center py-12">
-              <img 
-                src="/assets/skillconnect-logo.png" 
-                alt="SkillConnect Logo" 
-                className="h-48 md:h-64 w-auto mx-auto drop-shadow-2xl"
-              />
+            {/* Logo personalizado con mundo */}
+            <div className="mb-8 flex flex-col items-center justify-center py-12">
+              {/* Ícono de mundo con efecto de red global */}
+              <div className="relative mb-6">
+                <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-3xl animate-pulse" />
+                <Globe className="relative w-32 h-32 md:w-40 md:h-40 text-blue-300 drop-shadow-2xl animate-[spin_20s_linear_infinite]" strokeWidth={1} />
+              </div>
+              
+              {/* Título SkillConnect */}
+              <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-3">
+                <span className="bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent drop-shadow-lg">
+                  SkillConnect
+                </span>
+              </h1>
+              
+              {/* Lema debajo */}
+              <p className="text-lg md:text-2xl text-blue-200 font-light tracking-wide">
+                {lang === 'es' ? 'Aprende, Ofrece, Colabora' : 'Learn, Offer, Collaborate'}
+              </p>
             </div>
 
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-full text-sm font-semibold animate-bounce">
