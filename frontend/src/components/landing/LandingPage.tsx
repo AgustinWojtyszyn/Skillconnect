@@ -27,14 +27,15 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
           </div>
           <div className="text-center space-y-8">
-            {/* Logo/Brand Name con tipografía elegante y degradado */}
-            <div className="mb-8">
-              <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight">
-                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-2xl">
-                  SkillConnect
-                </span>
-              </h1>
-              <p className="text-lg md:text-xl text-gray-500 mt-2 font-light italic">Conecta · Aprende · Crece</p>
+            {/* Logo con fondo oscuro para contraste */}
+            <div className="mb-8 flex justify-center">
+              <div className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 rounded-3xl p-8 shadow-2xl">
+                <img 
+                  src="/assets/skillconnect-logo.png" 
+                  alt="SkillConnect Logo" 
+                  className="h-48 md:h-64 w-auto mx-auto"
+                />
+              </div>
             </div>
 
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold animate-bounce">
