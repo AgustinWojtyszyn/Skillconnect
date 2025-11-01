@@ -212,16 +212,23 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
                     {skill.profiles.full_name || skill.profiles.username}
                   </span>
                 </div>
-                {skill.user_id !== user?.id && (
+                {skill.user_id !== user?.id ? (
                   <button
-                    onClick={() => onStartChat(skill.user_id, skill.profiles.username)}
-                    className="w-full px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs md:text-sm font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
+                    onClick={() => {
+                      console.log('Chat button clicked:', { userId: skill.user_id, username: skill.profiles.username });
+                      onStartChat(skill.user_id, skill.profiles.username);
+                    }}
+                    className="w-full px-3 md:px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm md:text-base font-bold rounded-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 shadow-md"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
-                    {t('skills.chat')}
+                    Enviar mensaje
                   </button>
+                ) : (
+                  <div className="w-full px-3 py-2 bg-gray-100 text-gray-500 text-xs md:text-sm text-center rounded-lg italic">
+                    Tu publicación
+                  </div>
                 )}
               </div>
             </div>
