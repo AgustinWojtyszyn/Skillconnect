@@ -166,8 +166,17 @@ export function Chat({ initialUserId }: ChatProps) {
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload: { new: Message }) => {
-          setMessages((current) => [...current, payload.new as Message]);
-          if ((payload.new as Message).sender_id !== user!.id) {
+          const newMessage = payload.new as Message;
+          
+          // Solo agregar si es de otro usuario (mis mensajes ya están agregados optimísticamente)
+          if (newMessage.sender_id !== user!.id) {
+            setMessages((current) => {
+              // Evitar duplicados
+              if (current.some((m) => m.id === newMessage.id)) {
+                return current;
+              }
+              return [...current, newMessage];
+            });
             markMessagesAsRead(conversationId);
           }
         }
@@ -183,19 +192,45 @@ export function Chat({ initialUserId }: ChatProps) {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
 
-    const { error } = await supabase.from('messages').insert({
+    const messageContent = newMessage.trim();
+    const optimisticMessage: Message = {
+      id: `temp-${Date.now()}`,
       conversation_id: selectedConversation.id,
       sender_id: user!.id,
-      content: newMessage.trim(),
-    });
+      content: messageContent,
+      created_at: new Date().toISOString(),
+      is_read: true,
+    };
 
-    if (!error) {
+    // Agregar mensaje inmediatamente (actualización optimista)
+    setMessages((current) => [...current, optimisticMessage]);
+    setNewMessage('');
+
+    const { data, error } = await supabase
+      .from('messages')
+      .insert({
+        conversation_id: selectedConversation.id,
+        sender_id: user!.id,
+        content: messageContent,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // Si hay error, remover el mensaje optimista
+      setMessages((current) => current.filter((m) => m.id !== optimisticMessage.id));
+      console.error('Error sending message:', error);
+    } else if (data) {
+      // Reemplazar el mensaje temporal con el real
+      setMessages((current) =>
+        current.map((m) => (m.id === optimisticMessage.id ? data : m))
+      );
+
       await supabase
         .from('conversations')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', selectedConversation.id);
 
-      setNewMessage('');
       fetchConversations();
     }
   };
