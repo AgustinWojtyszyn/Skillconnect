@@ -575,6 +575,16 @@ export function PeoplePage() {
 
       {activeTab === 'requests' && (
         <div className="space-y-6">
+          {/* Toolbar solicitudes */}
+          <div className="flex items-center justify-end">
+            <button
+              type="button"
+              onClick={() => fetchUsers(appliedTerm)}
+              className="px-3 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+            >
+              {tt('people.requests.refresh', 'Actualizar')}
+            </button>
+          </div>
           {/* Incoming Requests */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
             <h3 className="text-lg font-bold mb-4">{tt('people.requests.incoming', 'Solicitudes recibidas')}</h3>
