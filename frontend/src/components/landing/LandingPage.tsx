@@ -27,52 +27,15 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
           </div>
           <div className="text-center space-y-8">
-            {/* Logo personalizado con mundo estático y detallado */}
+            {/* Logo desde assets (mundo estático) */}
             <div className="mb-8 flex flex-col items-center justify-center py-12">
-              {/* Mundo SVG con líneas y nodos */}
-              <div className="relative mb-6">
-                <svg
-                  className="w-36 h-36 md:w-44 md:h-44 drop-shadow-2xl"
-                  viewBox="0 0 200 200"
-                  fill="none"
-                  aria-label="SkillsConnect globe logo"
-                >
-                  <defs>
-                    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.35" />
-                      <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
-                    </radialGradient>
-                    <linearGradient id="stroke" x1="0" y1="0" x2="200" y2="200">
-                      <stop offset="0%" stopColor="#93C5FD" />
-                      <stop offset="50%" stopColor="#A78BFA" />
-                      <stop offset="100%" stopColor="#7C3AED" />
-                    </linearGradient>
-                  </defs>
-                  {/* Glow */}
-                  <circle cx="100" cy="100" r="80" fill="url(#glow)" />
-                  {/* Esfera */}
-                  <circle cx="100" cy="100" r="70" stroke="url(#stroke)" strokeWidth="2" />
-                  {/* Meridianos */}
-                  <ellipse cx="100" cy="100" rx="65" ry="28" stroke="url(#stroke)" strokeWidth="1.5" />
-                  <ellipse cx="100" cy="100" rx="65" ry="42" stroke="url(#stroke)" strokeWidth="1.2" transform="rotate(25 100 100)" />
-                  <ellipse cx="100" cy="100" rx="65" ry="42" stroke="url(#stroke)" strokeWidth="1.2" transform="rotate(-25 100 100)" />
-                  {/* Paralelos curvos */}
-                  <path d="M30,100 C60,85 140,85 170,100" stroke="url(#stroke)" strokeWidth="1.2" fill="none" />
-                  <path d="M35,120 C80,105 120,105 165,120" stroke="url(#stroke)" strokeWidth="1" fill="none" />
-                  <path d="M35,80 C80,95 120,95 165,80" stroke="url(#stroke)" strokeWidth="1" fill="none" />
-                  {/* Órbitas finas */}
-                  <path d="M25,110 C60,60 140,60 175,110" stroke="url(#stroke)" strokeWidth="0.8" fill="none" />
-                  <path d="M25,90 C60,140 140,140 175,90" stroke="url(#stroke)" strokeWidth="0.8" fill="none" />
-                  {/* Nodos */}
-                  <g fill="#A78BFA">
-                    <circle cx="55" cy="86" r="3" />
-                    <circle cx="75" cy="120" r="3" />
-                    <circle cx="125" cy="84" r="3" />
-                    <circle cx="145" cy="114" r="3" />
-                    <circle cx="100" cy="100" r="3" />
-                  </g>
-                </svg>
-              </div>
+              <img
+                src="/assets/modern-technology-world-map-globe-crop-out-png.webp"
+                alt="SkillsConnect logo"
+                className="w-48 md:w-64 h-auto mx-auto drop-shadow-2xl select-none pointer-events-none"
+                loading="eager"
+                decoding="async"
+              />
 
               {/* Título SkillsConnect */}
               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-3">
