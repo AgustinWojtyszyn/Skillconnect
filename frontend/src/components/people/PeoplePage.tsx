@@ -48,7 +48,16 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
   const [suggested, setSuggested] = useState<SuggestedUser[]>([]);
   const [activeTab, setActiveTab] = useState<'people' | 'requests'>('people');
   const [requestProfiles, setRequestProfiles] = useState<Record<string, User>>({});
-  const [showSuggestions, setShowSuggestions] = useState(true);
+    const [showSuggestions, setShowSuggestions] = useState(() => {
+      const saved = localStorage.getItem('skillconnect:showSuggestions');
+      return saved !== null ? saved === 'true' : true;
+    });
+
+    // Persistir estado de sugerencias
+    useEffect(() => {
+      localStorage.setItem('skillconnect:showSuggestions', String(showSuggestions));
+      console.log('👁️ showSuggestions changed to:', showSuggestions);
+    }, [showSuggestions]);
 
   useEffect(() => {
     if (user) {
@@ -482,7 +491,10 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
             <div className="mt-4 flex items-center justify-end">
               <button
                 type="button"
-                onClick={() => setShowSuggestions(!showSuggestions)}
+                  onClick={() => {
+                    console.log('🔘 Toggle clicked! Current:', showSuggestions, '→ New:', !showSuggestions);
+                    setShowSuggestions(!showSuggestions);
+                  }}
                 className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
                 title={showSuggestions ? tt('people.suggestions.hide', 'Ocultar sugerencias') : tt('people.suggestions.show', 'Mostrar sugerencias')}
               >
@@ -505,6 +517,7 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
 
       {activeTab === 'people' && (
         <>
+            {console.log('🔍 Rendering people tab - showSuggestions:', showSuggestions, 'suggested.length:', suggested.length, 'appliedTerm:', appliedTerm, 'filteredUsers.length:', filteredUsers.length)}
           {/* Sugerencias de usuarios recientes */}
           {showSuggestions && suggested.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
