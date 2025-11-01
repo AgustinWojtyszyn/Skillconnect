@@ -9,71 +9,69 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
   const { t, lang, setLang } = useI18n();
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10" />
+      {/* Hero Section con fondo azul integrado */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-indigo-800 to-purple-900">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-700/20 via-transparent to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
           {/* Language switcher */}
           <div className="flex justify-end mb-6">
-            <div className="inline-flex rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="inline-flex rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm shadow-lg">
               <button
                 onClick={() => setLang('es')}
-                className={`px-3 py-1.5 text-sm rounded-l-lg ${lang === 'es' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+                className={`px-3 py-1.5 text-sm rounded-l-lg transition ${lang === 'es' ? 'bg-white text-blue-900' : 'text-white hover:bg-white/20'}`}
               >ES</button>
               <button
                 onClick={() => setLang('en')}
-                className={`px-3 py-1.5 text-sm rounded-r-lg border-l ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+                className={`px-3 py-1.5 text-sm rounded-r-lg border-l border-white/20 transition ${lang === 'en' ? 'bg-white text-blue-900' : 'text-white hover:bg-white/20'}`}
               >EN</button>
             </div>
           </div>
           <div className="text-center space-y-8">
-            {/* Logo con fondo oscuro para contraste */}
-            <div className="mb-8 flex justify-center">
-              <div className="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 rounded-3xl p-8 shadow-2xl">
-                <img 
-                  src="/assets/skillconnect-logo.png" 
-                  alt="SkillConnect Logo" 
-                  className="h-48 md:h-64 w-auto mx-auto"
-                />
-              </div>
+            {/* Logo integrado sin borde visible */}
+            <div className="mb-8 flex justify-center py-12">
+              <img 
+                src="/assets/skillconnect-logo.png" 
+                alt="SkillConnect Logo" 
+                className="h-48 md:h-64 w-auto mx-auto drop-shadow-2xl"
+              />
             </div>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold animate-bounce">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-full text-sm font-semibold animate-bounce">
               <Sparkles className="w-4 h-4" />
               {t('landing.badge')}
             </div>
             
-            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
-              {t('landing.title.1')} <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{t('landing.title.2')}</span>
+            <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+              {t('landing.title.1')} <span className="bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">{t('landing.title.2')}</span>
               <br />
               {t('landing.title.3')}
             </h2>
             
-            <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
               {t('landing.subtitle')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
                 onClick={onGetStarted}
-                className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold text-lg shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                className="group px-8 py-4 bg-white text-blue-900 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-white/30 transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
               >
                 {t('landing.primaryCta')}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
 
-            <div className="flex items-center justify-center gap-8 text-sm text-gray-500 pt-8">
+            <div className="flex items-center justify-center gap-8 text-sm text-blue-100 pt-8">
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="w-5 h-5 text-green-300" />
                 <span>{t('landing.perk.free')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="w-5 h-5 text-green-300" />
                 <span>{t('landing.perk.cardless')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
+                <CheckCircle className="w-5 h-5 text-green-300" />
                 <span>{t('landing.perk.community')}</span>
               </div>
             </div>
