@@ -269,28 +269,40 @@ export function Chat({ initialUserId }: ChatProps) {
       return;
     }
 
+    console.log('🗑️ Deleting conversation:', conversationId);
+
     try {
       // Primero eliminar todos los mensajes de la conversación
-      const { error: messagesError } = await supabase
+      console.log('🗑️ Deleting messages...');
+      const { data: deletedMessages, error: messagesError } = await supabase
         .from('messages')
         .delete()
-        .eq('conversation_id', conversationId);
+        .eq('conversation_id', conversationId)
+        .select();
 
       if (messagesError) {
-        console.error('Error deleting messages:', messagesError);
+        console.error('❌ Error deleting messages:', messagesError);
+        alert(`Error al eliminar mensajes: ${messagesError.message}`);
         return;
       }
+
+      console.log('✅ Messages deleted:', deletedMessages?.length || 0);
 
       // Luego eliminar la conversación
-      const { error: conversationError } = await supabase
+      console.log('🗑️ Deleting conversation...');
+      const { data: deletedConv, error: conversationError } = await supabase
         .from('conversations')
         .delete()
-        .eq('id', conversationId);
+        .eq('id', conversationId)
+        .select();
 
       if (conversationError) {
-        console.error('Error deleting conversation:', conversationError);
+        console.error('❌ Error deleting conversation:', conversationError);
+        alert(`Error al eliminar conversación: ${conversationError.message}`);
         return;
       }
+
+      console.log('✅ Conversation deleted:', deletedConv);
 
       // Actualizar la UI
       if (selectedConversation?.id === conversationId) {
@@ -299,8 +311,10 @@ export function Chat({ initialUserId }: ChatProps) {
       }
       
       fetchConversations();
-    } catch (err) {
-      console.error('Error deleting conversation:', err);
+      console.log('✅ Conversation deleted successfully!');
+    } catch (err: any) {
+      console.error('❌ Error deleting conversation:', err);
+      alert(`Error inesperado: ${err?.message || 'No se pudo eliminar la conversación'}`);
     }
   };
 
