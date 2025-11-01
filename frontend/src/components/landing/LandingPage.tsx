@@ -14,16 +14,26 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center space-y-8">
+            {/* Logo/Brand Name con tipografía elegante y degradado */}
+            <div className="mb-8">
+              <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight">
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent drop-shadow-2xl">
+                  SkillConnect
+                </span>
+              </h1>
+              <p className="text-lg md:text-xl text-gray-500 mt-2 font-light italic">Conecta · Aprende · Crece</p>
+            </div>
+
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-semibold animate-bounce">
               <Sparkles className="w-4 h-4" />
               {t('landing.badge')}
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold text-gray-900 leading-tight">
+            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 leading-tight">
               {t('landing.title.1')} <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">{t('landing.title.2')}</span>
               <br />
               {t('landing.title.3')}
-            </h1>
+            </h2>
             
             <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
               {t('landing.subtitle')}

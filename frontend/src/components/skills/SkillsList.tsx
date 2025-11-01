@@ -205,8 +205,8 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
                 </span>
               </div>
 
-              <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-100 gap-2">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="flex flex-col gap-2 pt-3 md:pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2 min-w-0">
                   <User className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
                   <span className="text-xs md:text-sm font-medium text-gray-700 truncate">
                     {skill.profiles.full_name || skill.profiles.username}
@@ -215,8 +215,11 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
                 {skill.user_id !== user?.id && (
                   <button
                     onClick={() => onStartChat(skill.user_id, skill.profiles.username)}
-                    className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white text-xs md:text-sm font-medium rounded-lg hover:bg-blue-700 transition flex-shrink-0"
+                    className="w-full px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs md:text-sm font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
                   >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
                     {t('skills.chat')}
                   </button>
                 )}
