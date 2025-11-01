@@ -266,35 +266,99 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
 
       {/* Modal skill */}
       {selectedSkill && (
-        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setSelectedSkill(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h4 className="text-xl font-bold text-gray-900">{selectedSkill.title}</h4>
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${selectedSkill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
-                    {selectedSkill.is_offering ? 'Ofrezco' : 'Busco'}
-                  </span>
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setSelectedSkill(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            {/* Header fijo */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h4 className="text-2xl font-bold text-gray-900">{selectedSkill.title}</h4>
+                    <span className={`px-3 py-1 rounded-full text-sm font-semibold flex-shrink-0 ${selectedSkill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
+                      {selectedSkill.is_offering ? '✓ Ofrezco' : '⚡ Busco'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium">{selectedSkill.category}</span>
+                    <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium capitalize">{selectedSkill.level}</span>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500 flex gap-2">
-                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{selectedSkill.category}</span>
-                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{selectedSkill.level}</span>
+                <button 
+                  onClick={() => setSelectedSkill(null)} 
+                  className="ml-4 text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-lg transition"
+                  title="Cerrar"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Contenido scrolleable */}
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="space-y-4">
+                <div>
+                  <h5 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Descripción</h5>
+                  <p className="text-gray-700 whitespace-pre-wrap leading-relaxed text-base">{selectedSkill.description}</p>
+                </div>
+
+                {/* Info adicional */}
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 mb-1">Tipo</div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {selectedSkill.is_offering ? 'Oferta de enseñanza' : 'Solicitud de aprendizaje'}
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 mb-1">Nivel</div>
+                      <div className="text-sm font-semibold text-gray-900 capitalize">{selectedSkill.level}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Perfil del usuario */}
+                <div className="pt-4 border-t border-gray-200">
+                  <h5 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Publicado por</h5>
+                  <div className="flex items-center gap-3">
+                    {profile.avatar_url ? (
+                      <img src={profile.avatar_url} alt={displayName} className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                        {(profile.email || profile.username || 'U').charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-semibold text-gray-900">{displayName}</div>
+                      {secondaryLine && <div className="text-sm text-gray-500">{secondaryLine}</div>}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <button onClick={() => setSelectedSkill(null)} className="text-gray-500 hover:text-gray-700">✕</button>
             </div>
-            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{selectedSkill.description}</p>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => {
-                  onStartChat(profile.id, profile.username);
-                  setSelectedSkill(null);
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                Iniciar chat
-              </button>
+
+            {/* Footer fijo */}
+            <div className="p-6 border-t border-gray-200 bg-gray-50">
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setSelectedSkill(null)}
+                  className="px-5 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition"
+                >
+                  Cerrar
+                </button>
+                <button
+                  onClick={() => {
+                    onStartChat(profile.id, profile.username);
+                    setSelectedSkill(null);
+                  }}
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg font-medium transition flex items-center gap-2"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  Iniciar conversación
+                </button>
+              </div>
             </div>
           </div>
         </div>
