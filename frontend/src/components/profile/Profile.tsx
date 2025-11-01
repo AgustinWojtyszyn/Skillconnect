@@ -5,7 +5,6 @@ import { useI18n } from '../../contexts/I18nContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { MapPin, Edit2, Plus, Trash2, Save, X, Camera, Check, Palette } from 'lucide-react';
 import '../../utils/checkStorage';
-import './Profile.css';
 
 interface Profile {
   id: string;
