@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { ArrowLeft, MessageCircle, MapPin } from 'lucide-react';
+import { ArrowLeft, MessageCircle, MapPin, Users, Briefcase } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -15,6 +15,7 @@ interface Profile {
 
 interface Skill {
   id: string;
+  user_id: string;
   title: string;
   description: string;
   category: string;
@@ -33,57 +34,76 @@ interface UserProfileProps {
 export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserProfileProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const run = async () => {
+    const fetchAll = async () => {
       setLoading(true);
-      const { data: p } = await supabase
-        .from('profiles')
-        .select('id, username, full_name, bio, location, avatar_url, banner_url, email')
-        .eq('id', userId)
-        .maybeSingle();
-      setProfile(p as Profile | null);
-
-      const { data: s } = await supabase
-        .from('skills')
-        .select('id, title, description, category, level, is_offering, visibility')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-      setSkills((s as Skill[]) || []);
-
-      // Amigos (siguiendo bidireccional según aceptación)
-      const { data: f } = await supabase
-        .from('friendships')
-        .select('following_id')
-        .eq('follower_id', userId);
-      const ids = Array.from(new Set(((f as { following_id: string }[] | null) || []).map(x => x.following_id))).filter(Boolean);
-      if (ids.length > 0) {
-        const { data: p2 } = await supabase
+      try {
+        const { data: p, error: pe } = await supabase
           .from('profiles')
-          .select('id, username, full_name, bio, location, avatar_url, banner_url, email')
-          .in('id', ids);
-        setFriends(((p2 as Profile[] | null) || []).filter(u => u.id !== userId));
-      } else {
-        setFriends([]);
+          .select('*')
+          .eq('id', userId)
+          .single();
+        if (pe) console.warn('profile error', pe.message);
+        setProfile((p as Profile) || null);
+
+        const { data: s, error: se } = await supabase
+          .from('skills')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (se) console.warn('skills error', se.message);
+        setSkills((s as Skill[]) || []);
+
+        // Friendships: gather both sides
+        const { data: fr, error: fe } = await supabase
+          .from('friendships')
+          .select('follower_id, following_id')
+          .or(`follower_id.eq.${userId},following_id.eq.${userId}`);
+        if (fe) {
+          console.warn('friendships error', fe.message);
+          setFriends([]);
+        } else if (fr && fr.length) {
+          const ids = Array.from(
+            new Set(
+              fr.map((row: { follower_id: string; following_id: string }) =>
+                row.follower_id === userId ? row.following_id : row.follower_id
+              )
+            )
+          );
+          if (ids.length) {
+            const { data: pf, error: pfe } = await supabase
+              .from('profiles')
+              .select('*')
+              .in('id', ids);
+            if (pfe) console.warn('friends profiles error', pfe.message);
+            setFriends((pf as Profile[]) || []);
+          } else {
+            setFriends([]);
+          }
+        } else {
+          setFriends([]);
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
-    run();
+    fetchAll();
   }, [userId]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <button onClick={onBack} className="mb-4 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg">Volver</button>
         <p className="text-gray-600">No se encontró el perfil.</p>
       </div>
@@ -92,33 +112,42 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
 
   return (
     <div className="space-y-4 md:space-y-6">
+      {/* Card de encabezado */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-        {/* Encabezado */}
-        <div className="h-32 sm:h-40 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 relative">
-          {profile.banner_url && (
-            <img src={profile.banner_url} className="w-full h-full object-cover" alt="Banner" />
-          )}
+        {/* Banner */}
+        <div className="relative">
+          <div className={`h-36 md:h-44 ${profile.banner_url ? '' : 'bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600'}`}>
+            {profile.banner_url && (
+              <img src={profile.banner_url} className="w-full h-full object-cover" alt="Banner" />
+            )}
+          </div>
+          <button
+            onClick={onBack}
+            className="absolute left-4 top-4 p-2 bg-white/80 hover:bg-white rounded-lg border shadow-sm"
+            title="Volver"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
         </div>
+
+        {/* Header content */}
         <div className="px-4 sm:px-6 pb-6">
-          <div className="flex items-end gap-4 -mt-12 sm:-mt-16">
-            <button
-              onClick={onBack}
-              className="p-2 bg-white hover:bg-gray-100 rounded-lg border shadow-sm"
-              title="Volver"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
+          <div className="-mt-12 md:-mt-16 flex items-end gap-4">
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl object-cover" />
+              <img src={profile.avatar_url} alt="Avatar" className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-4 border-white shadow-xl object-cover" />
             ) : (
-              <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl border-4 border-white shadow-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-2xl sm:text-4xl">
+              <div className="w-20 h-20 md:w-28 md:h-28 rounded-2xl border-4 border-white shadow-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl md:text-3xl">
                 {(profile.email || profile.username || 'U').charAt(0).toUpperCase()}
               </div>
             )}
-            <div className="min-w-0">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 truncate">{profile.email || profile.username}</h2>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent truncate">
+                {profile.email || profile.username}
+              </h2>
               {(profile.full_name || profile.username) && (
-                <p className="text-sm sm:text-base text-gray-500 truncate italic">{profile.full_name || profile.username}</p>
+                <p className="text-sm md:text-base text-gray-500 truncate italic">
+                  {profile.full_name || profile.username}
+                </p>
               )}
               {profile.location && (
                 <div className="flex items-center gap-2 text-gray-600 mt-1">
@@ -130,18 +159,32 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
             <div className="ml-auto">
               <button
                 onClick={() => onStartChat(profile.id, profile.username)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+                className="px-4 md:px-5 py-2 md:py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-md transition flex items-center gap-2"
               >
                 <MessageCircle className="w-4 h-4" />
-                Enviar mensaje
+                <span className="text-sm md:text-base">Enviar mensaje</span>
               </button>
             </div>
           </div>
 
           {/* Bio */}
           {profile.bio && (
-            <p className="mt-4 text-gray-700 leading-relaxed">{profile.bio}</p>
+            <p className="mt-4 text-gray-700 leading-relaxed">
+              {profile.bio}
+            </p>
           )}
+
+          {/* Stats */}
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+              <Briefcase className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-600">{skills.length} habilidades</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+              <Users className="w-4 h-4 text-gray-500" />
+              <span className="text-sm text-gray-600">{friends.length} amigos</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -149,7 +192,10 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">Habilidades</h3>
         {skills.length === 0 ? (
-          <p className="text-gray-600">Este usuario aún no publicó habilidades visibles.</p>
+          <div className="flex items-center gap-3 text-gray-600">
+            <Briefcase className="w-5 h-5 text-gray-400" />
+            <p>Este usuario aún no publicó habilidades visibles.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {skills.map((sk) => (
@@ -161,7 +207,10 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-3">{sk.description}</p>
-                <div className="text-xs text-gray-500 mt-2 italic">{sk.category} • {sk.level}</div>
+                <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.category}</span>
+                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.level}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -172,29 +221,39 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-4">Amigos</h3>
         {friends.length === 0 ? (
-          <p className="text-gray-600">Este usuario aún no tiene amigos visibles.</p>
+          <div className="flex items-center gap-3 text-gray-600">
+            <Users className="w-5 h-5 text-gray-400" />
+            <p>Este usuario aún no tiene amigos visibles.</p>
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {friends.map((f) => (
-              <button
-                key={f.id}
-                onClick={() => onOpenUser && onOpenUser(f.id)}
-                className="text-left border border-gray-200 rounded-xl p-4 hover:shadow-md transition flex items-center gap-3"
-              >
-                {f.avatar_url ? (
-                  <img src={f.avatar_url} alt={f.username} className="w-12 h-12 rounded-full object-cover" />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                    {(f.email || f.username || 'U').charAt(0).toUpperCase()}
-                  </div>
-                )}
-                <div className="min-w-0">
-                  <div className="text-sm md:text-base font-semibold text-gray-900 truncate tracking-tight">{f.email || f.username}</div>
-                  {(f.full_name || f.username) && (
-                    <div className="text-xs text-gray-500 truncate italic">{f.full_name || f.username}</div>
+              <div key={f.id} className="flex items-center justify-between border border-gray-200 rounded-xl p-4 hover:shadow-md transition">
+                <button
+                  onClick={() => onOpenUser && onOpenUser(f.id)}
+                  className="flex items-center gap-3 min-w-0 text-left"
+                >
+                  {f.avatar_url ? (
+                    <img src={f.avatar_url} alt={f.username} className="w-12 h-12 rounded-full object-cover" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {(f.email || f.username || 'U').charAt(0).toUpperCase()}
+                    </div>
                   )}
-                </div>
-              </button>
+                  <div className="min-w-0">
+                    <div className="text-sm md:text-base font-semibold text-gray-900 truncate tracking-tight">{f.email || f.username}</div>
+                    {(f.full_name || f.username) && (
+                      <div className="text-xs text-gray-500 truncate italic">{f.full_name || f.username}</div>
+                    )}
+                  </div>
+                </button>
+                <button
+                  onClick={() => onStartChat(f.id, f.username)}
+                  className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Mensaje
+                </button>
+              </div>
             ))}
           </div>
         )}
