@@ -488,6 +488,9 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
                         {(person.full_name || person.username) && (
                           <div className="text-xs text-gray-500 truncate italic">{person.full_name || person.username}</div>
                         )}
+                        {person.bio && (
+                          <div className="text-xs text-gray-600 mt-1 line-clamp-2">{person.bio}</div>
+                        )}
                       </div>
                     </div>
                     {/* En recientes solo mostramos email y un nombre elegante (secundario) */}

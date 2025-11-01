@@ -6,13 +6,26 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
+          {/* Language switcher */}
+          <div className="flex justify-end mb-6">
+            <div className="inline-flex rounded-lg border border-gray-200 bg-white shadow-sm">
+              <button
+                onClick={() => setLang('es')}
+                className={`px-3 py-1.5 text-sm rounded-l-lg ${lang === 'es' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+              >ES</button>
+              <button
+                onClick={() => setLang('en')}
+                className={`px-3 py-1.5 text-sm rounded-r-lg border-l ${lang === 'en' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-50'}`}
+              >EN</button>
+            </div>
+          </div>
           <div className="text-center space-y-8">
             {/* Logo/Brand Name con tipografía elegante y degradado */}
             <div className="mb-8">

@@ -36,6 +36,8 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
   const [skills, setSkills] = useState<Skill[]>([]);
   const [friends, setFriends] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAvatar, setShowAvatar] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -128,7 +130,9 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
               <ArrowLeft className="w-5 h-5" />
             </button>
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="Avatar" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 object-cover" />
+              <button onClick={() => setShowAvatar(true)} className="focus:outline-none">
+                <img src={profile.avatar_url} alt="Avatar" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 object-cover" />
+              </button>
             ) : (
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl md:text-2xl">
                 {(profile.email || profile.username || 'U').charAt(0).toUpperCase()}
@@ -185,7 +189,7 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {skills.map((sk) => (
-              <div key={sk.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition">
+              <button key={sk.id} onClick={() => setSelectedSkill(sk)} className="text-left border border-gray-200 rounded-xl p-4 hover:shadow-md transition">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-semibold text-gray-900 truncate">{sk.title}</h4>
                   <span className={`px-2 py-1 rounded-full text-xs font-semibold ${sk.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
@@ -197,7 +201,7 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
                   <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.category}</span>
                   <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.level}</span>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -244,6 +248,57 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
           </div>
         )}
       </div>
+
+      {/* Modal avatar */}
+      {showAvatar && profile.avatar_url && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setShowAvatar(false)}>
+          <div className="relative max-w-3xl w-full" onClick={(e) => e.stopPropagation()}>
+            <img src={profile.avatar_url} alt="Avatar grande" className="w-full h-auto rounded-xl shadow-2xl" />
+            <button
+              onClick={() => setShowAvatar(false)}
+              className="absolute -top-3 -right-3 bg-white text-gray-700 rounded-full px-3 py-1 shadow"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal skill */}
+      {selectedSkill && (
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" onClick={() => setSelectedSkill(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="text-xl font-bold text-gray-900">{selectedSkill.title}</h4>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${selectedSkill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
+                    {selectedSkill.is_offering ? 'Ofrezco' : 'Busco'}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-500 flex gap-2">
+                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{selectedSkill.category}</span>
+                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{selectedSkill.level}</span>
+                </div>
+              </div>
+              <button onClick={() => setSelectedSkill(null)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{selectedSkill.description}</p>
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => {
+                  onStartChat(profile.id, profile.username);
+                  setSelectedSkill(null);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Iniciar chat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
