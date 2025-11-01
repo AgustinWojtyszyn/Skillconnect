@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Send, MessageCircle, ArrowLeft } from 'lucide-react';
+import { Send, MessageCircle, ArrowLeft, Trash2 } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -264,6 +264,46 @@ export function Chat({ initialUserId }: ChatProps) {
     return false;
   };
 
+  const deleteConversation = async (conversationId: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta conversación? Esta acción no se puede deshacer.')) {
+      return;
+    }
+
+    try {
+      // Primero eliminar todos los mensajes de la conversación
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId);
+
+      if (messagesError) {
+        console.error('Error deleting messages:', messagesError);
+        return;
+      }
+
+      // Luego eliminar la conversación
+      const { error: conversationError } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+
+      if (conversationError) {
+        console.error('Error deleting conversation:', conversationError);
+        return;
+      }
+
+      // Actualizar la UI
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+        setMessages([]);
+      }
+      
+      fetchConversations();
+    } catch (err) {
+      console.error('Error deleting conversation:', err);
+    }
+  };
+
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -339,6 +379,14 @@ export function Chat({ initialUserId }: ChatProps) {
                   </p>
                 )}
               </div>
+              <button
+                onClick={() => deleteConversation(selectedConversation.id)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition flex-shrink-0"
+                title="Eliminar conversación"
+                aria-label="Eliminar conversación"
+              >
+                <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
+              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-3 md:p-4 space-y-3 md:space-y-4">

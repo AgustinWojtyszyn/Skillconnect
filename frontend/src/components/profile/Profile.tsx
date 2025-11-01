@@ -414,16 +414,18 @@ export function Profile() {
                     }
                     
                     console.log('Banner uploaded successfully!');
+                    // Actualizar inmediatamente en el estado local
                     setProfile((prev) => (prev ? { ...prev, banner_url: publicUrl } : prev));
-                    setPendingBannerRemoteUrl(publicUrl);
+                    setProfileForm((prev) => ({ ...prev })); // Mantener formulario sincronizado
+                    setPendingBannerRemoteUrl(null); // Limpiar pendiente
                     setImgVersion((v) => v + 1);
-                    // Releer del servidor para confirmar persistencia
-                    await fetchProfile();
                     // Esperar a que la imagen remota esté lista antes de ocultar la preview
-                    const ready = await ensureRemoteReady(publicUrl);
+                    const ready = await ensureRemoteReady(publicUrl, 15, 500);
                     if (ready) {
                       URL.revokeObjectURL(localUrl);
                       setPreviewBannerUrl(null);
+                      // Refrescar perfil para confirmar
+                      await fetchProfile();
                     } else {
                       // Forzar otro reintento de carga remota
                       setImgVersion((v) => v + 1);
@@ -544,14 +546,18 @@ export function Profile() {
                         }
                         
                         console.log('Avatar uploaded successfully!');
+                        // Actualizar inmediatamente en el estado local
                         setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : prev));
-                        setPendingAvatarRemoteUrl(publicUrl);
+                        setProfileForm((prev) => ({ ...prev })); // Mantener formulario sincronizado
+                        setPendingAvatarRemoteUrl(null); // Limpiar pendiente
                         setImgVersion((v) => v + 1);
-                        await fetchProfile();
-                        const ready = await ensureRemoteReady(publicUrl);
+                        // Esperar a que la imagen remota esté lista
+                        const ready = await ensureRemoteReady(publicUrl, 15, 500);
                         if (ready) {
                           URL.revokeObjectURL(localUrl);
                           setPreviewAvatarUrl(null);
+                          // Refrescar perfil para confirmar
+                          await fetchProfile();
                         } else {
                           setImgVersion((v) => v + 1);
                         }
