@@ -505,7 +505,6 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
 
       {activeTab === 'people' && (
         <>
-          {/* Lista de usuarios */}
           {/* Sugerencias de usuarios recientes */}
           {showSuggestions && suggested.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
@@ -544,7 +543,9 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Lista principal de usuarios (se muestra solo cuando hay búsqueda activa O sugerencias habilitadas) */}
+          {(showSuggestions || appliedTerm.trim().length > 0) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredUsers.map((person) => (
               <div
                 key={person.id}
@@ -643,12 +644,21 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
               </div>
             ))}
           </div>
+          )}
 
           {/* Sin resultados */}
-          {filteredUsers.length === 0 && (
+          {(showSuggestions || appliedTerm.trim().length > 0) && filteredUsers.length === 0 && (
             <div className="text-center py-12">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">{tt('people.noResults', 'No se encontraron personas')}</p>
+            </div>
+          )}
+          
+          {/* Mensaje cuando sugerencias están ocultas */}
+          {!showSuggestions && appliedTerm.trim().length === 0 && (
+            <div className="text-center py-12">
+              <EyeOff className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">{tt('people.suggestions.hidden', 'Las sugerencias están ocultas. Usa el buscador para encontrar personas o activa las sugerencias.')}</p>
             </div>
           )}
         </>
