@@ -110,13 +110,17 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
     );
   }
 
+  // Preparar nombre principal y secundarios para evitar mostrar emails feos con sufijos
+  const displayName = profile.full_name || profile.username || (profile.email ? profile.email.split('@')[0] : 'Usuario');
+  const secondaryLine = profile.email || profile.username || '';
+
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Card de encabezado */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
         {/* Banner */}
         <div className="relative">
-          <div className={`h-36 md:h-44 ${profile.banner_url ? '' : 'bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600'}`}>
+          <div className={`h-32 md:h-40 ${profile.banner_url ? '' : 'bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600'}`}>
             {profile.banner_url && (
               <img src={profile.banner_url} className="w-full h-full object-cover" alt="Banner" />
             )}
@@ -141,12 +145,12 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-blue-700 via-purple-700 to-indigo-700 bg-clip-text text-transparent truncate">
-                {profile.email || profile.username}
+              <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 truncate">
+                {displayName}
               </h2>
-              {(profile.full_name || profile.username) && (
+              {secondaryLine && (
                 <p className="text-sm md:text-base text-gray-500 truncate italic">
-                  {profile.full_name || profile.username}
+                  {secondaryLine}
                 </p>
               )}
               {profile.location && (
