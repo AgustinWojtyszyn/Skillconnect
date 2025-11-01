@@ -189,8 +189,11 @@ export function Chat({ initialUserId }: ChatProps) {
   };
 
   const sendMessage = async (e?: React.FormEvent | React.MouseEvent | React.KeyboardEvent) => {
+    console.log('🚀 sendMessage called - START', { hasEvent: !!e, messageLength: newMessage.length });
+    
     // FORZAR prevención de recarga - MÁXIMA PRIORIDAD
     if (e) {
+      console.log('⚠️ Preventing default behavior');
       e.preventDefault();
       e.stopPropagation();
       if ('nativeEvent' in e && e.nativeEvent) {
@@ -199,7 +202,10 @@ export function Chat({ initialUserId }: ChatProps) {
       }
     }
     
-    if (!newMessage.trim() || !selectedConversation) return false;
+    if (!newMessage.trim() || !selectedConversation) {
+      console.log('❌ sendMessage aborted - empty message or no conversation');
+      return false;
+    }
 
     const messageContent = newMessage.trim();
     const optimisticMessage: Message = {
@@ -212,10 +218,12 @@ export function Chat({ initialUserId }: ChatProps) {
     };
 
     // Agregar mensaje inmediatamente (actualización optimista)
+    console.log('✅ Adding optimistic message to UI');
     setMessages((current) => [...current, optimisticMessage]);
     setNewMessage('');
 
     try {
+      console.log('📡 Sending message to database...');
       const { data, error } = await supabase
         .from('messages')
         .insert({
@@ -234,6 +242,7 @@ export function Chat({ initialUserId }: ChatProps) {
       }
 
       if (data) {
+        console.log('✅ Message sent successfully, replacing optimistic message');
         // Reemplazar el mensaje temporal con el real
         setMessages((current) =>
           current.map((m) => (m.id === optimisticMessage.id ? data : m))
@@ -245,15 +254,17 @@ export function Chat({ initialUserId }: ChatProps) {
           .update({ updated_at: new Date().toISOString() })
           .eq('id', selectedConversation.id)
           .then(() => {
+            console.log('📋 Updating conversations list...');
             // Actualizar conversaciones en segundo plano sin forzar re-render
             setTimeout(() => fetchConversations(), 1000);
           });
       }
     } catch (err) {
-      console.error('Error sending message:', err);
+      console.error('❌ Error sending message:', err);
       setMessages((current) => current.filter((m) => m.id !== optimisticMessage.id));
     }
     
+    console.log('🏁 sendMessage completed - END');
     return false;
   };
 
