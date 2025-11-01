@@ -162,14 +162,29 @@ export function PeoplePage() {
       let outgoing: FriendRequest[] = [];
       let incoming: FriendRequest[] = [];
       {
-        const { data: outData } = await supabase
+        // Tolerante: si la tabla no existe (migración no aplicada), no rompe la vista
+        let outData: FriendRequest[] | null = null;
+        let inData: FriendRequest[] | null = null;
+        const outResp = await supabase
           .from('friend_requests')
           .select('id, sender_id, recipient_id, status, created_at')
           .eq('sender_id', user!.id);
-        const { data: inData } = await supabase
+        if (outResp.error) {
+          console.warn('⚠️ friend_requests SELECT (outgoing) falló:', outResp.error.message);
+        } else {
+          outData = outResp.data as any;
+        }
+
+        const inResp = await supabase
           .from('friend_requests')
           .select('id, sender_id, recipient_id, status, created_at')
           .eq('recipient_id', user!.id);
+        if (inResp.error) {
+          console.warn('⚠️ friend_requests SELECT (incoming) falló:', inResp.error.message);
+        } else {
+          inData = inResp.data as any;
+        }
+
         outgoing = (outData as FriendRequest[]) || [];
         incoming = (inData as FriendRequest[]) || [];
         setFriendRequests([...(outgoing || []), ...(incoming || [])]);
