@@ -509,17 +509,17 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
                     setShowSuggestions(!showSuggestions);
                   }}
                 className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
-                title={showSuggestions ? tt('people.suggestions.hide', 'Ocultar sugerencias') : tt('people.suggestions.show', 'Mostrar sugerencias')}
+                title={showSuggestions ? tt('people.suggestions.hide', 'Ocultar personas') : tt('people.suggestions.show', 'Mostrar personas')}
               >
                 {showSuggestions ? (
                   <>
                     <EyeOff className="w-4 h-4" />
-                    {tt('people.suggestions.hide', 'Ocultar sugerencias')}
+                    {tt('people.suggestions.hide', 'Ocultar personas')}
                   </>
                 ) : (
                   <>
                     <Eye className="w-4 h-4" />
-                    {tt('people.suggestions.show', 'Mostrar sugerencias')}
+                    {tt('people.suggestions.show', 'Mostrar personas')}
                   </>
                 )}
               </button>
@@ -569,8 +569,8 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
             </div>
           )}
 
-          {/* Lista principal de usuarios (se muestra solo cuando hay búsqueda activa O sugerencias habilitadas) */}
-          {(showSuggestions || appliedTerm.trim().length > 0) && (
+          {/* Lista principal de usuarios (se muestra sólo si las personas están visibles) */}
+          {showSuggestions && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredUsers.map((person) => (
               <div
@@ -672,8 +672,8 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
           </div>
           )}
 
-          {/* Sin resultados */}
-          {(showSuggestions || appliedTerm.trim().length > 0) && filteredUsers.length === 0 && (
+          {/* Sin resultados (sólo si las personas están visibles) */}
+          {showSuggestions && filteredUsers.length === 0 && (
             <div className="text-center py-12">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">{tt('people.noResults', 'No se encontraron personas')}</p>
@@ -681,10 +681,10 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
           )}
           
           {/* Mensaje cuando sugerencias están ocultas */}
-          {!showSuggestions && appliedTerm.trim().length === 0 && (
+          {!showSuggestions && (
             <div className="text-center py-12">
               <EyeOff className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600">{tt('people.suggestions.hidden', 'Las sugerencias están ocultas. Usa el buscador para encontrar personas o activa las sugerencias.')}</p>
+              <p className="text-gray-600">{tt('people.suggestions.hidden', 'Las personas y sugerencias están ocultas. Activa el botón para verlas nuevamente.')}</p>
             </div>
           )}
         </>
