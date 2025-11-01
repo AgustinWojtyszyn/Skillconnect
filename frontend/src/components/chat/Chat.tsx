@@ -248,16 +248,12 @@ export function Chat({ initialUserId }: ChatProps) {
           current.map((m) => (m.id === optimisticMessage.id ? data : m))
         );
 
-        // Actualizar timestamp de la conversación en segundo plano (sin bloquear UI)
+        // Actualizar timestamp de la conversación en segundo plano (sin forzar re-render)
+        // NO llamar a fetchConversations() aquí para evitar recarga
         supabase
           .from('conversations')
           .update({ updated_at: new Date().toISOString() })
-          .eq('id', selectedConversation.id)
-          .then(() => {
-            console.log('📋 Updating conversations list...');
-            // Actualizar conversaciones en segundo plano sin forzar re-render
-            setTimeout(() => fetchConversations(), 1000);
-          });
+          .eq('id', selectedConversation.id);
       }
     } catch (err) {
       console.error('❌ Error sending message:', err);
