@@ -26,7 +26,12 @@ interface SuggestedUser extends User {
   skillBlurb?: string;
 }
 
-export function PeoplePage() {
+interface PeoplePageProps {
+  onViewProfile?: (userId: string) => void;
+  onStartChat?: (userId: string, username: string) => void;
+}
+
+export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
   const { user } = useAuth();
   const { t } = useI18n();
   // Wrapper de traducción con fallback para evitar mostrar claves crudas si faltan en despliegues
@@ -538,9 +543,20 @@ export function PeoplePage() {
                           <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-xs font-semibold">
                             {tt('people.requests.friends', 'Amigos')}
                           </span>
-                          <button className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200">
+                          <button
+                            onClick={() => onViewProfile && onViewProfile(person.id)}
+                            className="ml-auto px-3 py-1.5 text-xs rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          >
                             {tt('people.requests.viewProfile', 'Ver perfil')}
                           </button>
+                          {onStartChat && (
+                            <button
+                              onClick={() => onStartChat(person.id, person.username)}
+                              className="px-3 py-1.5 text-xs rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                            >
+                              {tt('people.requests.message', 'Enviar mensaje')}
+                            </button>
+                          )}
                         </div>
                       );
                     }

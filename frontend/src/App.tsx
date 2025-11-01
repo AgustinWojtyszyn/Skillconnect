@@ -12,14 +12,16 @@ import { LandingPage } from './components/landing/LandingPage';
 import { OnboardingTour } from './components/onboarding/OnboardingTour';
 import { DashboardHome } from './components/home/DashboardHome';
 import { PeoplePage } from './components/people/PeoplePage';
+import { UserProfile } from './components/profile/UserProfile';
 
 function MainApp() {
   const { user } = useAuth();
   const [showLogin, setShowLogin] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
-  const [currentView, setCurrentView] = useState<'home' | 'skills' | 'profile' | 'chat' | 'people'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'skills' | 'profile' | 'chat' | 'people' | 'user'>('home');
   const [chatUserId, setChatUserId] = useState<string | undefined>();
   const [chatUsername, setChatUsername] = useState<string | undefined>();
+  const [viewedUserId, setViewedUserId] = useState<string | undefined>();
   const [showTour, setShowTour] = useState(false);
   // Asegurar que tras un login siempre caemos en 'home'
   useEffect(() => {
@@ -44,6 +46,10 @@ function MainApp() {
   const handleGetStarted = () => {
     setShowLanding(false);
     setShowLogin(false); // Mostrar registro por defecto
+  };
+  const openUserProfile = (userId: string) => {
+    setViewedUserId(userId);
+    setCurrentView('user');
   };
 
   const handleBackToLanding = () => {
@@ -77,7 +83,7 @@ function MainApp() {
     <AuthGuard>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Header
-          currentView={currentView}
+          currentView={currentView === 'user' ? 'people' : currentView}
           onViewChange={setCurrentView}
           onShowTutorial={() => setShowTour(true)}
         />
@@ -91,9 +97,21 @@ function MainApp() {
           )}
           {currentView === 'skills' && <SkillsList onStartChat={handleStartChat} />}
           {currentView === 'profile' && <Profile />}
-          {currentView === 'people' && <PeoplePage />}
+          {currentView === 'people' && (
+            <PeoplePage
+              onViewProfile={openUserProfile}
+              onStartChat={handleStartChat}
+            />
+          )}
           {currentView === 'chat' && (
             <Chat initialUserId={chatUserId} />
+          )}
+          {currentView === 'user' && viewedUserId && (
+            <UserProfile
+              userId={viewedUserId}
+              onBack={() => setCurrentView('people')}
+              onStartChat={handleStartChat}
+            />
           )}
         </main>
         <OnboardingTour
