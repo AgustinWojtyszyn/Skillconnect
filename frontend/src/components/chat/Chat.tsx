@@ -188,8 +188,13 @@ export function Chat({ initialUserId }: ChatProps) {
     };
   };
 
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const sendMessage = async (e?: React.FormEvent) => {
+    // Prevenir recarga de página
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     if (!newMessage.trim() || !selectedConversation) return;
 
     const messageContent = newMessage.trim();
@@ -206,32 +211,42 @@ export function Chat({ initialUserId }: ChatProps) {
     setMessages((current) => [...current, optimisticMessage]);
     setNewMessage('');
 
-    const { data, error } = await supabase
-      .from('messages')
-      .insert({
-        conversation_id: selectedConversation.id,
-        sender_id: user!.id,
-        content: messageContent,
-      })
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: selectedConversation.id,
+          sender_id: user!.id,
+          content: messageContent,
+        })
+        .select()
+        .single();
 
-    if (error) {
-      // Si hay error, remover el mensaje optimista
+      if (error) {
+        // Si hay error, remover el mensaje optimista
+        setMessages((current) => current.filter((m) => m.id !== optimisticMessage.id));
+        console.error('Error sending message:', error);
+        return;
+      }
+
+      if (data) {
+        // Reemplazar el mensaje temporal con el real
+        setMessages((current) =>
+          current.map((m) => (m.id === optimisticMessage.id ? data : m))
+        );
+
+        // Actualizar timestamp de la conversación en segundo plano
+        supabase
+          .from('conversations')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', selectedConversation.id)
+          .then(() => {
+            fetchConversations();
+          });
+      }
+    } catch (err) {
+      console.error('Error sending message:', err);
       setMessages((current) => current.filter((m) => m.id !== optimisticMessage.id));
-      console.error('Error sending message:', error);
-    } else if (data) {
-      // Reemplazar el mensaje temporal con el real
-      setMessages((current) =>
-        current.map((m) => (m.id === optimisticMessage.id ? data : m))
-      );
-
-      await supabase
-        .from('conversations')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', selectedConversation.id);
-
-      fetchConversations();
     }
   };
 
@@ -337,17 +352,37 @@ export function Chat({ initialUserId }: ChatProps) {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={sendMessage} className="p-3 md:p-4 border-t border-gray-200 flex-shrink-0">
+            <form 
+              onSubmit={sendMessage} 
+              className="p-3 md:p-4 border-t border-gray-200 flex-shrink-0"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+            >
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage();
+                    }
+                  }}
                   placeholder="Type a message..."
                   className="flex-1 px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  autoComplete="off"
                 />
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    sendMessage();
+                  }}
                   disabled={!newMessage.trim()}
                   className="px-3 md:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 flex-shrink-0"
                 >
