@@ -35,10 +35,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 <Globe className="relative w-32 h-32 md:w-40 md:h-40 text-blue-300 drop-shadow-2xl animate-[spin_20s_linear_infinite]" strokeWidth={1} />
               </div>
               
-              {/* Título SkillConnect */}
+              {/* Título SkillsConnect */}
               <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-3">
                 <span className="bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent drop-shadow-lg">
-                  SkillConnect
+                  SkillsConnect
                 </span>
               </h1>
               
@@ -168,7 +168,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-lg mb-2">SkillConnect - Conectando talento y conocimiento</p>
+          <p className="text-lg mb-2">SkillsConnect - Conectando talento y conocimiento</p>
           <p className="text-sm">© 2025</p>
         </div>
       </footer>

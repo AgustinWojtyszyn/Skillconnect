@@ -16,7 +16,7 @@ if (supabaseUrl && supabaseAnonKey) {
   // No romper la app en producción: evitamos crear el cliente y dejamos que la UI muestre un aviso.
   // Nota: Exportamos un valor "any" para no romper imports tipados; no debe usarse si faltan envs.
   console.warn(
-    '[SkillConnect] Variables de entorno de Supabase ausentes. Configure VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY.'
+  '[SkillsConnect] Variables de entorno de Supabase ausentes. Configure VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY.'
   );
 }
 

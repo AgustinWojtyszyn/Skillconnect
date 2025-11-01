@@ -13,7 +13,7 @@ const I18N_STORAGE_KEY = 'skillconnect:lang';
 
 const translations: Record<Lang, Record<string, string>> = {
   es: {
-    'app.name': 'SkillConnect',
+  'app.name': 'SkillsConnect',
     'nav.skills': 'Habilidades',
   'nav.home': 'Inicio',
     'nav.profile': 'Perfil',
@@ -143,7 +143,7 @@ const translations: Record<Lang, Record<string, string>> = {
     'landing.perk.free': '100% Gratis',
     'landing.perk.cardless': 'Sin tarjeta requerida',
     'landing.perk.community': 'Comunidad activa',
-    'landing.why': '¿Por qué elegir SkillConnect?',
+  'landing.why': '¿Por qué elegir SkillsConnect?',
     'landing.why.subtitle': 'La plataforma más innovadora para el intercambio de conocimientos',
     'landing.feature.global.title': 'Sin fronteras',
     'landing.feature.global.desc': 'Conecta globalmente y comparte intereses para enseñar y aprender.',
@@ -161,7 +161,7 @@ const translations: Record<Lang, Record<string, string>> = {
 
     // Auth
     'auth.login.title': 'Iniciar sesión',
-    'auth.register.title': 'Únete a SkillConnect',
+  'auth.register.title': 'Únete a SkillsConnect',
     'auth.email': 'Correo electrónico',
   'auth.email.placeholder': 'tu@email.com',
     'auth.password': 'Contraseña',
@@ -185,7 +185,7 @@ const translations: Record<Lang, Record<string, string>> = {
     'auth.success.check_email_confirmation': '¡Cuenta creada! Revisa tu correo para confirmar tu email y poder iniciar sesión.',
 
     // Tutorial
-    'tour.step1.title': 'Bienvenido/a a SkillConnect',
+  'tour.step1.title': 'Bienvenido/a a SkillsConnect',
     'tour.step1.desc': 'Comparte y aprende habilidades con personas de todo el mundo.',
     'tour.step2.title': 'Explora habilidades',
     'tour.step2.desc': 'Descubre ofertas y solicita ayuda o intercambio.',
@@ -199,7 +199,7 @@ const translations: Record<Lang, Record<string, string>> = {
     'tour.finish': '¡Empezar!'
   },
   en: {
-    'app.name': 'SkillConnect',
+  'app.name': 'SkillsConnect',
     'nav.skills': 'Skills',
   'nav.home': 'Home',
     'nav.profile': 'Profile',
@@ -329,7 +329,7 @@ const translations: Record<Lang, Record<string, string>> = {
     'landing.perk.free': '100% Free',
     'landing.perk.cardless': 'No credit card required',
     'landing.perk.community': 'Active community',
-    'landing.why': 'Why choose SkillConnect?',
+  'landing.why': 'Why choose SkillsConnect?',
     'landing.why.subtitle': 'The most innovative platform for knowledge exchange',
     'landing.feature.global.title': 'Borderless',
     'landing.feature.global.desc': 'Connect globally and share interests to teach and learn.',
@@ -347,7 +347,7 @@ const translations: Record<Lang, Record<string, string>> = {
 
     // Auth
     'auth.login.title': 'Sign in',
-    'auth.register.title': 'Join SkillConnect',
+  'auth.register.title': 'Join SkillsConnect',
     'auth.email': 'Email',
   'auth.email.placeholder': 'email@example.com',
     'auth.password': 'Password',
@@ -371,7 +371,7 @@ const translations: Record<Lang, Record<string, string>> = {
     'auth.success.check_email_confirmation': 'Account created! Check your inbox to confirm your email before signing in.',
 
     // Tutorial
-    'tour.step1.title': 'Welcome to SkillConnect',
+  'tour.step1.title': 'Welcome to SkillsConnect',
     'tour.step1.desc': 'Share and learn skills with people around the world.',
     'tour.step2.title': 'Explore skills',
     'tour.step2.desc': 'Discover offerings and request help or exchanges.',
