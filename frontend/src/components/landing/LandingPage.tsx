@@ -27,23 +27,23 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
           </div>
           <div className="text-center space-y-8">
-            {/* Logo y título en línea */}
-            <div className="mb-8 flex flex-col items-center justify-center py-10">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-6">
-                <img
-                  src="/assets/modern-technology-world-map-globe-crop-out-png.webp"
-                  alt="SkillsConnect logo"
-                  className="w-24 md:w-32 h-auto drop-shadow-2xl select-none pointer-events-none"
-                  loading="eager"
-                  decoding="async"
-                />
-
+            {/* Logo y título en línea (logo a la derecha) */}
+            <div className="mb-8 flex items-center justify-center py-10">
+              <div className="flex flex-row items-center justify-center gap-4 md:gap-6">
                 {/* Título SkillsConnect */}
                 <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
                   <span className="bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent drop-shadow-lg">
                     SkillsConnect
                   </span>
                 </h1>
+
+                <img
+                  src="/assets/modern-technology-world-map-globe-crop-out-png.webp"
+                  alt="SkillsConnect logo"
+                  className="w-16 md:w-24 h-auto drop-shadow-2xl select-none pointer-events-none"
+                  loading="eager"
+                  decoding="async"
+                />
               </div>
               
               {/* Lema debajo */}
