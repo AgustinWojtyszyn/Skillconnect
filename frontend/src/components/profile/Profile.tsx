@@ -2,8 +2,10 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { MapPin, Edit2, Plus, Trash2, Save, X, Camera, Check } from 'lucide-react';
+import { useTheme } from '../../contexts/ThemeContext';
+import { MapPin, Edit2, Plus, Trash2, Save, X, Camera, Check, Palette } from 'lucide-react';
 import '../../utils/checkStorage';
+import './Profile.css';
 
 interface Profile {
   id: string;
@@ -36,6 +38,105 @@ const CATEGORY_KEYS = [
   'languages',
   'other',
 ];
+
+// Theme color presets
+const THEME_PRESETS = [
+  {
+    name: 'Azul Clásico',
+    bannerColor: 'from-blue-600 via-indigo-600 to-purple-600',
+    landingBgColor: 'from-blue-900 via-indigo-800 to-purple-900',
+  },
+  {
+    name: 'Esmeralda',
+    bannerColor: 'from-emerald-600 via-teal-600 to-cyan-600',
+    landingBgColor: 'from-emerald-900 via-teal-800 to-cyan-900',
+  },
+  {
+    name: 'Rosa',
+    bannerColor: 'from-rose-600 via-pink-600 to-fuchsia-600',
+    landingBgColor: 'from-rose-900 via-pink-800 to-fuchsia-900',
+  },
+  {
+    name: 'Ámbar',
+    bannerColor: 'from-amber-600 via-orange-600 to-red-600',
+    landingBgColor: 'from-amber-900 via-orange-800 to-red-900',
+  },
+];
+
+function ThemeCustomization() {
+  const { bannerColor, landingBgColor, setBannerColor, setLandingBgColor } = useTheme();
+  const { t } = useI18n();
+
+  return (
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6 mb-6">
+      <div className="flex items-center gap-3 mb-4">
+        <Palette className="w-6 h-6 text-purple-600" />
+        <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          {t('profile.theme.title') || 'Personalización de Tema'}
+        </h3>
+      </div>
+      
+      <p className="text-gray-600 mb-6 text-sm">
+        {t('profile.theme.description') || 'Elige un tema de color para personalizar tu experiencia'}
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {THEME_PRESETS.map((preset) => {
+          const isActive = bannerColor === preset.bannerColor && landingBgColor === preset.landingBgColor;
+          return (
+            <button
+              key={preset.name}
+              onClick={() => {
+                setBannerColor(preset.bannerColor);
+                setLandingBgColor(preset.landingBgColor);
+              }}
+              className={`relative p-4 rounded-xl border-2 transition-all ${
+                isActive 
+                  ? 'border-purple-600 bg-purple-50 shadow-lg' 
+                  : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex-1 text-left">
+                  <p className={`font-semibold ${isActive ? 'text-purple-900' : 'text-gray-900'}`}>
+                    {preset.name}
+                  </p>
+                  <div 
+                    className={`w-8 h-8 rounded-lg border border-gray-300 ${
+                      preset.bannerColor === 'from-blue-600 via-indigo-600 to-purple-600'
+                        ? 'preset-banner-blue'
+                        : preset.bannerColor === 'from-emerald-600 via-teal-600 to-cyan-600'
+                        ? 'preset-banner-emerald'
+                        : preset.bannerColor === 'from-rose-600 via-pink-600 to-fuchsia-600'
+                        ? 'preset-banner-rose'
+                        : 'preset-banner-amber'
+                    }`}
+                  />
+                  <div 
+                    className={`w-8 h-8 rounded-lg border border-gray-300 ${
+                      preset.landingBgColor === 'from-blue-900 via-indigo-800 to-purple-900'
+                        ? 'preset-landing-blue'
+                        : preset.landingBgColor === 'from-emerald-900 via-teal-800 to-cyan-900'
+                        ? 'preset-landing-emerald'
+                        : preset.landingBgColor === 'from-rose-900 via-pink-800 to-fuchsia-900'
+                        ? 'preset-landing-rose'
+                        : 'preset-landing-amber'
+                    }`}
+                  />
+                </div>
+                {isActive && (
+                  <div className="flex-shrink-0">
+                    <Check className="w-6 h-6 text-purple-600" />
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export function Profile() {
   const { user } = useAuth();
@@ -708,6 +809,9 @@ export function Profile() {
           <p className="text-sm">{uploadError}</p>
         </div>
       )}
+
+      {/* Theme Customization Section */}
+      <ThemeCustomization />
 
       {/* Skills Section - Reemplazar completamente la sección antigua */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">

@@ -62,6 +62,12 @@
       "login": "Iniciar Sesión",
       "register": "Registrarse",
       "forgot_password": "¿Olvidaste tu contraseña?"
+    },
+    "profile": {
+      "theme": {
+        "title": "Personalización de Tema",
+        "description": "Elige un tema de color para personalizar tu experiencia"
+      }
     }
   }
 }

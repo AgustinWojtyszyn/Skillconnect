@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
+import { useTheme } from '../../contexts/ThemeContext';
 import { ArrowRight, MessageCircle, User, Layers, Sparkles } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
@@ -11,6 +12,7 @@ interface DashboardHomeProps {
 export function DashboardHome({ onGoTo }: DashboardHomeProps) {
   const { user } = useAuth();
   const { t } = useI18n();
+  const { bannerColor } = useTheme();
   const displayName = useMemo(
     () => (user?.user_metadata?.username as string) || (user?.email as string) || 'Usuario',
     [user]
@@ -45,10 +47,24 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
     };
   }, [user]);
 
+  // Convertir las clases de Tailwind a gradiente CSS
+  const getBannerGradient = () => {
+    const colorMap: Record<string, string> = {
+      'from-blue-600 via-indigo-600 to-purple-600': 'linear-gradient(to right, #2563eb, #4f46e5, #7c3aed)',
+      'from-blue-900 via-indigo-800 to-purple-900': 'linear-gradient(to right, #1e3a8a, #3730a3, #581c87)',
+      'from-emerald-600 via-teal-600 to-cyan-600': 'linear-gradient(to right, #059669, #0d9488, #0891b2)',
+      'from-rose-600 via-pink-600 to-fuchsia-600': 'linear-gradient(to right, #e11d48, #db2777, #c026d3)',
+      'from-amber-600 via-orange-600 to-red-600': 'linear-gradient(to right, #d97706, #ea580c, #dc2626)',
+    };
+    return colorMap[bannerColor] || colorMap['from-blue-600 via-indigo-600 to-purple-600'];
+  };
+
   return (
     <div className="">
       {/* Encabezado con gradiente */}
-      <div className="rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 text-white shadow-xl">
+      <div 
+        className={`rounded-3xl p-8 text-white shadow-xl bg-gradient-to-r ${bannerColor}`}
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-sm/relaxed text-blue-100">{t('dashboard.welcomeBadge')}</p>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { I18nProvider } from './contexts/I18nContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { Login } from './components/auth/Login';
 import { Register } from './components/auth/Register';
 import { AuthGuard } from './components/auth/AuthGuard';
@@ -161,9 +162,11 @@ function App() {
 
   return (
     <I18nProvider>
-      <AuthProvider>
-        <MainApp />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <MainApp />
+        </AuthProvider>
+      </ThemeProvider>
     </I18nProvider>
   );
 }

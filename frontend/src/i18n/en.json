@@ -62,6 +62,12 @@
       "login": "Login",
       "register": "Register",
       "forgot_password": "Forgot password?"
+    },
+    "profile": {
+      "theme": {
+        "title": "Theme Customization",
+        "description": "Choose a color theme to personalize your experience"
+      }
     }
   }
 }
