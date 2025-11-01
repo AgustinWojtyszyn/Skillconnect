@@ -240,10 +240,10 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
       console.log('✅ Filtered users to show:', filteredUsers.length);
       setUsers(filteredUsers);
 
-  // Sugerencias: si no hay término de búsqueda, mostrar usuarios recientes con un blurb de su skill más reciente
+      // Sugerencias: si no hay término de búsqueda, mostrar usuarios recientes con un blurb de su skill más reciente
       const rawQuery2 = (q ?? '').trim();
       const sanitizedQuery2 = rawQuery2.replace(/^@+/, '');
-      if (sanitizedQuery2.length === 0) {
+      if (sanitizedQuery2.length === 0 && showSuggestions) {
         try {
           const { data: recentProfiles } = await supabase
             .from('profiles')
@@ -291,6 +291,19 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
       setLoading(false);
     }
   };
+
+  // Limpiar sugerencias cuando el toggle está en off para evitar mostrar resultados previos
+  useEffect(() => {
+    if (!showSuggestions) {
+      setSuggested([]);
+    } else {
+      // Recalcular sugerencias si corresponde (sin forzar si hay búsqueda)
+      if (appliedTerm.trim().length === 0) {
+        fetchUsers(appliedTerm);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showSuggestions]);
 
   const triggerSearch = () => {
     setAppliedTerm(searchTerm);
