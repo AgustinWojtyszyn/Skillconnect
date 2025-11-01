@@ -188,14 +188,18 @@ export function Chat({ initialUserId }: ChatProps) {
     };
   };
 
-  const sendMessage = async (e?: React.FormEvent) => {
-    // Prevenir recarga de página
+  const sendMessage = async (e?: React.FormEvent | React.MouseEvent | React.KeyboardEvent) => {
+    // FORZAR prevención de recarga - MÁXIMA PRIORIDAD
     if (e) {
       e.preventDefault();
       e.stopPropagation();
+      if ('nativeEvent' in e && e.nativeEvent) {
+        e.nativeEvent.preventDefault();
+        e.nativeEvent.stopImmediatePropagation();
+      }
     }
     
-    if (!newMessage.trim() || !selectedConversation) return;
+    if (!newMessage.trim() || !selectedConversation) return false;
 
     const messageContent = newMessage.trim();
     const optimisticMessage: Message = {
@@ -226,7 +230,7 @@ export function Chat({ initialUserId }: ChatProps) {
         // Si hay error, remover el mensaje optimista
         setMessages((current) => current.filter((m) => m.id !== optimisticMessage.id));
         console.error('Error sending message:', error);
-        return;
+        return false;
       }
 
       if (data) {
@@ -235,19 +239,22 @@ export function Chat({ initialUserId }: ChatProps) {
           current.map((m) => (m.id === optimisticMessage.id ? data : m))
         );
 
-        // Actualizar timestamp de la conversación en segundo plano
+        // Actualizar timestamp de la conversación en segundo plano (sin bloquear UI)
         supabase
           .from('conversations')
           .update({ updated_at: new Date().toISOString() })
           .eq('id', selectedConversation.id)
           .then(() => {
-            fetchConversations();
+            // Actualizar conversaciones en segundo plano sin forzar re-render
+            setTimeout(() => fetchConversations(), 1000);
           });
       }
     } catch (err) {
       console.error('Error sending message:', err);
       setMessages((current) => current.filter((m) => m.id !== optimisticMessage.id));
     }
+    
+    return false;
   };
 
   const formatTime = (timestamp: string) => {
@@ -362,7 +369,17 @@ export function Chat({ initialUserId }: ChatProps) {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       e.stopPropagation();
-                      sendMessage();
+                      e.nativeEvent?.preventDefault();
+                      e.nativeEvent?.stopImmediatePropagation();
+                      sendMessage(e);
+                      return false;
+                    }
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return false;
                     }
                   }}
                   placeholder="Type a message..."
@@ -374,7 +391,10 @@ export function Chat({ initialUserId }: ChatProps) {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    sendMessage();
+                    e.nativeEvent?.preventDefault();
+                    e.nativeEvent?.stopImmediatePropagation();
+                    sendMessage(e);
+                    return false;
                   }}
                   disabled={!newMessage.trim()}
                   className="px-3 md:px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 flex-shrink-0"
