@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
-import { UserPlus, UserMinus, Search, Users, MessageCircle, Check, X } from 'lucide-react';
+import { UserPlus, UserMinus, Search, Users, MessageCircle, Check, X, EyeOff, Eye } from 'lucide-react';
 
 interface User {
   id: string;
@@ -48,6 +48,7 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
   const [suggested, setSuggested] = useState<SuggestedUser[]>([]);
   const [activeTab, setActiveTab] = useState<'people' | 'requests'>('people');
   const [requestProfiles, setRequestProfiles] = useState<Record<string, User>>({});
+  const [showSuggestions, setShowSuggestions] = useState(true);
 
   useEffect(() => {
     if (user) {
@@ -372,6 +373,19 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
     }
   };
 
+  const cancelFriendRequest = async (req: FriendRequest) => {
+    try {
+      await supabase
+        .from('friend_requests')
+        .delete()
+        .eq('id', req.id)
+        .eq('sender_id', user!.id);
+      await fetchUsers(appliedTerm);
+    } catch (e) {
+      console.error('Error canceling friend request', e);
+    }
+  };
+
   // La lista ya viene filtrada por servidor y por el filtro "Siguiendo"
   const filteredUsers = users;
 
@@ -425,43 +439,67 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
         </div>
 
         {activeTab === 'people' && (
-          <div className="flex flex-col md:flex-row gap-3">
-            {/* Buscador */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder={tt('people.search.placeholder', 'Buscar personas...')}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={onKeyDownSearch}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={triggerSearch}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
-            >
-              <Search className="w-4 h-4" />
-              {tt('people.search.button', 'Buscar')}
-            </button>
+          <>
+            <div className="flex flex-col md:flex-row gap-3">
+              {/* Buscador */}
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder={tt('people.search.placeholder', 'Buscar personas...')}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={onKeyDownSearch}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={triggerSearch}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+              >
+                <Search className="w-4 h-4" />
+                {tt('people.search.button', 'Buscar')}
+              </button>
 
-            {/* Filtro */}
-            <label htmlFor="people-filter" className="sr-only">
-              {tt('people.filter.label', 'Filtro')}
-            </label>
-            <select
-              id="people-filter"
-              aria-label={tt('people.filter.label', 'Filtro')}
-              value={filter}
-              onChange={(e) => setFilter(e.target.value as 'all' | 'following')}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">{tt('people.filter.all', 'Todos')}</option>
-              <option value="following">{tt('people.filter.following', 'Siguiendo')}</option>
-            </select>
-          </div>
+              {/* Filtro */}
+              <label htmlFor="people-filter" className="sr-only">
+                {tt('people.filter.label', 'Filtro')}
+              </label>
+              <select
+                id="people-filter"
+                aria-label={tt('people.filter.label', 'Filtro')}
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as 'all' | 'following')}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="all">{tt('people.filter.all', 'Todos')}</option>
+                <option value="following">{tt('people.filter.following', 'Siguiendo')}</option>
+              </select>
+            </div>
+            
+            {/* Toggle sugerencias */}
+            <div className="mt-4 flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setShowSuggestions(!showSuggestions)}
+                className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                title={showSuggestions ? tt('people.suggestions.hide', 'Ocultar sugerencias') : tt('people.suggestions.show', 'Mostrar sugerencias')}
+              >
+                {showSuggestions ? (
+                  <>
+                    <EyeOff className="w-4 h-4" />
+                    {tt('people.suggestions.hide', 'Ocultar sugerencias')}
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4" />
+                    {tt('people.suggestions.show', 'Mostrar sugerencias')}
+                  </>
+                )}
+              </button>
+            </div>
+          </>
         )}
       </div>
 
@@ -469,7 +507,7 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
         <>
           {/* Lista de usuarios */}
           {/* Sugerencias de usuarios recientes */}
-          {suggested.length > 0 && (
+          {showSuggestions && suggested.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-6">
               <h3 className="text-lg font-bold mb-4">{tt('people.suggest.title', 'Usuarios recientes')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -703,9 +741,14 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
                           )}
                         </div>
                       </div>
-                      <div className="px-3 py-1 rounded-lg bg-yellow-50 text-yellow-800 text-sm font-medium">
-                        {tt('people.requests.sent', 'Solicitud enviada')}
-                      </div>
+                      <button
+                        onClick={() => cancelFriendRequest(req)}
+                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium transition-colors"
+                        title={tt('people.requests.cancel', 'Cancelar solicitud')}
+                      >
+                        <X className="w-4 h-4" />
+                        {tt('people.requests.cancel', 'Cancelar')}
+                      </button>
                     </div>
                   );
                 })}
