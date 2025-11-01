@@ -111,6 +111,7 @@ function MainApp() {
               userId={viewedUserId}
               onBack={() => setCurrentView('people')}
               onStartChat={handleStartChat}
+              onOpenUser={(id: string) => openUserProfile(id)}
             />
           )}
         </main>

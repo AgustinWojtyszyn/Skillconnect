@@ -124,6 +124,13 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
         is_following: followingIds.has(p.id)
       })) || [];
 
+      // Deduplicar por si el backend devuelve repetidos
+      const uniqueMap = new Map<string, User & { is_following: boolean }>();
+      usersWithFollowing.forEach((u) => {
+        if (!uniqueMap.has(u.id)) uniqueMap.set(u.id, u);
+      });
+      usersWithFollowing = Array.from(uniqueMap.values());
+
       // 2) Filtrado en cliente (robusto: ignora @, tildes, mayúsculas; colapsa espacios)
       const rawQuery1 = (q ?? '').trim();
       const sanitizedQuery1 = rawQuery1.replace(/^@+/, '');
@@ -223,7 +230,7 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
       console.log('✅ Filtered users to show:', filteredUsers.length);
       setUsers(filteredUsers);
 
-      // Sugerencias: si no hay término de búsqueda, mostrar usuarios recientes con un blurb de su skill más reciente
+  // Sugerencias: si no hay término de búsqueda, mostrar usuarios recientes con un blurb de su skill más reciente
       const rawQuery2 = (q ?? '').trim();
       const sanitizedQuery2 = rawQuery2.replace(/^@+/, '');
       if (sanitizedQuery2.length === 0) {
@@ -255,7 +262,9 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
               }
             });
           }
-          const suggestedUsers: SuggestedUser[] = rec.map((u) => ({
+          // Evitar duplicar usuarios que ya están en la lista principal
+          const already = new Set(filteredUsers.map((u) => u.id));
+          const suggestedUsers: SuggestedUser[] = rec.filter((u) => !already.has(u.id)).map((u) => ({
             ...u,
             skillBlurb: skillBlurbMap.get(u.id),
           }));
@@ -516,9 +525,9 @@ export function PeoplePage({ onViewProfile, onStartChat }: PeoplePageProps) {
                     )}
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-lg truncate">{person.email || person.username}</h3>
+                      <h3 className="text-base md:text-lg font-semibold text-gray-900 truncate tracking-tight">{person.email || person.username}</h3>
                       {(person.full_name || person.username) && (
-                        <p className="text-sm text-gray-500 truncate italic">{person.full_name || person.username}</p>
+                        <p className="text-xs md:text-sm text-gray-500 truncate italic">{person.full_name || person.username}</p>
                       )}
                     </div>
                   </div>

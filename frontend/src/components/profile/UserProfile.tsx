@@ -27,12 +27,14 @@ interface UserProfileProps {
   userId: string;
   onBack: () => void;
   onStartChat: (userId: string, username: string) => void;
+  onOpenUser?: (userId: string) => void;
 }
 
-export function UserProfile({ userId, onBack, onStartChat }: UserProfileProps) {
+export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserProfileProps) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
+  const [friends, setFriends] = useState<Profile[]>([]);
 
   useEffect(() => {
     const run = async () => {
@@ -50,6 +52,22 @@ export function UserProfile({ userId, onBack, onStartChat }: UserProfileProps) {
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
       setSkills((s as Skill[]) || []);
+
+      // Amigos (siguiendo bidireccional según aceptación)
+      const { data: f } = await supabase
+        .from('friendships')
+        .select('following_id')
+        .eq('follower_id', userId);
+      const ids = Array.from(new Set(((f as { following_id: string }[] | null) || []).map(x => x.following_id))).filter(Boolean);
+      if (ids.length > 0) {
+        const { data: p2 } = await supabase
+          .from('profiles')
+          .select('id, username, full_name, bio, location, avatar_url, banner_url, email')
+          .in('id', ids);
+        setFriends(((p2 as Profile[] | null) || []).filter(u => u.id !== userId));
+      } else {
+        setFriends([]);
+      }
       setLoading(false);
     };
     run();
@@ -145,6 +163,38 @@ export function UserProfile({ userId, onBack, onStartChat }: UserProfileProps) {
                 <p className="text-sm text-gray-600 line-clamp-3">{sk.description}</p>
                 <div className="text-xs text-gray-500 mt-2 italic">{sk.category} • {sk.level}</div>
               </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Amigos */}
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
+        <h3 className="text-xl font-bold text-gray-900 mb-4">Amigos</h3>
+        {friends.length === 0 ? (
+          <p className="text-gray-600">Este usuario aún no tiene amigos visibles.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {friends.map((f) => (
+              <button
+                key={f.id}
+                onClick={() => onOpenUser && onOpenUser(f.id)}
+                className="text-left border border-gray-200 rounded-xl p-4 hover:shadow-md transition flex items-center gap-3"
+              >
+                {f.avatar_url ? (
+                  <img src={f.avatar_url} alt={f.username} className="w-12 h-12 rounded-full object-cover" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                    {(f.email || f.username || 'U').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="text-sm md:text-base font-semibold text-gray-900 truncate tracking-tight">{f.email || f.username}</div>
+                  {(f.full_name || f.username) && (
+                    <div className="text-xs text-gray-500 truncate italic">{f.full_name || f.username}</div>
+                  )}
+                </div>
+              </button>
             ))}
           </div>
         )}
