@@ -63,7 +63,8 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
     <div className="">
       {/* Encabezado con gradiente */}
       <div 
-        className={`rounded-3xl p-8 text-white shadow-xl bg-gradient-to-r ${bannerColor}`}
+        className="rounded-3xl p-8 text-white shadow-xl"
+        style={{ backgroundImage: getBannerGradient() }}
       >
         <div className="flex items-start justify-between gap-4">
           <div>

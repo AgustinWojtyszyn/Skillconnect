@@ -97,31 +97,39 @@ function ThemeCustomization() {
             >
               <div className="flex items-center gap-3">
                 <div className="flex-1 text-left">
-                  <p className={`font-semibold ${isActive ? 'text-purple-900' : 'text-gray-900'}`}>
+                  <p className={`font-semibold mb-2 ${isActive ? 'text-purple-900' : 'text-gray-900'}`}>
                     {preset.name}
                   </p>
-                  <div 
-                    className={`w-8 h-8 rounded-lg border border-gray-300 ${
-                      preset.bannerColor === 'from-blue-600 via-indigo-600 to-purple-600'
-                        ? 'preset-banner-blue'
-                        : preset.bannerColor === 'from-emerald-600 via-teal-600 to-cyan-600'
-                        ? 'preset-banner-emerald'
-                        : preset.bannerColor === 'from-rose-600 via-pink-600 to-fuchsia-600'
-                        ? 'preset-banner-rose'
-                        : 'preset-banner-amber'
-                    }`}
-                  />
-                  <div 
-                    className={`w-8 h-8 rounded-lg border border-gray-300 ${
-                      preset.landingBgColor === 'from-blue-900 via-indigo-800 to-purple-900'
-                        ? 'preset-landing-blue'
-                        : preset.landingBgColor === 'from-emerald-900 via-teal-800 to-cyan-900'
-                        ? 'preset-landing-emerald'
-                        : preset.landingBgColor === 'from-rose-900 via-pink-800 to-fuchsia-900'
-                        ? 'preset-landing-rose'
-                        : 'preset-landing-amber'
-                    }`}
-                  />
+                  <div className="flex gap-2">
+                    <div 
+                      className="w-8 h-8 rounded-lg border border-gray-300"
+                      style={{ 
+                        backgroundImage: `linear-gradient(to right, ${
+                          preset.bannerColor === 'from-blue-600 via-indigo-600 to-purple-600' 
+                            ? '#2563eb, #4f46e5, #7c3aed'
+                            : preset.bannerColor === 'from-emerald-600 via-teal-600 to-cyan-600'
+                            ? '#059669, #0d9488, #0891b2'
+                            : preset.bannerColor === 'from-rose-600 via-pink-600 to-fuchsia-600'
+                            ? '#e11d48, #db2777, #c026d3'
+                            : '#d97706, #ea580c, #dc2626'
+                        })`
+                      }}
+                    />
+                    <div 
+                      className="w-8 h-8 rounded-lg border border-gray-300"
+                      style={{ 
+                        backgroundImage: `linear-gradient(to right, ${
+                          preset.landingBgColor === 'from-blue-900 via-indigo-800 to-purple-900' 
+                            ? '#1e3a8a, #3730a3, #581c87'
+                            : preset.landingBgColor === 'from-emerald-900 via-teal-800 to-cyan-900'
+                            ? '#064e3b, #115e59, #164e63'
+                            : preset.landingBgColor === 'from-rose-900 via-pink-800 to-fuchsia-900'
+                            ? '#881337, #831843, #701a75'
+                            : '#78350f, #9a3412, #7f1d1d'
+                        })`
+                      }}
+                    />
+                  </div>
                 </div>
                 {isActive && (
                   <div className="flex-shrink-0">

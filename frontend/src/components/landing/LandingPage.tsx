@@ -26,7 +26,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Hero Section con fondo azul integrado */}
       <div 
-        className={`relative overflow-hidden landing-gradient-bg`}
+        className="relative overflow-hidden"
+        style={{ backgroundImage: getLandingGradient() }}
       >
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-700/20 via-transparent to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
@@ -44,8 +45,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
           </div>
           <div className="text-center space-y-8">
-            {/* Logo y título en línea (logo a la derecha) */}
-            <div className="mb-8 flex items-center justify-center py-10">
+            {/* Logo y título en línea con lema debajo */}
+            <div className="mb-8 flex flex-col items-center justify-center py-10">
               <div className="flex flex-row items-center justify-center gap-4 md:gap-6">
                 {/* Título SkillsConnect */}
                 <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
@@ -54,6 +55,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   </span>
                 </h1>
 
+                {/* Logo a la derecha */}
                 <img
                   src="/assets/modern-technology-world-map-globe-crop-out-png.webp"
                   alt="SkillsConnect logo"
@@ -63,7 +65,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 />
               </div>
               
-              {/* Lema debajo */}
+              {/* Lema debajo del título y logo */}
               <p className="mt-3 text-base md:text-xl text-blue-200 font-light tracking-wide">
                 {lang === 'es' ? 'Aprende, Ofrece, Colabora' : 'Learn, Offer, Collaborate'}
               </p>
