@@ -352,16 +352,7 @@ export function Chat({ initialUserId }: ChatProps) {
               <div ref={messagesEndRef} />
             </div>
 
-            <form 
-              onSubmit={sendMessage} 
-              className="p-3 md:p-4 border-t border-gray-200 flex-shrink-0"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  sendMessage();
-                }
-              }}
-            >
+            <div className="p-3 md:p-4 border-t border-gray-200 flex-shrink-0">
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -370,6 +361,7 @@ export function Chat({ initialUserId }: ChatProps) {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
+                      e.stopPropagation();
                       sendMessage();
                     }
                   }}
@@ -381,6 +373,7 @@ export function Chat({ initialUserId }: ChatProps) {
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     sendMessage();
                   }}
                   disabled={!newMessage.trim()}
@@ -390,7 +383,7 @@ export function Chat({ initialUserId }: ChatProps) {
                   <span className="hidden sm:inline text-sm md:text-base">Send</span>
                 </button>
               </div>
-            </form>
+            </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-gray-500 p-4">
