@@ -176,7 +176,16 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-        {filteredSkills.map((skill) => (
+        {filteredSkills.map((skill) => {
+          const isOwnSkill = skill.user_id === user?.id;
+          console.log('Skill debug:', { 
+            title: skill.title, 
+            skillUserId: skill.user_id, 
+            currentUserId: user?.id, 
+            isOwnSkill,
+            showButton: !isOwnSkill 
+          });
+          return (
           <div
             key={skill.id}
             className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden"
@@ -233,7 +242,8 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
               </div>
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
 
       {filteredSkills.length === 0 && (
