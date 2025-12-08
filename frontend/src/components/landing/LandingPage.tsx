@@ -51,14 +51,16 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       </div>
       <section className="max-w-6xl mx-auto pt-16 pb-8 px-4">
         <header className="mb-12">
-          <h1 className="text-5xl md:text-7xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg mb-4">SkillConnect</h1>
+          <h1 className="text-5xl md:text-7xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg mb-4">
+            {t('landing.title.1')} <span className="text-cyan-400">{t('landing.title.2')}</span> {t('landing.title.3')}
+          </h1>
           <p className="text-lg md:text-2xl text-gray-200 max-w-3xl font-light leading-relaxed mb-6">
-            Conecta, aprende y crece en la comunidad tech. Descubre habilidades, comparte conocimientos y haz networking con profesionales de todo el mundo.
+            {t('landing.subtitle')}
           </p>
           <div className="flex flex-wrap gap-4 mt-4">
-            <button className="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Explorar habilidades</button>
-            <button className="bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Completa tu perfil</button>
-            <button className="bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Mensajes</button>
+            <button className="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.exploreSkills')}</button>
+            <button className="bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.completeProfile')}</button>
+            <button className="bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.openMessages')}</button>
           </div>
         </header>
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
@@ -66,34 +68,34 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6v6l4 2" /></svg>
-                <h3 className="text-xl font-bold text-cyan-300 font-mono">Habilidades</h3>
+                <h3 className="text-xl font-bold text-cyan-300 font-mono">{t('dashboard.cards.skills.title')}</h3>
               </div>
-              <p className="text-gray-300 text-base mb-4">Descubre y comparte tus skills con la comunidad.</p>
+              <p className="text-gray-300 text-base mb-4">{t('dashboard.cards.skills.desc')}</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-cyan-200 font-mono">∞</div>
-            <div className="text-sm text-cyan-400">Skills totales</div>
+            <div className="text-sm text-cyan-400">{t('dashboard.cards.skills.total')}</div>
           </div>
           <div className="bg-gray-900 rounded-2xl p-8 shadow-lg flex flex-col justify-between h-full">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" /><path d="M5.5 21a7.5 7.5 0 0 1 13 0" /></svg>
-                <h3 className="text-xl font-bold text-purple-300 font-mono">Perfil</h3>
+                <h3 className="text-xl font-bold text-purple-300 font-mono">{t('dashboard.cards.profile.title')}</h3>
               </div>
-              <p className="text-gray-300 text-base mb-4">Completa tu perfil y destaca en la red.</p>
+              <p className="text-gray-300 text-base mb-4">{t('dashboard.cards.profile.desc')}</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-purple-200 font-mono">100%</div>
-            <div className="text-sm text-purple-400">Perfil completado</div>
+            <div className="text-sm text-purple-400">{t('dashboard.cards.profile.cta')}</div>
           </div>
           <div className="bg-gray-900 rounded-2xl p-8 shadow-lg flex flex-col justify-between h-full">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                <h3 className="text-xl font-bold text-blue-300 font-mono">Mensajes</h3>
+                <h3 className="text-xl font-bold text-blue-300 font-mono">{t('dashboard.cards.chat.title')}</h3>
               </div>
-              <p className="text-gray-300 text-base mb-4">Conversa y haz networking con otros usuarios.</p>
+              <p className="text-gray-300 text-base mb-4">{t('dashboard.cards.chat.desc')}</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-blue-200 font-mono">∞</div>
-            <div className="text-sm text-blue-400">Conexiones</div>
+            <div className="text-sm text-blue-400">{t('dashboard.cards.chat.cta')}</div>
           </div>
         </section>
         <section className="flex flex-wrap gap-10 justify-center items-center mb-20">
@@ -103,7 +105,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/HTML5_Badge.svg" alt="HTML5" className="h-10" />
         </section>
         <section className="max-w-5xl mx-auto mb-24">
-          <h2 className="text-3xl md:text-4xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 mb-10 drop-shadow-lg">Testimonios</h2>
+          <h2 className="text-3xl md:text-4xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 mb-10 drop-shadow-lg">
+            {t('landing.testimonials.title')}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="bg-gray-900 rounded-2xl p-8 shadow-lg">
               <p className="text-lg text-gray-200 font-mono mb-6">“SkillConnect me ayudó a encontrar mi primer trabajo remoto en tecnología.”</p>
