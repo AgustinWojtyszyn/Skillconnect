@@ -24,8 +24,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div className="relative font-sans min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      {/* Logo y título en esquina superior izquierda */}
-      <div className="absolute top-6 left-6 z-20 flex items-center gap-2">
+      {/* Logo y título en esquina superior derecha, debajo de los botones */}
+      <div className="absolute top-20 right-6 z-20 flex items-center gap-2">
         <Globe className="w-8 h-8 text-cyan-400 drop-shadow-lg" />
         <span className="text-2xl font-extrabold font-mono text-cyan-300 tracking-wide drop-shadow-lg">SkillConnect</span>
       </div>
