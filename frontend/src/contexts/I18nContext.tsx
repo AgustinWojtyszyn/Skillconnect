@@ -14,6 +14,11 @@ const I18N_STORAGE_KEY = 'skillconnect:lang';
 const translations: Record<Lang, Record<string, string>> = {
   es: {
   'app.name': 'SkillsConnect',
+  'landing.testimonials.title': 'Historias de éxito en SkillConnect',
+  'landing.testimonials.ana.text': 'SkillConnect me ayudó a encontrar mi primer trabajo remoto en tecnología.',
+  'landing.testimonials.ana.author': 'Ana, Desarrolladora Frontend',
+  'landing.testimonials.luis.text': 'La comunidad es increíble y siempre hay alguien dispuesto a ayudar.',
+  'landing.testimonials.luis.author': 'Luis, Ingeniero Backend',
     'nav.skills': 'Habilidades',
   'nav.home': 'Inicio',
     'nav.profile': 'Perfil',
@@ -200,6 +205,11 @@ const translations: Record<Lang, Record<string, string>> = {
   },
   en: {
   'app.name': 'SkillsConnect',
+  'landing.testimonials.title': 'Success stories at SkillConnect',
+  'landing.testimonials.ana.text': 'SkillConnect helped me find my first remote job in tech.',
+  'landing.testimonials.ana.author': 'Ana, Frontend Developer',
+  'landing.testimonials.luis.text': 'The community is amazing and there is always someone willing to help.',
+  'landing.testimonials.luis.author': 'Luis, Backend Engineer',
     'nav.skills': 'Skills',
   'nav.home': 'Home',
     'nav.profile': 'Profile',
