@@ -68,6 +68,19 @@
         "title": "Personalización de Tema",
         "description": "Elige un tema de color para personalizar tu experiencia"
       }
+    },
+    "landing": {
+      "testimonials": {
+        "title": "Historias de éxito en SkillConnect",
+        "ana": {
+          "text": "SkillConnect me ayudó a encontrar mi primer trabajo remoto en tecnología.",
+          "author": "Ana, Desarrolladora Frontend"
+        },
+        "luis": {
+          "text": "La comunidad es increíble y siempre hay alguien dispuesto a ayudar.",
+          "author": "Luis, Ingeniero Backend"
+        }
+      }
     }
   }
 }

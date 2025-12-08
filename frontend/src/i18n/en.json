@@ -68,6 +68,19 @@
         "title": "Theme Customization",
         "description": "Choose a color theme to personalize your experience"
       }
+    },
+    "landing": {
+      "testimonials": {
+        "title": "Success stories at SkillConnect",
+        "ana": {
+          "text": "SkillConnect helped me find my first remote job in tech.",
+          "author": "Ana, Frontend Developer"
+        },
+        "luis": {
+          "text": "The community is amazing and there is always someone willing to help.",
+          "author": "Luis, Backend Engineer"
+        }
+      }
     }
   }
 }

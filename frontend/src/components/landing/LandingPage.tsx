@@ -24,6 +24,11 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div className="relative font-sans min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+      {/* Logo y título en esquina superior izquierda */}
+      <div className="absolute top-6 left-6 z-20 flex items-center gap-2">
+        <Globe className="w-8 h-8 text-cyan-400 drop-shadow-lg" />
+        <span className="text-2xl font-extrabold font-mono text-cyan-300 tracking-wide drop-shadow-lg">SkillConnect</span>
+      </div>
       {/* Botones de login, register e idioma en esquina superior derecha */}
       <div className="absolute top-6 right-6 z-20 flex gap-2">
         <button
@@ -110,12 +115,12 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="bg-gray-900 rounded-2xl p-8 shadow-lg">
-              <p className="text-lg text-gray-200 font-mono mb-6">“SkillConnect me ayudó a encontrar mi primer trabajo remoto en tecnología.”</p>
-              <div className="text-cyan-400 font-bold">Ana, Frontend Developer</div>
+              <p className="text-lg text-gray-200 font-mono mb-6">{t('landing.testimonials.ana.text')}</p>
+              <div className="text-cyan-400 font-bold">{t('landing.testimonials.ana.author')}</div>
             </div>
             <div className="bg-gray-900 rounded-2xl p-8 shadow-lg">
-              <p className="text-lg text-gray-200 font-mono mb-6">“La comunidad es increíble y siempre hay alguien dispuesto a ayudar.”</p>
-              <div className="text-purple-400 font-bold">Luis, Backend Engineer</div>
+              <p className="text-lg text-gray-200 font-mono mb-6">{t('landing.testimonials.luis.text')}</p>
+              <div className="text-purple-400 font-bold">{t('landing.testimonials.luis.author')}</div>
             </div>
           </div>
         </section>
