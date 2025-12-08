@@ -10,6 +10,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
   const { t, lang, setLang } = useI18n();
   const { landingBgColor } = useTheme();
 
+  // Cambia el idioma entre 'es' y 'en'
+  const toggleLang = () => setLang(lang === 'es' ? 'en' : 'es');
+
   // Convertir las clases de Tailwind a gradiente CSS
   const getLandingGradient = () => {
     const colorMap: Record<string, string> = {
@@ -40,7 +43,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
         </button>
         <button
           className="bg-gray-900 border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg font-mono text-sm shadow hover:bg-cyan-900 transition"
-          onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+          onClick={toggleLang}
           aria-label="Cambiar idioma"
         >
           {lang === 'es' ? 'EN' : 'ES'}

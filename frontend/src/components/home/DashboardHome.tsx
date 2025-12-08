@@ -18,6 +18,9 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
     [user]
   );
 
+  // Toggle language between 'es' and 'en'
+  const toggleLang = () => setLang(lang === 'es' ? 'en' : 'es');
+
   const [totalSkills, setTotalSkills] = useState<number | null>(null);
   const [mySkills, setMySkills] = useState<number | null>(null);
 
@@ -64,7 +67,7 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
       {/* Botón de idioma en esquina superior derecha */}
       <button
         className="absolute top-6 right-6 z-20 bg-gray-900 border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg font-mono text-sm shadow hover:bg-cyan-900 transition"
-        onClick={() => setLang && setLang(lang === 'es' ? 'en' : 'es')}
+        onClick={toggleLang}
         aria-label="Cambiar idioma"
       >
         {lang === 'es' ? 'EN' : 'ES'}
