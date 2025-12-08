@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { ArrowRight, MessageCircle, User, Layers, Sparkles } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface DashboardHomeProps {
@@ -81,11 +80,6 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
           <p className="text-lg md:text-2xl text-gray-200 max-w-3xl font-light leading-relaxed mb-6">
             Accede a tus habilidades, perfil y mensajes. Organiza tu experiencia y conecta con la comunidad tech.
           </p>
-          <div className="flex flex-wrap gap-4 mt-4">
-            <button onClick={() => onGoTo('skills')} className="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Explorar habilidades</button>
-            <button onClick={() => onGoTo('profile')} className="bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Completa tu perfil</button>
-            <button onClick={() => onGoTo('chat')} className="bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Mensajes</button>
-          </div>
         </header>
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           <div className="bg-gray-900 rounded-2xl p-8 shadow-lg flex flex-col justify-between h-full">
@@ -97,7 +91,8 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
               <p className="text-gray-300 text-base mb-4">Tus skills y las de la comunidad.</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-cyan-200 font-mono">{totalSkills ?? '—'}</div>
-            <div className="text-sm text-cyan-400">Skills totales</div>
+            <div className="text-sm text-cyan-400 mb-4">Skills totales</div>
+            <button onClick={() => onGoTo('skills')} className="w-full bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">Ver habilidades</button>
           </div>
           <div className="bg-gray-900 rounded-2xl p-8 shadow-lg flex flex-col justify-between h-full">
             <div>
@@ -108,7 +103,8 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
               <p className="text-gray-300 text-base mb-4">Completa tu perfil y destaca en la red.</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-purple-200 font-mono">{mySkills ?? '—'}</div>
-            <div className="text-sm text-purple-400">Tus skills</div>
+            <div className="text-sm text-purple-400 mb-4">Tus skills</div>
+            <button onClick={() => onGoTo('profile')} className="w-full bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">Ver perfil</button>
           </div>
           <div className="bg-gray-900 rounded-2xl p-8 shadow-lg flex flex-col justify-between h-full">
             <div>
@@ -119,26 +115,8 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
               <p className="text-gray-300 text-base mb-4">Conversa y haz networking con otros usuarios.</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-blue-200 font-mono">∞</div>
-            <div className="text-sm text-blue-400">Conexiones</div>
-          </div>
-        </section>
-        <section className="flex flex-wrap gap-10 justify-center items-center mb-20">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-10" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-10" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-10" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/HTML5_Badge.svg" alt="HTML5" className="h-10" />
-        </section>
-        <section className="max-w-5xl mx-auto mb-24">
-          <h2 className="text-3xl md:text-4xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 mb-10 drop-shadow-lg">Testimonios</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="bg-gray-900 rounded-2xl p-8 shadow-lg">
-              <p className="text-lg text-gray-200 font-mono mb-6">“SkillConnect me ayudó a encontrar mi primer trabajo remoto en tecnología.”</p>
-              <div className="text-cyan-400 font-bold">Ana, Frontend Developer</div>
-            </div>
-            <div className="bg-gray-900 rounded-2xl p-8 shadow-lg">
-              <p className="text-lg text-gray-200 font-mono mb-6">“La comunidad es increíble y siempre hay alguien dispuesto a ayudar.”</p>
-              <div className="text-purple-400 font-bold">Luis, Backend Engineer</div>
-            </div>
+            <div className="text-sm text-blue-400 mb-4">Conexiones</div>
+            <button onClick={() => onGoTo('chat')} className="w-full bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">Ir a mensajes</button>
           </div>
         </section>
       </section>
