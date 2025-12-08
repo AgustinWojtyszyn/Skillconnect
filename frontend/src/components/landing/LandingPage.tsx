@@ -24,14 +24,28 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div className="relative font-sans min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      {/* Botón de idioma en esquina superior derecha */}
-      <button
-        className="absolute top-6 right-6 z-20 bg-gray-900 border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg font-mono text-sm shadow hover:bg-cyan-900 transition"
-        onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
-        aria-label="Cambiar idioma"
-      >
-        {lang === 'es' ? 'EN' : 'ES'}
-      </button>
+      {/* Botones de login, register e idioma en esquina superior derecha */}
+      <div className="absolute top-6 right-6 z-20 flex gap-2">
+        <button
+          className="bg-gray-800 hover:bg-cyan-700 text-cyan-200 font-bold px-4 py-2 rounded-lg shadow border border-cyan-400 transition"
+          onClick={() => onGetStarted('login')}
+        >
+          Iniciar sesión
+        </button>
+        <button
+          className="bg-gray-800 hover:bg-purple-700 text-purple-200 font-bold px-4 py-2 rounded-lg shadow border border-purple-400 transition"
+          onClick={() => onGetStarted('register')}
+        >
+          Registrarse
+        </button>
+        <button
+          className="bg-gray-900 border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg font-mono text-sm shadow hover:bg-cyan-900 transition"
+          onClick={() => setLang(lang === 'es' ? 'en' : 'es')}
+          aria-label="Cambiar idioma"
+        >
+          {lang === 'es' ? 'EN' : 'ES'}
+        </button>
+      </div>
       <div className="absolute inset-0 pointer-events-none select-none" style={{zIndex:0, opacity:0.15}}>
         <img src="/assets/tech-bg.svg" alt="Tech background" className="w-full h-64 object-cover" />
       </div>
@@ -45,8 +59,6 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             <button className="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Explorar habilidades</button>
             <button className="bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Completa tu perfil</button>
             <button className="bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">Mensajes</button>
-            <button onClick={() => onGetStarted('login')} className="bg-gray-800 hover:bg-cyan-700 text-cyan-200 font-bold px-6 py-3 rounded-xl shadow-md transition border border-cyan-400">Iniciar sesión</button>
-            <button onClick={() => onGetStarted('register')} className="bg-gray-800 hover:bg-purple-700 text-purple-200 font-bold px-6 py-3 rounded-xl shadow-md transition border border-purple-400">Registrarse</button>
           </div>
         </header>
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
@@ -85,7 +97,6 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
         </section>
         <section className="flex flex-wrap gap-10 justify-center items-center mb-20">
-          <img src="https://raw.githubusercontent.com/detain/svg-logos/master/svg/python.svg" alt="Python" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-10" />

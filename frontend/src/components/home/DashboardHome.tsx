@@ -120,7 +120,6 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
           </div>
         </section>
         <section className="flex flex-wrap gap-10 justify-center items-center mb-20">
-          <img src="https://raw.githubusercontent.com/detain/svg-logos/master/svg/python.svg" alt="Python" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-10" />
