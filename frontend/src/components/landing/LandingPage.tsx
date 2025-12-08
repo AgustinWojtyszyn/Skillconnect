@@ -7,11 +7,8 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
-  const { t, lang, setLang } = useI18n();
+  const { t, lang, toggleLang } = useI18n();
   const { landingBgColor } = useTheme();
-
-  // Cambia el idioma entre 'es' y 'en'
-  const toggleLang = () => setLang(lang === 'es' ? 'en' : 'es');
 
   // Convertir las clases de Tailwind a gradiente CSS
   const getLandingGradient = () => {
@@ -33,13 +30,13 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           className="bg-gray-800 hover:bg-cyan-700 text-cyan-200 font-bold px-4 py-2 rounded-lg shadow border border-cyan-400 transition"
           onClick={() => onGetStarted('login')}
         >
-          Iniciar sesión
+          {t('auth.login.title')}
         </button>
         <button
           className="bg-gray-800 hover:bg-purple-700 text-purple-200 font-bold px-4 py-2 rounded-lg shadow border border-purple-400 transition"
           onClick={() => onGetStarted('register')}
         >
-          Registrarse
+          {t('auth.signUp')}
         </button>
         <button
           className="bg-gray-900 border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg font-mono text-sm shadow hover:bg-cyan-900 transition"
