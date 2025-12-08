@@ -60,23 +60,25 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
   };
 
   return (
-    <div className="">
+    <div className="relative">
+      {/* Fondo SVG tech animado */}
+      <img src="/assets/tech-bg.svg" alt="Tech background" className="absolute top-0 left-0 w-full h-32 md:h-40 lg:h-56 object-cover pointer-events-none select-none animate-pulse" style={{zIndex:0, opacity:0.7}} />
       {/* Encabezado con gradiente */}
       <div 
-        className="rounded-3xl p-8 text-white shadow-xl"
+        className="rounded-3xl p-8 text-white shadow-xl relative z-10"
         style={{ backgroundImage: getBannerGradient() }}
       >
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 animate-fade-in">
           <div>
-            <p className="text-sm/relaxed text-blue-100">{t('dashboard.welcomeBadge')}</p>
-            <h1 className="mt-1 text-3xl sm:text-4xl font-extrabold">
+            <p className="text-sm/relaxed text-blue-100 animate-pulse">{t('dashboard.welcomeBadge')}</p>
+            <h1 className="mt-1 text-3xl sm:text-4xl font-extrabold animate-float">
               {t('dashboard.welcome', { name: displayName })}
             </h1>
-            <p className="mt-2 text-blue-100 max-w-2xl">
+            <p className="mt-2 text-blue-100 max-w-2xl animate-fade-in">
               {t('dashboard.subtitle')}
             </p>
           </div>
-          <Sparkles className="w-10 h-10 hidden sm:block text-white/80" />
+          <Sparkles className="w-10 h-10 hidden sm:block text-white/80 animate-spin-slow" />
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
           <button
@@ -100,9 +102,9 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
         </div>
       </div>
 
-      {/* Tarjetas */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+      {/* Widgets y tarjetas tech */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-float">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
               <Layers className="w-5 h-5" />
@@ -122,7 +124,7 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-float">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
               <User className="w-5 h-5" />
@@ -135,7 +137,34 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-float">
+                {/* Estadísticas animadas */}
+                <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                  <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg animate-fade-in">
+                    <div className="text-3xl font-extrabold mb-2">{totalSkills ?? '—'}</div>
+                    <div className="text-blue-100 text-lg">Skills totales</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-6 text-white shadow-lg animate-fade-in">
+                    <div className="text-3xl font-extrabold mb-2">{mySkills ?? '—'}</div>
+                    <div className="text-blue-100 text-lg">Tus skills</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-emerald-600 to-cyan-600 rounded-2xl p-6 text-white shadow-lg animate-fade-in">
+                    <div className="text-3xl font-extrabold mb-2">100%</div>
+                    <div className="text-blue-100 text-lg">Satisfacción</div>
+                  </div>
+                  <div className="bg-gradient-to-r from-pink-600 to-fuchsia-600 rounded-2xl p-6 text-white shadow-lg animate-fade-in">
+                    <div className="text-3xl font-extrabold mb-2">∞</div>
+                    <div className="text-blue-100 text-lg">Conexiones</div>
+                  </div>
+                </div>
+                {/* Recursos tech extra */}
+                <div className="mt-16 flex flex-wrap gap-8 justify-center items-center animate-fade-in">
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-10" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Django_logo.svg" alt="Django" className="h-10" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-10" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-10" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/HTML5_Badge.svg" alt="HTML5" className="h-10" />
+                </div>
           <div className="flex items-center gap-3">
             <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
               <MessageCircle className="w-5 h-5" />

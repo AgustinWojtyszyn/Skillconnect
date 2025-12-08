@@ -23,12 +23,13 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Hero Section con fondo azul integrado */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 relative overflow-hidden">
+      {/* Hero Section con fondo SVG tech animado */}
       <div 
         className="relative overflow-hidden"
         style={{ backgroundImage: getLandingGradient() }}
       >
+        <img src="/assets/tech-bg.svg" alt="Tech background" className="absolute inset-0 w-full h-32 md:h-40 lg:h-56 object-cover pointer-events-none select-none animate-pulse" style={{zIndex:0, opacity:0.7}} />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-700/20 via-transparent to-transparent" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24">
           {/* Language switcher */}
@@ -46,8 +47,8 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </div>
           <div className="text-center space-y-8">
             {/* Logo y título en línea con lema debajo */}
-            <div className="mb-8 flex flex-col items-center justify-center py-10">
-              <div className="flex flex-row items-center justify-center gap-4 md:gap-6">
+            <div className="mb-8 flex flex-col items-center justify-center py-10 animate-fade-in">
+              <div className="flex flex-row items-center justify-center gap-4 md:gap-6 animate-float">
                 {/* Título SkillsConnect */}
                 <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight">
                   <span className="bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent drop-shadow-lg">
@@ -71,12 +72,12 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-full text-sm font-semibold animate-bounce">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 rounded-full text-sm font-semibold animate-pulse">
               <Sparkles className="w-4 h-4" />
               {t('landing.badge')}
             </div>
             
-            <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+            <h2 className="text-4xl md:text-6xl font-bold text-white leading-tight drop-shadow-lg animate-fade-in">
               {t('landing.title.1')} <span className="bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">{t('landing.title.2')}</span>
               <br />
               {t('landing.title.3')}
@@ -86,7 +87,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               {t('landing.subtitle')}
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-float">
               <button
                 onClick={onGetStarted}
                 className="group px-8 py-4 bg-white text-blue-900 rounded-xl font-semibold text-lg shadow-2xl hover:shadow-white/30 transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
@@ -96,7 +97,56 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
               </button>
             </div>
 
-            <div className="flex items-center justify-center gap-8 text-sm text-blue-100 pt-8">
+            <div className="flex items-center justify-center gap-8 text-sm text-blue-100 pt-8 animate-fade-in">
+                    {/* Testimonios y partners */}
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                      <div className="text-center mb-10">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Testimonios</h2>
+                        <p className="text-lg text-gray-600">Lo que dicen nuestros usuarios</p>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-8">
+                        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 animate-fade-in">
+                          <p className="text-gray-700 italic mb-4">“SkillsConnect me permitió encontrar mentores y crecer profesionalmente en tiempo récord.”</p>
+                          <div className="flex items-center gap-3">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Testimonio" className="w-10 h-10 rounded-full object-cover" />
+                            <div>
+                              <div className="font-semibold text-gray-900">Juan P.</div>
+                              <div className="text-xs text-gray-500">Desarrollador</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 animate-fade-in">
+                          <p className="text-gray-700 italic mb-4">“La comunidad es súper activa y siempre hay alguien dispuesto a ayudar.”</p>
+                          <div className="flex items-center gap-3">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Testimonio" className="w-10 h-10 rounded-full object-cover" />
+                            <div>
+                              <div className="font-semibold text-gray-900">María G.</div>
+                              <div className="text-xs text-gray-500">Diseñadora UX</div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 animate-fade-in">
+                          <p className="text-gray-700 italic mb-4">“Me conecté con empresas y conseguí mi primer trabajo remoto.”</p>
+                          <div className="flex items-center gap-3">
+                            <img src="https://randomuser.me/api/portraits/men/65.jpg" alt="Testimonio" className="w-10 h-10 rounded-full object-cover" />
+                            <div>
+                              <div className="font-semibold text-gray-900">Lucas R.</div>
+                              <div className="text-xs text-gray-500">Estudiante IT</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-16 text-center">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Partners</h3>
+                        <div className="flex flex-wrap gap-8 justify-center items-center">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-10" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Django_logo.svg" alt="Django" className="h-10" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-10" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-10" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/HTML5_Badge.svg" alt="HTML5" className="h-10" />
+                        </div>
+                      </div>
+                    </div>
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-300" />
                 <span>{t('landing.perk.free')}</span>
