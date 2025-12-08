@@ -13,7 +13,14 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
   const { t, lang, toggleLang } = useI18n();
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
+    <header className="bg-white border-b border-gray-200 shadow-sm relative">
+      <button
+        className="absolute top-3 right-6 z-20 bg-gray-900 border border-cyan-400 text-cyan-200 px-3 py-1 rounded-lg font-mono text-xs shadow hover:bg-cyan-900 transition"
+        onClick={toggleLang}
+        aria-label="Cambiar idioma"
+      >
+        {lang === 'es' ? 'EN' : 'ES'}
+      </button>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">

@@ -11,7 +11,7 @@ interface DashboardHomeProps {
 
 export function DashboardHome({ onGoTo }: DashboardHomeProps) {
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, lang, setLang } = useI18n();
   const { bannerColor } = useTheme();
   const displayName = useMemo(
     () => (user?.user_metadata?.username as string) || (user?.email as string) || 'Usuario',
@@ -61,6 +61,14 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
 
   return (
     <div className="relative font-sans min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+      {/* Botón de idioma en esquina superior derecha */}
+      <button
+        className="absolute top-6 right-6 z-20 bg-gray-900 border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg font-mono text-sm shadow hover:bg-cyan-900 transition"
+        onClick={() => setLang && setLang(lang === 'es' ? 'en' : 'es')}
+        aria-label="Cambiar idioma"
+      >
+        {lang === 'es' ? 'EN' : 'ES'}
+      </button>
       <div className="absolute inset-0 pointer-events-none select-none" style={{zIndex:0, opacity:0.15}}>
         <img src="/assets/tech-bg.svg" alt="Tech background" className="w-full h-64 object-cover" />
       </div>
@@ -112,8 +120,8 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
           </div>
         </section>
         <section className="flex flex-wrap gap-10 justify-center items-center mb-20">
+          <img src="https://raw.githubusercontent.com/detain/svg-logos/master/svg/python.svg" alt="Python" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-10" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Django_logo.svg" alt="Django" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-10" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/HTML5_Badge.svg" alt="HTML5" className="h-10" />
