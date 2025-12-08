@@ -31,6 +31,7 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [filterType, setFilterType] = useState<'all' | 'offering' | 'seeking'>('all');
+  const [zoomSkill, setZoomSkill] = useState<Skill | null>(null);
   const { user } = useAuth();
   const { t } = useI18n();
 
@@ -178,73 +179,96 @@ export function SkillsList({ onStartChat }: SkillsListProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         {filteredSkills.map((skill) => {
           const isOwnSkill = skill.user_id === user?.id;
-          console.log('Skill debug:', { 
-            title: skill.title, 
-            skillUserId: skill.user_id, 
-            currentUserId: user?.id, 
-            isOwnSkill,
-            showButton: !isOwnSkill 
-          });
           return (
-          <div
-            key={skill.id}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden"
-          >
-            <div className={`h-2 ${skill.is_offering ? 'bg-blue-500' : 'bg-orange-500'}`}></div>
-            <div className="p-4 md:p-6">
-              <div className="flex items-start justify-between mb-3 gap-2">
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 truncate">{skill.title}</h3>
-                  <span className="text-xs md:text-sm text-gray-500">{t(`profile.category.${skill.category}`)}</span>
-                </div>
-                <span
-                  className={`px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-semibold flex-shrink-0 ${
-                    skill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
-                  }`}
-                >
-                  {skill.is_offering ? t('profile.skill.offering') : t('profile.skill.seeking')}
-                </span>
-              </div>
-
-              <p className="text-sm md:text-base text-gray-600 mb-3 md:mb-4 line-clamp-3">{skill.description}</p>
-
-              <div className="flex items-center gap-2 mb-3 md:mb-4">
-                <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-medium ${getLevelColor(skill.level)}`}>
-                  {t(`profile.level.${skill.level}`)}
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-2 pt-3 md:pt-4 border-t border-gray-100">
-                <div className="flex items-center gap-2 min-w-0">
-                  <User className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
-                  <span className="text-xs md:text-sm font-medium text-gray-700 truncate">
-                    {skill.profiles.full_name || skill.profiles.username}
+            <div
+              key={skill.id}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
+              onClick={() => setZoomSkill(skill)}
+              title="Ampliar publicación"
+            >
+              <div className={`h-2 ${skill.is_offering ? 'bg-blue-500' : 'bg-orange-500'}`}></div>
+              <div className="p-4 md:p-6">
+                <div className="flex items-start justify-between mb-3 gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-1 truncate">{skill.title}</h3>
+                    <span className="text-xs md:text-sm text-gray-500">{t(`profile.category.${skill.category}`)}</span>
+                  </div>
+                  <span
+                    className={`px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-semibold flex-shrink-0 ${
+                      skill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'
+                    }`}
+                  >
+                    {skill.is_offering ? t('profile.skill.offering') : t('profile.skill.seeking')}
                   </span>
                 </div>
-                {skill.user_id !== user?.id ? (
-                  <button
-                    onClick={() => {
-                      console.log('Chat button clicked:', { userId: skill.user_id, username: skill.profiles.username });
-                      onStartChat(skill.user_id, skill.profiles.username);
-                    }}
-                    className="w-full px-3 md:px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm md:text-base font-bold rounded-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 shadow-md"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
-                    Enviar mensaje
-                  </button>
-                ) : (
-                  <div className="w-full px-3 py-2 bg-gray-100 text-gray-500 text-xs md:text-sm text-center rounded-lg italic">
-                    Tu publicación
+
+                <p className="text-sm md:text-base text-gray-600 mb-3 md:mb-4 line-clamp-3">{skill.description}</p>
+
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <span className={`px-2 py-1 rounded-full text-[10px] md:text-xs font-medium ${getLevelColor(skill.level)}`}>
+                    {t(`profile.level.${skill.level}`)}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2 pt-3 md:pt-4 border-t border-gray-100">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <User className="w-3 h-3 md:w-4 md:h-4 text-gray-400 flex-shrink-0" />
+                    <span className="text-xs md:text-sm font-medium text-gray-700 truncate">
+                      {skill.profiles.full_name || skill.profiles.username}
+                    </span>
                   </div>
-                )}
+                  {skill.user_id !== user?.id ? (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onStartChat(skill.user_id, skill.profiles.username);
+                      }}
+                      className="w-full px-3 md:px-4 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm md:text-base font-bold rounded-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-2 shadow-md"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                      </svg>
+                      Enviar mensaje
+                    </button>
+                  ) : (
+                    <div className="w-full px-3 py-2 bg-gray-100 text-gray-500 text-xs md:text-sm text-center rounded-lg italic">
+                      Tu publicación
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {/* Modal de zoom de publicación */}
+      {zoomSkill && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setZoomSkill(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col relative" onClick={e => e.stopPropagation()}>
+            <button
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 bg-gray-100 rounded-full p-2"
+              onClick={() => setZoomSkill(null)}
+              title="Cerrar"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="p-6 overflow-y-auto">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{zoomSkill.title}</h2>
+              <div className="mb-2">
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${zoomSkill.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>{zoomSkill.is_offering ? t('profile.skill.offering') : t('profile.skill.seeking')}</span>
+                <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${getLevelColor(zoomSkill.level)}`}>{t(`profile.level.${zoomSkill.level}`)}</span>
+              </div>
+              <div className="mb-4 text-gray-700 whitespace-pre-line text-base">{zoomSkill.description}</div>
+              <div className="flex items-center gap-2 mt-4">
+                <User className="w-5 h-5 text-gray-400" />
+                <span className="font-semibold text-gray-900">{zoomSkill.profiles.full_name || zoomSkill.profiles.username}</span>
               </div>
             </div>
           </div>
-        );
-        })}
-      </div>
+        </div>
+      )}
 
       {filteredSkills.length === 0 && (
         <div className="text-center py-8 md:py-12">
