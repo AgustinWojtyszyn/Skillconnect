@@ -24,10 +24,10 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div className="relative font-sans min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-      {/* Logo y título en esquina superior derecha, debajo de los botones */}
-      <div className="absolute top-20 right-6 z-20 flex items-center gap-2">
-        <Globe className="w-8 h-8 text-cyan-400 drop-shadow-lg" />
-        <span className="text-2xl font-extrabold font-mono text-cyan-300 tracking-wide drop-shadow-lg">SkillConnect</span>
+      {/* Logo y título en esquina superior derecha, más abajo y más grande */}
+      <div className="absolute top-40 right-10 z-20 flex items-center gap-4">
+        <Globe className="w-16 h-16 text-cyan-400 drop-shadow-2xl" />
+        <span className="text-5xl font-extrabold font-mono text-cyan-300 tracking-wide drop-shadow-2xl">SkillConnect</span>
       </div>
       {/* Botones de login, register e idioma en esquina superior derecha */}
       <div className="absolute top-6 right-6 z-20 flex gap-2">
