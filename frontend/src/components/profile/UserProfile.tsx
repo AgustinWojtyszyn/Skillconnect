@@ -38,6 +38,7 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
   const [loading, setLoading] = useState(true);
   const [showAvatar, setShowAvatar] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
+  const [zoomImage, setZoomImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -130,8 +131,8 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
               <ArrowLeft className="w-5 h-5" />
             </button>
             {profile.avatar_url ? (
-              <button onClick={() => setShowAvatar(true)} className="focus:outline-none">
-                <img src={profile.avatar_url} alt="Avatar" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 object-cover" />
+              <button onClick={() => setZoomImage(profile.avatar_url!)} className="focus:outline-none">
+                <img src={profile.avatar_url} alt="Avatar" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 object-cover cursor-zoom-in" />
               </button>
             ) : (
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl border border-gray-200 bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold text-xl md:text-2xl">
@@ -189,20 +190,55 @@ export function UserProfile({ userId, onBack, onStartChat, onOpenUser }: UserPro
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {skills.map((sk) => (
-              <button key={sk.id} onClick={() => setSelectedSkill(sk)} className="text-left border border-gray-200 rounded-xl p-4 hover:shadow-md transition">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-gray-900 truncate">{sk.title}</h4>
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${sk.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
-                    {sk.is_offering ? 'Ofrezco' : 'Busco'}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-3">{sk.description}</p>
-                <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
-                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.category}</span>
-                  <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.level}</span>
-                </div>
-              </button>
+              <div key={sk.id} className="relative group">
+                <button onClick={() => setSelectedSkill(sk)} className="w-full text-left border border-gray-200 rounded-xl p-4 hover:shadow-md transition">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-gray-900 truncate">{sk.title}</h4>
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${sk.is_offering ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'}`}>
+                      {sk.is_offering ? 'Ofrezco' : 'Busco'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-3">{sk.description}</p>
+                  <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                    <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.category}</span>
+                    <span className="px-2 py-0.5 bg-gray-100 rounded-lg">{sk.level}</span>
+                  </div>
+                </button>
+                {/* Si la habilidad tiene imagen, mostrar ícono de zoom */}
+                {sk.image_url && (
+                  <button
+                    onClick={() => setZoomImage(sk.image_url!)}
+                    className="absolute top-2 right-2 bg-white bg-opacity-80 rounded-full p-1 shadow hover:bg-opacity-100 transition z-10"
+                    title="Zoom imagen"
+                  >
+                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <circle cx="11" cy="11" r="8" strokeWidth="2" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" strokeWidth="2" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             ))}
+                {/* Modal de zoom de imagen */}
+                {zoomImage && (
+                  <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center" onClick={() => setZoomImage(null)}>
+                    <img
+                      src={zoomImage}
+                      alt="Zoom"
+                      className="max-w-full max-h-full rounded-2xl shadow-2xl border-4 border-white cursor-zoom-out"
+                      onClick={(e) => { e.stopPropagation(); setZoomImage(null); }}
+                    />
+                    <button
+                      className="absolute top-6 right-6 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-80 transition"
+                      onClick={() => setZoomImage(null)}
+                      title="Cerrar zoom"
+                    >
+                      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
           </div>
         )}
       </div>
