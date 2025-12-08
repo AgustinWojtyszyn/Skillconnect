@@ -56,12 +56,14 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
       </div>
       <section className="max-w-6xl mx-auto pt-16 pb-8 px-4">
         <header className="mb-12">
-          <h1 className="text-5xl md:text-7xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg mb-4">
+          <h1 className="text-3xl md:text-5xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg mb-4 max-w-2xl">
             {t('landing.title.1')} <span className="text-cyan-400">{t('landing.title.2')}</span> {t('landing.title.3')}
           </h1>
-          <p className="text-lg md:text-2xl text-gray-200 max-w-3xl font-light leading-relaxed mb-6">
-            {t('landing.subtitle')}
-          </p>
+          <div className="bg-gray-900/80 border border-cyan-700 rounded-xl p-6 mb-6 max-w-2xl shadow-lg">
+            <p className="text-base md:text-lg text-gray-200 font-light leading-relaxed">
+              {t('landing.subtitle')}
+            </p>
+          </div>
           <div className="flex flex-wrap gap-4 mt-4">
             <button className="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.exploreSkills')}</button>
             <button className="bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.completeProfile')}</button>
@@ -115,11 +117,11 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="bg-gray-900 rounded-2xl p-8 shadow-lg">
-              <p className="text-lg text-gray-200 font-mono mb-6">{t('landing.testimonials.ana.text')}</p>
+              <p className="text-lg text-gray-200 font-mono mb-6">“{t('landing.testimonials.ana.text')}”</p>
               <div className="text-cyan-400 font-bold">{t('landing.testimonials.ana.author')}</div>
             </div>
             <div className="bg-gray-900 rounded-2xl p-8 shadow-lg">
-              <p className="text-lg text-gray-200 font-mono mb-6">{t('landing.testimonials.luis.text')}</p>
+              <p className="text-lg text-gray-200 font-mono mb-6">“{t('landing.testimonials.luis.text')}”</p>
               <div className="text-purple-400 font-bold">{t('landing.testimonials.luis.author')}</div>
             </div>
           </div>
