@@ -60,14 +60,9 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             {t('landing.title.1')} <span className="text-cyan-400">{t('landing.title.2')}</span> {t('landing.title.3')}
           </h1>
           <div className="bg-gray-900/80 border border-cyan-700 rounded-xl p-6 mb-6 max-w-2xl shadow-lg">
-            <p className="text-base md:text-lg text-gray-200 font-light leading-relaxed">
+            <p className="text-xl md:text-2xl text-cyan-200 font-light leading-relaxed">
               {t('landing.subtitle')}
             </p>
-          </div>
-          <div className="flex flex-wrap gap-4 mt-4">
-            <button className="bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.exploreSkills')}</button>
-            <button className="bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.completeProfile')}</button>
-            <button className="bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-6 py-3 rounded-xl shadow-md transition">{t('dashboard.actions.openMessages')}</button>
           </div>
         </header>
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
