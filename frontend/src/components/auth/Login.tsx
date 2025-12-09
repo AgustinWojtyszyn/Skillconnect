@@ -40,7 +40,7 @@ export function Login({ onToggleView, onBack }: LoginProps) {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 px-4 py-12">
       <div className="max-w-md w-full">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => onBack ? onBack() : navigate('/')}
           className="mb-6 flex items-center gap-2 text-cyan-300 hover:text-cyan-100 font-mono text-base transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Volver
