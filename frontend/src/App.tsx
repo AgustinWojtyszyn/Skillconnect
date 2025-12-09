@@ -44,9 +44,10 @@ function MainApp() {
     }, 0);
   };
 
-  const handleGetStarted = () => {
+  // Recibe 'login' o 'register' y muestra el formulario correspondiente
+  const handleGetStarted = (page: 'login' | 'register') => {
     setShowLanding(false);
-    setShowLogin(false); // Mostrar registro por defecto
+    setShowLogin(page === 'login');
   };
   const openUserProfile = (userId: string) => {
     setViewedUserId(userId);
