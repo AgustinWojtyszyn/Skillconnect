@@ -1,7 +1,6 @@
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { LogOut, User, MessageCircle, Home, BookOpen, Languages, Layers, Users, Briefcase } from 'lucide-react';
-import { BackButton } from './BackButton';
 
 interface HeaderProps {
   currentView: 'home' | 'skills' | 'profile' | 'chat' | 'people';
@@ -15,9 +14,6 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm relative">
-      <div className="absolute top-3 left-4 z-30">
-        <BackButton />
-      </div>
       <button
         className="absolute top-3 right-6 z-20 bg-gray-900 border border-cyan-400 text-cyan-200 px-3 py-1 rounded-lg font-mono text-xs shadow hover:bg-cyan-900 transition"
         onClick={toggleLang}
