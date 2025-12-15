@@ -1,6 +1,7 @@
 import { Sparkles, Globe, MessageCircle, TrendingUp, ArrowRight, CheckCircle } from 'lucide-react';
 import { useI18n } from '../../contexts/I18nContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface LandingPageProps {
   onGetStarted: (page: 'login' | 'register') => void;
@@ -9,6 +10,7 @@ interface LandingPageProps {
 export function LandingPage({ onGetStarted }: LandingPageProps) {
   const { t, lang, toggleLang } = useI18n();
   const { landingBgColor } = useTheme();
+  const { user } = useAuth();
 
   // Convertir las clases de Tailwind a gradiente CSS
   const getLandingGradient = () => {
@@ -24,38 +26,25 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
 
   return (
     <div className="relative font-sans min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 overflow-x-hidden">
-      {/* Logo y título, adaptado para mobile */}
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 md:top-40 md:right-10 md:left-auto md:translate-x-0 z-20 flex items-center gap-3 md:gap-4">
-        <Globe className="w-8 h-8 md:w-16 md:h-16 text-cyan-400 drop-shadow-2xl" />
-        <span className="text-2xl xs:text-3xl md:text-5xl font-extrabold font-mono text-cyan-300 tracking-wide drop-shadow-2xl">SkillConnect</span>
-      </div>
-      {/* Botones de login, register e idioma en esquina superior derecha, stackeados en mobile */}
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 flex flex-col gap-3 w-[92vw] max-w-sm md:top-6 md:right-6 md:left-auto md:translate-x-0 md:flex-row md:gap-2 z-20">
+      {/* Header: Logo y selector de idioma */}
+      <div className="w-full flex justify-between items-center px-4 pt-6 md:pt-10 max-w-6xl mx-auto">
+        <div className="flex items-center gap-3 md:gap-4">
+          <Globe className="w-8 h-8 md:w-16 md:h-16 text-cyan-400 drop-shadow-2xl" />
+          <span className="text-2xl xs:text-3xl md:text-5xl font-extrabold font-mono text-cyan-300 tracking-wide drop-shadow-2xl">SkillConnect</span>
+        </div>
         <button
-          className="bg-gray-800 hover:bg-cyan-700 text-cyan-200 font-bold px-4 py-2 rounded-lg shadow border border-cyan-400 transition w-full md:w-auto"
-          onClick={() => onGetStarted('login')}
-        >
-          {t('auth.login.title')}
-        </button>
-        <button
-          className="bg-gray-800 hover:bg-purple-700 text-purple-200 font-bold px-4 py-2 rounded-lg shadow border border-purple-400 transition w-full md:w-auto"
-          onClick={() => onGetStarted('register')}
-        >
-          {t('auth.signUp')}
-        </button>
-        <button
-          className="bg-gray-900 border border-cyan-400 text-cyan-200 px-4 py-2 rounded-lg font-mono text-sm shadow hover:bg-cyan-900 transition w-full md:w-auto"
+          className="ml-auto bg-gray-900 border border-cyan-400 text-cyan-200 px-3 py-1.5 rounded-lg font-mono text-xs shadow hover:bg-cyan-900 transition md:text-sm"
           onClick={toggleLang}
           aria-label="Cambiar idioma"
         >
           {lang === 'es' ? 'EN' : 'ES'}
         </button>
       </div>
-      {/* Fondo decorativo, más pequeño en mobile */}
+      {/* Fondo decorativo */}
       <div className="absolute inset-0 pointer-events-none select-none" style={{zIndex:0, opacity:0.15}}>
         <img src="/assets/tech-bg.svg" alt="Tech background" className="w-full h-20 xs:h-32 md:h-64 object-cover" />
       </div>
-      <section className="max-w-6xl mx-auto pt-36 md:pt-16 pb-10 px-3 md:px-4">
+      <section className="max-w-6xl mx-auto pt-28 md:pt-16 pb-10 px-3 md:px-4">
         <header className="mb-10 md:mb-12">
           <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg mb-6 max-w-2xl text-center md:text-left leading-tight">
             {t('landing.title.1')} <span className="text-cyan-400">{t('landing.title.2')}</span> {t('landing.title.3')}
@@ -66,65 +55,89 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
             </p>
           </div>
         </header>
-        {/* Cards responsivas */}
-        <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 md:gap-8 mb-12 md:mb-16 px-1 xs:px-2">
-          <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <svg className="w-5 h-5 xs:w-6 xs:h-6 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6v6l4 2" /></svg>
-                <h3 className="text-lg xs:text-xl font-bold text-cyan-300 font-mono">{t('dashboard.cards.skills.title')}</h3>
+        {/* Renderizado condicional según autenticación */}
+        {!user ? (
+          <>
+            {/* CTA principal para no autenticados */}
+            <div className="flex flex-col gap-3 w-full max-w-xs mx-auto mb-10 md:flex-row md:max-w-none md:justify-start md:mb-12">
+              <button
+                className="bg-cyan-700 hover:bg-cyan-800 text-white font-bold px-6 py-3 rounded-xl shadow border border-cyan-400 transition w-full md:w-auto text-lg md:text-base"
+                onClick={() => onGetStarted('register')}
+              >
+                {t('landing.primaryCta')}
+              </button>
+              <button
+                className="bg-gray-800 hover:bg-cyan-700 text-cyan-200 font-bold px-6 py-3 rounded-xl shadow border border-cyan-400 transition w-full md:w-auto text-lg md:text-base"
+                onClick={() => onGetStarted('login')}
+              >
+                {t('auth.login.title')}
+              </button>
+            </div>
+            {/* Secciones públicas: features, testimonios, logos, etc. */}
+            {/* Logos de tecnologías */}
+            <section className="flex gap-6 md:gap-10 justify-center items-center mb-12 md:mb-20 overflow-x-auto scrollbar-thin scrollbar-thumb-cyan-700 px-1 xs:px-2">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-6 xs:h-8 md:h-10" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-6 xs:h-8 md:h-10" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-6 xs:h-8 md:h-10" />
+              <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/HTML5_Badge.svg" alt="HTML5" className="h-6 xs:h-8 md:h-10" />
+            </section>
+            {/* Testimonios */}
+            <section className="max-w-5xl mx-auto mb-16 md:mb-24 px-2 xs:px-4 md:px-0">
+              <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-4xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 mb-6 xs:mb-8 md:mb-10 drop-shadow-lg text-center md:text-left">
+                {t('landing.testimonials.title')}
+              </h2>
+              <div className="grid grid-cols-1 gap-6 xs:gap-8 md:grid-cols-2 md:gap-10">
+                <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg">
+                  <p className="text-xs xs:text-base sm:text-lg text-gray-200 font-mono mb-2 xs:mb-4 md:mb-6">“{t('landing.testimonials.ana.text')}”</p>
+                  <div className="text-cyan-400 font-bold text-xs xs:text-base">{t('landing.testimonials.ana.author')}</div>
+                </div>
+                <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg">
+                  <p className="text-xs xs:text-base sm:text-lg text-gray-200 font-mono mb-2 xs:mb-4 md:mb-6">“{t('landing.testimonials.luis.text')}”</p>
+                  <div className="text-purple-400 font-bold text-xs xs:text-base">{t('landing.testimonials.luis.author')}</div>
+                </div>
               </div>
-              <p className="text-gray-300 text-sm xs:text-base mb-4">{t('dashboard.cards.skills.desc')}</p>
-            </div>
-            <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-cyan-200 font-mono">∞</div>
-            <div className="text-xs xs:text-sm text-cyan-400">{t('dashboard.cards.skills.total')}</div>
-          </div>
-          <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <svg className="w-5 h-5 xs:w-6 xs:h-6 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" /><path d="M5.5 21a7.5 7.5 0 0 1 13 0" /></svg>
-                <h3 className="text-lg xs:text-xl font-bold text-purple-300 font-mono">{t('dashboard.cards.profile.title')}</h3>
+            </section>
+          </>
+        ) : (
+          <>
+            {/* Usuario autenticado: CTA y resumen privado */}
+            <section className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 md:gap-8 mb-12 md:mb-16 px-1 xs:px-2">
+              <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <svg className="w-5 h-5 xs:w-6 xs:h-6 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6v6l4 2" /></svg>
+                    <h3 className="text-lg xs:text-xl font-bold text-cyan-300 font-mono">{t('dashboard.cards.skills.title')}</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm xs:text-base mb-4">{t('dashboard.cards.skills.desc')}</p>
+                </div>
+                <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-cyan-200 font-mono">∞</div>
+                <div className="text-xs xs:text-sm text-cyan-400">{t('dashboard.cards.skills.total')}</div>
               </div>
-              <p className="text-gray-300 text-sm xs:text-base mb-4">{t('dashboard.cards.profile.desc')}</p>
-            </div>
-            <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-purple-200 font-mono">100%</div>
-            <div className="text-xs xs:text-sm text-purple-400">{t('dashboard.cards.profile.cta')}</div>
-          </div>
-          <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <svg className="w-5 h-5 xs:w-6 xs:h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                <h3 className="text-lg xs:text-xl font-bold text-blue-300 font-mono">{t('dashboard.cards.chat.title')}</h3>
+              <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <svg className="w-5 h-5 xs:w-6 xs:h-6 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" /><path d="M5.5 21a7.5 7.5 0 0 1 13 0" /></svg>
+                    <h3 className="text-lg xs:text-xl font-bold text-purple-300 font-mono">{t('dashboard.cards.profile.title')}</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm xs:text-base mb-4">{t('dashboard.cards.profile.desc')}</p>
+                </div>
+                <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-purple-200 font-mono">100%</div>
+                <div className="text-xs xs:text-sm text-purple-400">{t('dashboard.cards.profile.cta')}</div>
               </div>
-              <p className="text-gray-300 text-sm xs:text-base mb-4">{t('dashboard.cards.chat.desc')}</p>
-            </div>
-            <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-blue-200 font-mono">∞</div>
-            <div className="text-xs xs:text-sm text-blue-400">{t('dashboard.cards.chat.cta')}</div>
-          </div>
-        </section>
-        {/* Logos de tecnologías, más pequeños y con scroll horizontal en mobile */}
-        <section className="flex gap-6 md:gap-10 justify-center items-center mb-12 md:mb-20 overflow-x-auto scrollbar-thin scrollbar-thumb-cyan-700 px-1 xs:px-2">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg" alt="React" className="h-6 xs:h-8 md:h-10" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6a/JavaScript-logo.png" alt="JS" className="h-6 xs:h-8 md:h-10" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/3f/Git_icon.svg" alt="Git" className="h-6 xs:h-8 md:h-10" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/3/38/HTML5_Badge.svg" alt="HTML5" className="h-6 xs:h-8 md:h-10" />
-        </section>
-        {/* Testimonios responsivos */}
-        <section className="max-w-5xl mx-auto mb-16 md:mb-24 px-2 xs:px-4 md:px-0">
-          <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-4xl font-bold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 mb-6 xs:mb-8 md:mb-10 drop-shadow-lg text-center md:text-left">
-            {t('landing.testimonials.title')}
-          </h2>
-          <div className="grid grid-cols-1 gap-6 xs:gap-8 md:grid-cols-2 md:gap-10">
-            <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg">
-              <p className="text-xs xs:text-base sm:text-lg text-gray-200 font-mono mb-2 xs:mb-4 md:mb-6">“{t('landing.testimonials.ana.text')}”</p>
-              <div className="text-cyan-400 font-bold text-xs xs:text-base">{t('landing.testimonials.ana.author')}</div>
-            </div>
-            <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg">
-              <p className="text-xs xs:text-base sm:text-lg text-gray-200 font-mono mb-2 xs:mb-4 md:mb-6">“{t('landing.testimonials.luis.text')}”</p>
-              <div className="text-purple-400 font-bold text-xs xs:text-base">{t('landing.testimonials.luis.author')}</div>
-            </div>
-          </div>
-        </section>
+              <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <svg className="w-5 h-5 xs:w-6 xs:h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+                    <h3 className="text-lg xs:text-xl font-bold text-blue-300 font-mono">{t('dashboard.cards.chat.title')}</h3>
+                  </div>
+                  <p className="text-gray-300 text-sm xs:text-base mb-4">{t('dashboard.cards.chat.desc')}</p>
+                </div>
+                <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-blue-200 font-mono">∞</div>
+                <div className="text-xs xs:text-sm text-blue-400">{t('dashboard.cards.chat.cta')}</div>
+              </div>
+            </section>
+          </>
+        )}
       </section>
     </div>
   );
