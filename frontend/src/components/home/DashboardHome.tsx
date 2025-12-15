@@ -76,9 +76,9 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
       </div>
       <section className="max-w-6xl mx-auto pt-16 pb-8 px-4">
         <header className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg mb-4">Bienvenido, {displayName}</h1>
+          <h1 className="text-4xl md:text-6xl font-extrabold font-mono text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 drop-shadow-lg mb-4">{t('dashboard.welcome', { name: displayName })}</h1>
           <p className="text-lg md:text-2xl text-gray-200 max-w-3xl font-light leading-relaxed mb-6">
-            Accede a tus habilidades, perfil y mensajes. Organiza tu experiencia y conecta con la comunidad tech.
+            {t('dashboard.subtitle')}
           </p>
         </header>
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
@@ -86,37 +86,37 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 6v6l4 2" /></svg>
-                <h3 className="text-xl font-bold text-cyan-300 font-mono">Habilidades</h3>
+                <h3 className="text-xl font-bold text-cyan-300 font-mono">{t('dashboard.cards.skills.title')}</h3>
               </div>
-              <p className="text-gray-300 text-base mb-4">Tus skills y las de la comunidad.</p>
+              <p className="text-gray-300 text-base mb-4">{t('dashboard.cards.skills.desc')}</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-cyan-200 font-mono">{totalSkills ?? '—'}</div>
-            <div className="text-sm text-cyan-400 mb-4">Skills totales</div>
-            <button onClick={() => onGoTo('skills')} className="w-full bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">Ver habilidades</button>
+            <div className="text-sm text-cyan-400 mb-4">{t('dashboard.cards.skills.total')}</div>
+            <button onClick={() => onGoTo('skills')} className="w-full bg-cyan-500 hover:bg-cyan-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">{t('dashboard.cards.skills.cta')}</button>
           </div>
           <div className="bg-gray-900 rounded-2xl p-8 shadow-lg flex flex-col justify-between h-full">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" /><path d="M5.5 21a7.5 7.5 0 0 1 13 0" /></svg>
-                <h3 className="text-xl font-bold text-purple-300 font-mono">Perfil</h3>
+                <h3 className="text-xl font-bold text-purple-300 font-mono">{t('dashboard.cards.profile.title')}</h3>
               </div>
-              <p className="text-gray-300 text-base mb-4">Completa tu perfil y destaca en la red.</p>
+              <p className="text-gray-300 text-base mb-4">{t('dashboard.cards.profile.desc')}</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-purple-200 font-mono">{mySkills ?? '—'}</div>
-            <div className="text-sm text-purple-400 mb-4">Tus skills</div>
-            <button onClick={() => onGoTo('profile')} className="w-full bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">Ver perfil</button>
+            <div className="text-sm text-purple-400 mb-4">{t('dashboard.cards.profile.cta')}</div>
+            <button onClick={() => onGoTo('profile')} className="w-full bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">{t('dashboard.cards.profile.ctaBtn')}</button>
           </div>
           <div className="bg-gray-900 rounded-2xl p-8 shadow-lg flex flex-col justify-between h-full">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
-                <h3 className="text-xl font-bold text-blue-300 font-mono">Mensajes</h3>
+                <h3 className="text-xl font-bold text-blue-300 font-mono">{t('dashboard.cards.chat.title')}</h3>
               </div>
-              <p className="text-gray-300 text-base mb-4">Conversa y haz networking con otros usuarios.</p>
+              <p className="text-gray-300 text-base mb-4">{t('dashboard.cards.chat.desc')}</p>
             </div>
             <div className="mt-4 text-3xl font-extrabold text-blue-200 font-mono">∞</div>
-            <div className="text-sm text-blue-400 mb-4">Conexiones</div>
-            <button onClick={() => onGoTo('chat')} className="w-full bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">Ir a mensajes</button>
+            <div className="text-sm text-blue-400 mb-4">{t('dashboard.cards.chat.cta')}</div>
+            <button onClick={() => onGoTo('chat')} className="w-full bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition">{t('dashboard.cards.chat.ctaBtn')}</button>
           </div>
         </section>
       </section>
