@@ -69,6 +69,16 @@
         "description": "Elige un tema de color para personalizar tu experiencia"
       }
     },
+    "dashboard": {
+      "cards": {
+        "profile": {
+          "ctaBtn": "Ver mi perfil"
+        },
+        "chat": {
+          "ctaBtn": "Ir al chat"
+        }
+      }
+    },
     "landing": {
       "testimonials": {
         "title": "Historias de éxito en SkillConnect",
