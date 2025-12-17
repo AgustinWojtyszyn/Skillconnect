@@ -6,81 +6,10 @@ import { useTheme } from '../../contexts/ThemeContext';
 import { MapPin, Edit2, Plus, Trash2, Save, X, Camera, Check, Palette } from 'lucide-react';
 import '../../utils/checkStorage';
 
+
 interface Profile {
   id: string;
   username: string;
-          {t('profile.theme.title') || 'Personalización de Tema'}
-        </h3>
-      </div>
-      
-      <p className="text-gray-600 mb-6 text-sm">
-        {t('profile.theme.description') || 'Elige un tema de color para personalizar tu experiencia'}
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {THEME_PRESETS.map((preset) => {
-          const isActive = bannerColor === preset.bannerColor && landingBgColor === preset.landingBgColor;
-          return (
-            <button
-              key={preset.name}
-              onClick={() => {
-                setBannerColor(preset.bannerColor);
-                setLandingBgColor(preset.landingBgColor);
-              }}
-              className={`relative p-4 rounded-xl border-2 transition-all ${
-                isActive 
-                  ? 'border-purple-600 bg-purple-50 shadow-lg' 
-                  : 'border-gray-200 hover:border-purple-300 hover:shadow-md'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex-1 text-left">
-                  <p className={`font-semibold mb-2 ${isActive ? 'text-purple-900' : 'text-gray-900'}`}>
-                    {preset.name}
-                  </p>
-                  <div className="flex gap-2">
-                    <div 
-                      className="w-8 h-8 rounded-lg border border-gray-300"
-                      style={{ 
-                        backgroundImage: `linear-gradient(to right, ${
-                          preset.bannerColor === 'from-blue-600 via-indigo-600 to-purple-600' 
-                            ? '#2563eb, #4f46e5, #7c3aed'
-                            : preset.bannerColor === 'from-emerald-600 via-teal-600 to-cyan-600'
-                            ? '#059669, #0d9488, #0891b2'
-                            : preset.bannerColor === 'from-rose-600 via-pink-600 to-fuchsia-600'
-                            ? '#e11d48, #db2777, #c026d3'
-                            : '#d97706, #ea580c, #dc2626'
-                        })`
-                      }}
-                    />
-                    <div 
-                      className="w-8 h-8 rounded-lg border border-gray-300"
-                      style={{ 
-                        backgroundImage: `linear-gradient(to right, ${
-                          preset.landingBgColor === 'from-blue-900 via-indigo-800 to-purple-900' 
-                            ? '#1e3a8a, #3730a3, #581c87'
-                            : preset.landingBgColor === 'from-emerald-900 via-teal-800 to-cyan-900'
-                            ? '#064e3b, #115e59, #164e63'
-                            : preset.landingBgColor === 'from-rose-900 via-pink-800 to-fuchsia-900'
-                            ? '#881337, #831843, #701a75'
-                            : '#78350f, #9a3412, #7f1d1d'
-                        })`
-                      }}
-                    />
-                  </div>
-                </div>
-                {isActive && (
-                  <div className="flex-shrink-0">
-                    <Check className="w-6 h-6 text-purple-600" />
-                  </div>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
 }
 
 export function Profile() {
