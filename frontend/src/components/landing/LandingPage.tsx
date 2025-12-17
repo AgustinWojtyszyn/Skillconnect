@@ -8,7 +8,7 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ onGetStarted }: LandingPageProps) {
-  const { t, lang, toggleLang } = useI18n();
+  const { t, lang } = useI18n();
   const { landingBgColor } = useTheme();
   const { user } = useAuth();
 
@@ -32,13 +32,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
           <Globe className="w-8 h-8 md:w-16 md:h-16 text-cyan-400 drop-shadow-2xl" />
           <span className="text-2xl xs:text-3xl md:text-5xl font-extrabold font-mono text-cyan-300 tracking-wide drop-shadow-2xl">SkillConnect</span>
         </div>
-        <button
-          className="ml-auto bg-gray-900 border border-cyan-400 text-cyan-200 px-3 py-1.5 rounded-lg font-mono text-xs shadow hover:bg-cyan-900 transition md:text-sm"
-          onClick={toggleLang}
-          aria-label="Cambiar idioma"
-        >
-          {lang === 'es' ? 'EN' : 'ES'}
-        </button>
+        {/* Botón de idioma eliminado, solo queda en Dashboard */}
       </div>
       {/* Fondo decorativo */}
       <div className="absolute inset-0 pointer-events-none select-none" style={{zIndex:0, opacity:0.15}}>

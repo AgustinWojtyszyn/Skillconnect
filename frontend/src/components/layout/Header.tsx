@@ -10,17 +10,11 @@ interface HeaderProps {
 
 export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProps) {
   const { signOut, user } = useAuth();
-  const { t, lang, toggleLang } = useI18n();
+  const { t, lang } = useI18n();
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm relative">
-      <button
-        className="absolute top-3 right-6 z-20 bg-gray-900 border border-cyan-400 text-cyan-200 px-3 py-1 rounded-lg font-mono text-xs shadow hover:bg-cyan-900 transition"
-        onClick={toggleLang}
-        aria-label="Cambiar idioma"
-      >
-        {lang === 'es' ? 'EN' : 'ES'}
-      </button>
+      {/* Botón de idioma eliminado, solo queda en Dashboard */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-8">
@@ -95,14 +89,7 @@ export function Header({ currentView, onViewChange, onShowTutorial }: HeaderProp
             </nav>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              onClick={toggleLang}
-              className="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
-              title={t('nav.language')}
-            >
-              <Languages className="w-4 h-4" />
-              <span className="uppercase text-xs font-semibold">{lang}</span>
-            </button>
+            {/* Botón de idioma eliminado, solo queda en Dashboard */}
             <button
               onClick={signOut}
               className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
