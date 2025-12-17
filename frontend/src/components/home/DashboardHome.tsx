@@ -155,7 +155,7 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
                 <circle cx="12" cy="7" r="4" />
                 <path d="M5.5 21a7.5 7.5 0 0 1 13 0" />
               </svg>
-              {t('dashboard.cards.profile.ctaBtn')}
+              Ir a mi perfil
             </button>
           </div>
 
@@ -187,7 +187,7 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
-              {t('dashboard.cards.chat.ctaBtn')}
+              Ir al chat
             </button>
           </div>
         </section>
