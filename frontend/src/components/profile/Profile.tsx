@@ -1,4 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
+
+// Categorías válidas para skills (ajusta según tus necesidades)
+const CATEGORY_KEYS = ['programming', 'design', 'marketing', 'writing', 'other'];
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
