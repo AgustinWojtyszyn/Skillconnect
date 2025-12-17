@@ -9,68 +9,6 @@ import '../../utils/checkStorage';
 interface Profile {
   id: string;
   username: string;
-  full_name: string | null;
-  bio: string | null;
-  location: string | null;
-  avatar_url?: string | null;
-  banner_url?: string | null;
-  email?: string | null;
-}
-
-interface Skill {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  level: 'beginner' | 'intermediate' | 'expert';
-  is_offering: boolean;
-  visibility: 'public' | 'friends';
-}
-
-const CATEGORY_KEYS = [
-  'programming',
-  'design',
-  'marketing',
-  'writing',
-  'business',
-  'music',
-  'languages',
-  'other',
-];
-
-// Theme color presets
-const THEME_PRESETS = [
-  {
-    name: 'Azul Clásico',
-    bannerColor: 'from-blue-600 via-indigo-600 to-purple-600',
-    landingBgColor: 'from-blue-900 via-indigo-800 to-purple-900',
-  },
-  {
-    name: 'Esmeralda',
-    bannerColor: 'from-emerald-600 via-teal-600 to-cyan-600',
-    landingBgColor: 'from-emerald-900 via-teal-800 to-cyan-900',
-  },
-  {
-    name: 'Rosa',
-    bannerColor: 'from-rose-600 via-pink-600 to-fuchsia-600',
-    landingBgColor: 'from-rose-900 via-pink-800 to-fuchsia-900',
-  },
-  {
-    name: 'Ámbar',
-    bannerColor: 'from-amber-600 via-orange-600 to-red-600',
-    landingBgColor: 'from-amber-900 via-orange-800 to-red-900',
-  },
-];
-
-function ThemeCustomization() {
-  const { bannerColor, landingBgColor, setBannerColor, setLandingBgColor } = useTheme();
-  const { t } = useI18n();
-
-  return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6 mb-6">
-      <div className="flex items-center gap-3 mb-4">
-        <Palette className="w-6 h-6 text-purple-600" />
-        <h3 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           {t('profile.theme.title') || 'Personalización de Tema'}
         </h3>
       </div>
@@ -817,8 +755,7 @@ export function Profile() {
         </div>
       )}
 
-      {/* Theme Customization Section */}
-      <ThemeCustomization />
+      {/* Theme Customization Section eliminada */}
 
       {/* Skills Section - Reemplazar completamente la sección antigua */}
       <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-4 md:p-6">
