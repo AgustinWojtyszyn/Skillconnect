@@ -103,18 +103,6 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
                   {t('dashboard.cards.skills.title')}
                 </h3>
               </div>
-
-              <p className="text-gray-300 mb-4">
-                {t('dashboard.cards.skills.desc')}
-              </p>
-
-              <div className="text-3xl font-extrabold text-cyan-200 font-mono">
-                {totalSkills ?? '—'}
-              </div>
-
-              <div className="text-sm text-cyan-400 mb-6">
-                {t('dashboard.cards.skills.total')}
-              </div>
             </div>
 
             <button
@@ -136,14 +124,6 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
                 <h3 className="text-xl font-bold text-purple-300 font-mono">
                   {t('dashboard.cards.profile.title')}
                 </h3>
-              </div>
-
-              <p className="text-gray-300 mb-4">
-                {t('dashboard.cards.profile.desc')}
-              </p>
-
-              <div className="text-3xl font-extrabold text-purple-200 font-mono">
-                {mySkills ?? '—'}
               </div>
             </div>
 
@@ -169,14 +149,6 @@ export function DashboardHome({ onGoTo }: DashboardHomeProps) {
                 <h3 className="text-xl font-bold text-blue-300 font-mono">
                   {t('dashboard.cards.chat.title')}
                 </h3>
-              </div>
-
-              <p className="text-gray-300 mb-4">
-                {t('dashboard.cards.chat.desc')}
-              </p>
-
-              <div className="text-3xl font-extrabold text-blue-200 font-mono">
-                ∞
               </div>
             </div>
 
