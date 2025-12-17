@@ -127,7 +127,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   className="w-full bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition"
                   onClick={() => onGetStarted && onGetStarted('register')}
                 >
-                  Ir a mi perfil
+                  Abrir mi perfil
                 </button>
               </div>
               <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
@@ -144,7 +144,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   className="w-full bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition"
                   onClick={() => onGetStarted && onGetStarted('login')}
                 >
-                  Ir al chat
+                  Abrir el chat
                 </button>
               </div>
             </section>
