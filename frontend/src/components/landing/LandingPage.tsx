@@ -124,7 +124,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-purple-200 font-mono">100%</div>
                 <div className="text-xs xs:text-sm text-purple-400">{t('dashboard.cards.profile.cta')}</div>
                 <button
-                  className="mt-2 bg-purple-700 hover:bg-purple-800 text-white font-bold px-4 py-2 rounded-lg shadow border border-purple-400 transition text-xs xs:text-sm"
+                  className="w-full bg-purple-500 hover:bg-purple-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition"
                   onClick={() => onGetStarted && onGetStarted('register')}
                 >
                   Ir a mi perfil
@@ -141,7 +141,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                 <div className="mt-4 text-2xl xs:text-3xl font-extrabold text-blue-200 font-mono">∞</div>
                 <div className="text-xs xs:text-sm text-blue-400">{t('dashboard.cards.chat.cta')}</div>
                 <button
-                  className="mt-2 bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg shadow border border-blue-400 transition text-xs xs:text-sm"
+                  className="w-full bg-blue-500 hover:bg-blue-400 text-gray-900 font-bold px-4 py-2 rounded-xl shadow-md transition"
                   onClick={() => onGetStarted && onGetStarted('login')}
                 >
                   Ir al chat
