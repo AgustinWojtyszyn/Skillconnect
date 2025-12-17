@@ -127,7 +127,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   className="mt-2 bg-purple-700 hover:bg-purple-800 text-white font-bold px-4 py-2 rounded-lg shadow border border-purple-400 transition text-xs xs:text-sm"
                   onClick={() => onGetStarted && onGetStarted('register')}
                 >
-                  {t('dashboard.cards.profile.ctaBtn')}
+                  Ir a mi perfil
                 </button>
               </div>
               <div className="bg-gray-900 rounded-3xl p-5 xs:p-6 md:p-8 shadow-lg flex flex-col justify-between h-full min-h-[180px] xs:min-h-[220px]">
@@ -144,7 +144,7 @@ export function LandingPage({ onGetStarted }: LandingPageProps) {
                   className="mt-2 bg-blue-700 hover:bg-blue-800 text-white font-bold px-4 py-2 rounded-lg shadow border border-blue-400 transition text-xs xs:text-sm"
                   onClick={() => onGetStarted && onGetStarted('login')}
                 >
-                  {t('dashboard.cards.chat.ctaBtn')}
+                  Ir al chat
                 </button>
               </div>
             </section>
